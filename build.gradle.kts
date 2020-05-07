@@ -38,6 +38,8 @@ dependencies {
     // Database
 
     compile("mysql:mysql-connector-java:8.0.13")
+    compile("org.apache.tomcat:tomcat-jdbc:10.0.0-M4")
+    compile("org.flywaydb:flyway-core:6.3.3")
 
     jooqRuntime("mysql:mysql-connector-java:8.0.13")
     compile("org.jooq:jooq")
