@@ -42,6 +42,12 @@ dependencies {
     jooqRuntime("mysql:mysql-connector-java:8.0.13")
     compile("org.jooq:jooq")
 
+    // Guice
+
+    compile("org.glassfish.hk2:guice-bridge:2.6.1")
+    compile("com.google.inject:guice:4.2.3'")
+    compile("com.google.inject.extensions:guice-assistedinject:4.2.3")
+
     // Test
 
     testCompile("junit:junit:4.12")
