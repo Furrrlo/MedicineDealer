@@ -29,7 +29,7 @@ CREATE TABLE `associati` (
   KEY `fk_id_utente_idx` (`id_utente`),
   CONSTRAINT `fk_associati_porta_medicine` FOREIGN KEY (`id_porta_medicine`) REFERENCES `porta_medicine` (`id`) ON DELETE CASCADE ON UPDATE CASCADE,
   CONSTRAINT `fk_associati_utenti` FOREIGN KEY (`id_utente`) REFERENCES `utenti` (`id`) ON DELETE CASCADE ON UPDATE CASCADE
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -44,7 +44,7 @@ CREATE TABLE `assunzioni` (
   `data` date NOT NULL,
   `ora` time NOT NULL,
   PRIMARY KEY (`id`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -68,7 +68,7 @@ CREATE TABLE `eventi` (
   CONSTRAINT `fk_eventi_assunzione` FOREIGN KEY (`id_assunzione`) REFERENCES `assunzioni` (`id`) ON DELETE SET NULL ON UPDATE CASCADE,
   CONSTRAINT `fk_eventi_farmaci` FOREIGN KEY (`aic_farmaco`) REFERENCES `farmaci` (`cod_aic`) ON DELETE RESTRICT ON UPDATE CASCADE,
   CONSTRAINT `fk_eventi_porta_medicine` FOREIGN KEY (`id_porta_medicine`) REFERENCES `porta_medicine` (`id`) ON DELETE CASCADE ON UPDATE CASCADE
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -82,7 +82,7 @@ CREATE TABLE `farmaci` (
   `cod_aic` int(9) unsigned zerofill NOT NULL,
   `nome` varchar(64) NOT NULL,
   PRIMARY KEY (`cod_aic`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -99,7 +99,7 @@ CREATE TABLE `porta_medicine` (
   PRIMARY KEY (`id`),
   UNIQUE KEY `uuid_UNIQUE` (`uuid`),
   UNIQUE KEY `cod_invito_UNIQUE` (`cod_invito`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -118,7 +118,7 @@ CREATE TABLE `utenti` (
   `data_nascita` date NOT NULL,
   PRIMARY KEY (`id`),
   UNIQUE KEY `email_UNIQUE` (`email`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --

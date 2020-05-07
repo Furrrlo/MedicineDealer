@@ -22,8 +22,8 @@ public class MySqlDatabaseService implements DatabaseService {
                 "characterEncoding=UTF-8");
         properties.setDriverClassName("com.mysql.cj.jdbc.Driver");
         // TODO: temp
-        properties.setUsername("jooq");
-        properties.setPassword("password");
+        properties.setUsername("root");
+        properties.setPassword("");
 //        dataSource.setUser(credentialsService.get("mysql.username"));
 //        dataSource.setPassword(credentialsService.get("mysql.password"));
         properties.setInitialSize(15);
