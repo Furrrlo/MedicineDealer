@@ -20,4 +20,6 @@ dependencies {
 
 gretty {
     servletContainer = 'tomcat8'
+    loggingLevel = 'INFO'
+    fileLogEnabled = false
 }
