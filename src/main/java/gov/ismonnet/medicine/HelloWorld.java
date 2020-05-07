@@ -1,19 +1,16 @@
 package gov.ismonnet.medicine;
 
-import javax.servlet.annotation.WebServlet;
-import javax.servlet.http.HttpServlet;
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
-import java.io.IOException;
+import javax.ws.rs.GET;
+import javax.ws.rs.Path;
+import javax.ws.rs.Produces;
+import javax.ws.rs.core.MediaType;
 
-@WebServlet(
-        name = "HelloServlet",
-        urlPatterns = { "hello" },
-        loadOnStartup = 1
-)
-public class HelloWorld extends HttpServlet {
+@Path("hello")
+public class HelloWorld {
 
-    protected void doGet(HttpServletRequest request, HttpServletResponse response) throws IOException {
-        response.getWriter().print("CIAO PATO!");
+    @GET
+    @Produces(MediaType.APPLICATION_XML)
+    public String getHelloWorld() {
+        return "<message>CIAO PATO!</message>";
     }
 }
