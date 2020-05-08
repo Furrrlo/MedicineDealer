@@ -1,0 +1,83 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <meta charset="utf-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <title>Registrazione</title>
+        <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bulma@0.8.2/css/bulma.min.css">
+        <script defer src="https://use.fontawesome.com/releases/v5.3.1/js/all.js"></script>
+
+        <script>
+            function chkCampi(){
+                location.href="index.html";
+            }
+
+        </script>
+    </head>
+
+    <body>
+    <section class="hero is-primary">
+        <div class="hero-body">
+            <div class="container">
+                <h1 class="title is-1" >MEDICINE DEALER</h1>
+                <h2 class="subtitle">GESTISCI L'ACQUISIZIONE DI MEDICINALI CON SEMPLICITA'</h2>
+            </div>
+        </div>
+    </section>
+
+    <form method="post">
+        <div class="columns">
+            <div class="container">
+                <br>
+                <br>
+                <br>
+                <a class="subtitle">Inserisci il nome</a>
+                <br>
+                <input class="input is-primary is-rounded"
+                       type="text"  placeholder="Nome" id="nome" required/>
+                <br>
+                <br>
+
+                <a class="subtitle">Inserisci il cognome</a>
+                <br>
+                <input class="input is-primary is-rounded"
+                       type="text"  placeholder="Cognome" id="cognome" required/>
+                <br>
+                <br>
+
+                <a class="subtitle">Inserisci l'e-mail</a>
+                <br>
+                <input class="input is-primary is-rounded"
+                       type="email"  placeholder="E-mail" id="email" required/>
+                <br>
+                <br>
+                <!-- TODO bulma calendar-->
+                <a class="subtitle">Seleziona la tua data di nascita</a>
+                <br>
+                <input class="input is-primary is-rounded" type="date"/>
+                <br>
+                <br>
+
+                <a class="subtitle">Inserisci la password</a>
+                <br>
+                <input class="input is-primary is-rounded"
+                       type="password"  placeholder="Password" id="password1"/>
+                <br>
+                <br>
+
+                <a class="subtitle">Inserisci nuovamente la password</a>
+                <br>
+                <input class="input is-primary is-rounded"
+                       type="password"  placeholder="Password" id="password2"/>
+                <br>
+                <br>
+
+                <input type="submit" class="button" value="REGISTRATI" onclick="chkCampi()"/>
+                <br>
+            </div>
+        </div>
+
+    </form>
+
+    </body>
+</html>
