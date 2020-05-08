@@ -1,9 +1,11 @@
 package gov.ismonnet.medicine.database;
 
+import gov.ismonnet.medicine.persistence.CredentialsService;
 import org.apache.tomcat.jdbc.pool.DataSource;
 import org.apache.tomcat.jdbc.pool.PoolProperties;
 import org.flywaydb.core.Flyway;
 
+import javax.inject.Inject;
 import java.nio.charset.StandardCharsets;
 
 public class MySqlDatabaseService implements DatabaseService {
@@ -13,7 +15,7 @@ public class MySqlDatabaseService implements DatabaseService {
     private final PoolProperties properties;
     private final DataSource dataSource;
 
-    public MySqlDatabaseService() {
+    @Inject MySqlDatabaseService(CredentialsService credentialsService) {
         properties = new PoolProperties();
         properties.setUrl("jdbc:mysql://localhost:3306/" + SCHEMA_NAME + "?" +
                 "createDatabaseIfNotExist=true&" +
@@ -21,11 +23,8 @@ public class MySqlDatabaseService implements DatabaseService {
                 "useUnicode=yes&" +
                 "characterEncoding=UTF-8");
         properties.setDriverClassName("com.mysql.cj.jdbc.Driver");
-        // TODO: temp
-        properties.setUsername("root");
-        properties.setPassword("");
-//        dataSource.setUser(credentialsService.get("mysql.username"));
-//        dataSource.setPassword(credentialsService.get("mysql.password"));
+        properties.setUsername(credentialsService.get("user"));
+        properties.setPassword(credentialsService.get("password"));
         properties.setInitialSize(15);
         properties.setMinIdle(15);
         properties.setMaxActive(20);
