@@ -6,6 +6,12 @@
         <title>Benvenuto in MEDICINE DEALER</title>
         <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bulma@0.8.2/css/bulma.min.css">
         <script defer src="https://use.fontawesome.com/releases/v5.3.1/js/all.js"></script>
+
+        <script>
+            function chkLogin(){
+                location.href = "ca";
+            }
+        </script>
     </head>
 
     <body>
@@ -19,7 +25,6 @@
         </section>
 
         <div class="columns">
-
             <div class="column auto" id="description">
                 <div class="field">
                     <h1 class="title">COME FUNZIONA MEDICINE DEALER</h1>
@@ -28,7 +33,7 @@
             </div>
 
             <div class="section">
-                <form method="post">
+                <form method="POST">
                     <div class="column is-one-half has-background-white-ter" id="login">
                         <div class="field">
                             <h1 class="subtitle">EFFETTUA IL LOGIN PER GESTIRE I PORTAMEDICINE</h1>
@@ -52,7 +57,7 @@
 
                         <div class="field">
                             <div class="control">
-                                <input type="button" class="button is-rounded" value="ACCEDI"/>
+                                <input type="submit" class="button is-rounded" value="ACCEDI" onsubmit="chkLogin()"/>
                             </div>
                         </div>
 
