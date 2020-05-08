@@ -1,3 +1,10 @@
+
+Open data
+
+https://www.aifa.gov.it/web/guest/liste-dei-farmaci
+
+http://www.agenziafarmaco.gov.it/content/dati-sulle-liste-dei-farmaci-open-data
+
 cerca_farmaco
 ```
 https://www.agenziafarmaco.gov.it/services/search/select?fl=sm_field_codice_farmaco,sm_field_descrizione_farmaco,sm_field_descrizione_ditta,sm_field_tipo_procedura&q=bundle:confezione_farmaco+sm_field_descrizione_farmaco:" + farmaco + "*&df=sm_field_descrizione_farmaco&wt=json&rows=150000
