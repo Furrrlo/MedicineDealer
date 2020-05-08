@@ -28,12 +28,16 @@ repositories {
 
 dependencies {
     providedCompile("javax.servlet:javax.servlet-api:3.1.0")
+    compile("org.apache.commons:commons-csv:1.8")
 
     // Jersey
 
+    val jerseyVersion = "2.30.1"
     providedCompile("jakarta.ws.rs:jakarta.ws.rs-api:2.1.6")
-    runtime("org.glassfish.jersey.containers:jersey-container-servlet:2.30.1")
-    runtime("org.glassfish.jersey.inject:jersey-hk2:2.30.1")
+    runtime("org.glassfish.jersey.containers:jersey-container-servlet:$jerseyVersion")
+
+    compile("org.glassfish.jersey.media:jersey-media-multipart:$jerseyVersion")
+    runtime("org.glassfish.jersey.inject:jersey-hk2:$jerseyVersion")
 
     // Database
 
