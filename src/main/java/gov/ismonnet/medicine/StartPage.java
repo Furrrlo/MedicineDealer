@@ -4,15 +4,14 @@ import org.jooq.DSLContext;
 
 import javax.ws.rs.Consumes;
 import javax.ws.rs.POST;
-import javax.ws.rs.PUT;
 import javax.ws.rs.Path;
 import javax.ws.rs.core.MediaType;
 
 @Path("pagina_iniziale")
-public class startPage {
+public class StartPage {
     private final DSLContext ctx;
 
-    public startPage(DSLContext ctx) {
+    public StartPage(DSLContext ctx) {
         this.ctx = ctx;
     }
 

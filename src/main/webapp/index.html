@@ -1,71 +1,71 @@
 <!DOCTYPE html>
 <html>
-    <head>
-        <meta charset="utf-8">
-        <meta name="viewport" content="width=device-width, initial-scale=1">
-        <title>Benvenuto in MEDICINE DEALER</title>
-        <link rel="stylesheet" href="/css/vendor/bulma@0.8.2.min.css">
-        <script defer src="/js/vendor/fontawesome@5.3.1.all.js"></script>
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Benvenuto in MEDICINE DEALER</title>
+    <link rel="stylesheet" href="/css/vendor/bulma@0.8.2.min.css">
+    <script defer src="/js/vendor/fontawesome@5.3.1.all.js"></script>
 
-        <script>
-            function chkLogin(){
-                location.href = "ca";
-            }
-        </script>
-    </head>
+    <script>
+        function chkLogin(){
+            location.href = "ca";
+        }
+    </script>
+</head>
 
-    <body>
-        <section class="hero is-primary">
-            <div class="hero-body">
-                <div class="container">
-                    <h1 class="title is-1" >MEDICINE DEALER</h1>
-                    <h2 class="subtitle">GESTISCI L'ACQUISIZIONE DI MEDICINALI CON SEMPLICITA'</h2>
-                </div>
-            </div>
-        </section>
-
-        <div class="columns">
-            <div class="column auto" id="description">
-                <div class="field">
-                    <h1 class="title">COME FUNZIONA MEDICINE DEALER</h1>
-                    <p class="paragraph"></p>
-                </div>
-            </div>
-
-            <div class="section">
-                <form method="POST">
-                    <div class="column is-one-half has-background-white-ter" id="login">
-                        <div class="field">
-                            <h1 class="subtitle">EFFETTUA IL LOGIN PER GESTIRE I PORTAMEDICINE</h1>
-                        </div>
-                        <br>
-                        <div class="field">
-                            <label class="label">Inserisci l'email</label>
-                            <div class="control">
-                                <input class="input is-primary is-rounded"
-                                       type="email"  placeholder="Email" id="email"/>
-                            </div>
-                        </div>
-
-                        <div class="field">
-                            <label class="label">Inserisci la password</label>
-                            <div class="control">
-                                <input class="input is-primary is-rounded"
-                                       type="password"  placeholder="Password" id="psw"/>
-                            </div>
-                        </div>
-
-                        <div class="field">
-                            <div class="control">
-                                <input type="submit" class="button is-rounded" value="ACCEDI" onsubmit="chkLogin()"/>
-                            </div>
-                        </div>
-
-                        <a class="label" href="registrazione.html">Se non sei ancora regitrato clicca QUI </a>
-                    </div>
-                </form>
-            </div>
-
+<body>
+<section class="hero is-primary">
+    <div class="hero-body">
+        <div class="container">
+            <h1 class="title is-1" >MEDICINE DEALER</h1>
+            <h2 class="subtitle">GESTISCI L'ACQUISIZIONE DI MEDICINALI CON SEMPLICITA'</h2>
         </div>
-    </body>
+    </div>
+</section>
+
+<div class="columns">
+    <div class="column auto" id="description">
+        <div class="field">
+            <h1 class="title">COME FUNZIONA MEDICINE DEALER</h1>
+            <p class="paragraph"></p>
+        </div>
+    </div>
+
+    <div class="section">
+        <form method="POST">
+            <div class="column is-one-half has-background-white-ter" id="login">
+                <div class="field">
+                    <h1 class="subtitle">EFFETTUA IL LOGIN PER GESTIRE I PORTAMEDICINE</h1>
+                </div>
+                <br>
+                <div class="field">
+                    <label class="label">Inserisci l'email</label>
+                    <div class="control">
+                        <input class="input is-primary is-rounded"
+                               type="email"  placeholder="Email" id="email"/>
+                    </div>
+                </div>
+
+                <div class="field">
+                    <label class="label">Inserisci la password</label>
+                    <div class="control">
+                        <input class="input is-primary is-rounded"
+                               type="password"  placeholder="Password" id="psw"/>
+                    </div>
+                </div>
+
+                <div class="field">
+                    <div class="control">
+                        <input type="submit" class="button is-rounded" value="ACCEDI" onsubmit="chkLogin()"/>
+                    </div>
+                </div>
+
+                <a class="label" href="registrazione.html">Se non sei ancora regitrato clicca QUI </a>
+            </div>
+        </form>
+    </div>
+
+</div>
+</body>
 </html>
