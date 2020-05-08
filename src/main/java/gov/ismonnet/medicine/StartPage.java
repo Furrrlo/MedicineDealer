@@ -2,29 +2,40 @@ package gov.ismonnet.medicine;
 
 import org.jooq.DSLContext;
 
-import javax.ws.rs.Consumes;
-import javax.ws.rs.POST;
-import javax.ws.rs.Path;
+import javax.inject.Inject;
+import javax.ws.rs.*;
 import javax.ws.rs.core.MediaType;
+import javax.xml.bind.annotation.XmlElement;
+import javax.xml.bind.annotation.XmlRootElement;
 
 @Path("pagina_iniziale")
 public class StartPage {
+
     private final DSLContext ctx;
 
-    public StartPage(DSLContext ctx) {
+    @Inject StartPage(DSLContext ctx) {
         this.ctx = ctx;
     }
 
     @POST
     @Consumes(MediaType.APPLICATION_XML)
-    public String registrazione(){
-
-        return null;
+    @Produces(MediaType.APPLICATION_XML)
+    public RegistrationBean registrazione(RegistrationBean registrationBean) {
+        return registrationBean;
     }
 
-    @POST
+    @XmlRootElement(name = "registrazione")
+    static class RegistrationBean {
+        @XmlElement(required = true) public String nome;
+        @XmlElement(required = true) public String cognome;
+        @XmlElement(required = true) public String email;
+        @XmlElement(name = "data_nascita", required = true) public String dataNascita;
+        @XmlElement(required = true) public String password;
+    }
+
+    @GET
     @Consumes(MediaType.APPLICATION_XML)
-    public String accedi(){
+    public String accedi() {
 
         return null;
     }
