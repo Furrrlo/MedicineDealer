@@ -1,4 +1,4 @@
-package gov.ismonnet.medicine;
+package gov.ismonnet.medicine.api;
 
 import org.jooq.DSLContext;
 
