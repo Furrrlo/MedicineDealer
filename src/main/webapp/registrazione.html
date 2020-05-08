@@ -9,7 +9,7 @@
 
         <script>
             function chkCampi(){
-                location.href="index.html";
+                location.href="pagina_iniziale";
             }
 
         </script>
@@ -25,59 +25,69 @@
         </div>
     </section>
 
-    <form method="post">
-        <div class="columns">
-            <div class="container">
-                <br>
-                <br>
-                <br>
-                <a class="subtitle">Inserisci il nome</a>
-                <br>
-                <input class="input is-primary is-rounded"
-                       type="text"  placeholder="Nome" id="nome" required/>
-                <br>
-                <br>
+    <div class="section">
+        <form method="POST">
+            <div class="columns is-centered">
+                <div class="column is-one-quarter ">
 
-                <a class="subtitle">Inserisci il cognome</a>
-                <br>
-                <input class="input is-primary is-rounded"
-                       type="text"  placeholder="Cognome" id="cognome" required/>
-                <br>
-                <br>
+                    <div class="field">
+                        <label class="label">Inserisci il nome</label>
+                        <div class="control">
+                            <input class="input is-primary is-rounded"
+                                   type="text"  placeholder="Nome" id="nome" required/>
+                        </div>
+                    </div>
 
-                <a class="subtitle">Inserisci l'e-mail</a>
-                <br>
-                <input class="input is-primary is-rounded"
-                       type="email"  placeholder="E-mail" id="email" required/>
-                <br>
-                <br>
-                <!-- TODO bulma calendar-->
-                <a class="subtitle">Seleziona la tua data di nascita</a>
-                <br>
-                <input class="input is-primary is-rounded" type="date"/>
-                <br>
-                <br>
+                    <div class="field">
+                        <label class="label">Inserisci il cognome</label>
+                        <div class="control">
+                            <input class="input is-primary is-rounded"
+                                   type="text"  placeholder="Cognome" id="cognome" required/>
+                        </div>
+                    </div>
 
-                <a class="subtitle">Inserisci la password</a>
-                <br>
-                <input class="input is-primary is-rounded"
-                       type="password"  placeholder="Password" id="password1"/>
-                <br>
-                <br>
+                    <div class="field">
+                        <label class="label">Inserisci l'e-mail</label>
+                        <div class="control">
+                            <input class="input is-primary is-rounded"
+                                   type="email"  placeholder="E-mail" id="email" required/>
+                        </div>
+                    </div>
 
-                <a class="subtitle">Inserisci nuovamente la password</a>
-                <br>
-                <input class="input is-primary is-rounded"
-                       type="password"  placeholder="Password" id="password2"/>
-                <br>
-                <br>
+                    <div class="field">
+                        <label class="label">Seleziona la tua data di nascita</label>
+                        <div class="control">
+                            <input class="input is-primary is-rounded" type="date" id="date"/>
+                        </div>
+                    </div>
 
-                <input type="submit" class="button" value="REGISTRATI" onclick="chkCampi()"/>
-                <br>
+                    <div class="field">
+                        <label class="label">Inserisci la password</label>
+                        <div class="control">
+                            <input class="input is-primary is-rounded"
+                                   type="password"  placeholder="Password" id="password1"/>
+                        </div>
+                    </div>
+
+                    <div class="field">
+                        <label class="label">Inserisci nuovamente la password</label>
+                        <div class="control">
+                            <input class="input is-primary is-rounded"
+                                   type="password"  placeholder="Password" id="password2"/>
+                        </div>
+                    </div>
+                    <br>
+                    <div class="field">
+                        <div class="control">
+                            <input type="submit" class="button is-centered" value="REGISTRATI" onsubmit="chkCampi()"/>
+                        </div>
+                    </div>
+
+                </div>
             </div>
-        </div>
+        </form>
 
-    </form>
+    </div>
 
     </body>
 </html>
