@@ -1,16 +1,17 @@
 package gov.ismonnet.medicine.api;
 
 import gov.ismonnet.medicine.database.Tables;
+import gov.ismonnet.medicine.jaxb.LocalDateTypeAdapter;
 import org.jooq.DSLContext;
 
 import javax.inject.Inject;
 import javax.ws.rs.*;
 import javax.ws.rs.core.MediaType;
-import javax.ws.rs.core.Response;
 import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlRootElement;
+import javax.xml.bind.annotation.adapters.XmlJavaTypeAdapter;
 import java.sql.Date;
-import java.text.SimpleDateFormat;
+import java.time.LocalDate;
 
 
 @Path("pagina_iniziale")
@@ -31,10 +32,9 @@ public class StartPage {
                 .set(Tables.UTENTI.NOME,registrationBean.nome)
                 .set(Tables.UTENTI.COGNOME,registrationBean.cognome)
                 .set(Tables.UTENTI.EMAIL,registrationBean.email)
-                .set(Tables.UTENTI.DATA_NASCITA,new Date(Long.parseLong(registrationBean.dataNascita)))
+                .set(Tables.UTENTI.DATA_NASCITA, Date.valueOf(registrationBean.dataNascita))
                 .set(Tables.UTENTI.PASSWORD,registrationBean.password)
                 .execute();
-
 
         return registrationBean;
     }
@@ -44,7 +44,9 @@ public class StartPage {
         @XmlElement(required = true) public String nome;
         @XmlElement(required = true) public String cognome;
         @XmlElement(required = true) public String email;
-        @XmlElement(name = "data_nascita", required = true) public String dataNascita;
+        @XmlJavaTypeAdapter(value = LocalDateTypeAdapter.class, type = LocalDate.class)
+        @XmlElement(name = "data_nascita", required = true)
+        public LocalDate dataNascita;
         @XmlElement(required = true) public String password;
     }
 

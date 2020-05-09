@@ -11,18 +11,13 @@
     <script>
         function chkRegistrazione(event) {
 
-            var dateReceived = document.getElementById("date").value;
-            var dateSplitted = dateReceived.split('-');
-            var dateCal = new Date(dateSplitted[0], dateSplitted[1] - 1, dateSplitted[2]);
-
-
             let form = event.target;
             let registration = {
                 "registrazione": {
                     "nome": form.querySelector("input#nome").value,
                     "cognome": form.querySelector("input#cognome").value,
                     "email": form.querySelector("input#email").value,
-                    "data_nascita": dateCal.getTime().toString(),
+                    "data_nascita": form.querySelector("input#date").value,
                     "password": form.querySelector("input#password1").value,
                 }
             };
@@ -36,10 +31,13 @@
                 },
                 body: JXON.jsToString(registration)
             }).then(async response => {
-                console.log(response);
+                if(!response.ok)
+                    throw response.status + ": " + (await response.text());
                 return JXON.stringToJs(await response.text());
             }).then(obj => {
                 console.log(obj);
+            }).catch(ex => {
+                console.error(ex);
             });
 
             return false;
