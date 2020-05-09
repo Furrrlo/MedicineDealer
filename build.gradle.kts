@@ -33,6 +33,16 @@ dependencies {
     compile("com.google.inject:guice:4.2.3'")
     compile("com.google.inject.extensions:guice-assistedinject:4.2.3")
 
+    // Logging
+
+    val log4jVer = "2.13.2"
+    compile("org.apache.logging.log4j:log4j-api:$log4jVer")
+    runtime( "org.apache.logging.log4j:log4j-core:$log4jVer")
+
+    runtime("org.slf4j:slf4j-api:1.7.30")
+    runtime("org.slf4j:jcl-over-slf4j:1.7.30") // Needed by spring crypto stuff
+    runtime("org.apache.logging.log4j:log4j-slf4j-impl:$log4jVer")
+
     // Test
 
     testCompile("junit:junit:4.12")
