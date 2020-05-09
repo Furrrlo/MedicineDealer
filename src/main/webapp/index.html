@@ -33,7 +33,7 @@
     </div>
 
     <div class="section">
-        <form method="POST">
+        <form method="POST" action="api/pagina_iniziale" onsubmit="chkLogin()">
             <div class="column is-one-half has-background-white-ter" id="login">
                 <div class="field">
                     <h1 class="subtitle">EFFETTUA IL LOGIN PER GESTIRE I PORTAMEDICINE</h1>
@@ -43,7 +43,7 @@
                     <label class="label">Inserisci l'email</label>
                     <div class="control">
                         <input class="input is-primary is-rounded"
-                               type="email"  placeholder="Email" id="email"/>
+                               type="email"  placeholder="Email" id="email" required/>
                     </div>
                 </div>
 
@@ -51,13 +51,13 @@
                     <label class="label">Inserisci la password</label>
                     <div class="control">
                         <input class="input is-primary is-rounded"
-                               type="password"  placeholder="Password" id="psw"/>
+                               type="password"  placeholder="Password" id="psw"required/>
                     </div>
                 </div>
 
                 <div class="field">
                     <div class="control">
-                        <input type="submit" class="button is-rounded" value="ACCEDI" onsubmit="chkLogin()"/>
+                        <input type="submit" class="button is-rounded" value="ACCEDI"/>
                     </div>
                 </div>
 

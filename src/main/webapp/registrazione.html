@@ -11,13 +11,18 @@
     <script>
         function chkRegistrazione(event) {
 
+            var dateReceived = document.getElementById("date").value;
+            var dateSplitted = dateReceived.split('-');
+            var dateCal = new Date(dateSplitted[0], dateSplitted[1] - 1, dateSplitted[2]);
+
+
             let form = event.target;
             let registration = {
                 "registrazione": {
                     "nome": form.querySelector("input#nome").value,
                     "cognome": form.querySelector("input#cognome").value,
                     "email": form.querySelector("input#email").value,
-                    "data_nascita": form.querySelector("input#date").value,
+                    "data_nascita": dateCal.getTime().toString(),
                     "password": form.querySelector("input#password1").value,
                 }
             };
@@ -58,11 +63,12 @@
         <div class="columns is-centered">
             <div class="column is-one-quarter ">
 
+
                 <div class="field">
                     <label class="label">Inserisci il nome</label>
                     <div class="control">
                         <input class="input is-primary is-rounded"
-                               type="text"  placeholder="Nome" id="nome" required/>
+                               type="text"  placeholder="Nome" id="nome" value="a" required/>
                     </div>
                 </div>
 
@@ -70,7 +76,7 @@
                     <label class="label">Inserisci il cognome</label>
                     <div class="control">
                         <input class="input is-primary is-rounded"
-                               type="text"  placeholder="Cognome" id="cognome" required/>
+                               type="text"  placeholder="Cognome" id="cognome" value="a"required/>
                     </div>
                 </div>
 
@@ -78,14 +84,14 @@
                     <label class="label">Inserisci l'e-mail</label>
                     <div class="control">
                         <input class="input is-primary is-rounded"
-                               type="email"  placeholder="E-mail" id="email" required/>
+                               type="email"  placeholder="E-mail" id="email" value="aa@gmail.com" required/>
                     </div>
                 </div>
 
                 <div class="field">
                     <label class="label">Seleziona la tua data di nascita</label>
                     <div class="control">
-                        <input class="input is-primary is-rounded" type="date" id="date" required/>
+                        <input class="input is-primary is-rounded" type="date" id="date" value="02/01/2001" required/>
                     </div>
                 </div>
 
@@ -93,7 +99,7 @@
                     <label class="label">Inserisci la password</label>
                     <div class="control">
                         <input class="input is-primary is-rounded"
-                               type="password"  placeholder="Password" id="password1" required/>
+                               type="password"  placeholder="Password" id="password1" value="123" required/>
                     </div>
                 </div>
 
@@ -101,7 +107,7 @@
                     <label class="label">Inserisci nuovamente la password</label>
                     <div class="control">
                         <input class="input is-primary is-rounded"
-                               type="password"  placeholder="Password" id="password2" required/>
+                               type="password"  placeholder="Password" id="password2" value="123" required/>
                     </div>
                 </div>
 
@@ -112,6 +118,60 @@
                     </div>
                 </div>
 
+                <!--              <div class="field">
+                                  <label class="label">Inserisci il nome</label>
+                                  <div class="control">
+                                      <input class="input is-primary is-rounded"
+                                             type="text"  placeholder="Nome" id="nome" required/>
+                                  </div>
+                              </div>
+
+                              <div class="field">
+                                  <label class="label">Inserisci il cognome</label>
+                                  <div class="control">
+                                      <input class="input is-primary is-rounded"
+                                             type="text"  placeholder="Cognome" id="cognome" required/>
+                                  </div>
+                              </div>
+
+                              <div class="field">
+                                  <label class="label">Inserisci l'e-mail</label>
+                                  <div class="control">
+                                      <input class="input is-primary is-rounded"
+                                             type="email"  placeholder="E-mail" id="email" required/>
+                                  </div>
+                              </div>
+
+                              <div class="field">
+                                  <label class="label">Seleziona la tua data di nascita</label>
+                                  <div class="control">
+                                      <input class="input is-primary is-rounded" type="date" id="date" required/>
+                                  </div>
+                              </div>
+
+                              <div class="field">
+                                  <label class="label">Inserisci la password</label>
+                                  <div class="control">
+                                      <input class="input is-primary is-rounded"
+                                             type="password"  placeholder="Password" id="password1" required/>
+                                  </div>
+                              </div>
+
+                              <div class="field">
+                                  <label class="label">Inserisci nuovamente la password</label>
+                                  <div class="control">
+                                      <input class="input is-primary is-rounded"
+                                             type="password"  placeholder="Password" id="password2" required/>
+                                  </div>
+                              </div>
+
+                              <br>
+                              <div class="field">
+                                  <div class="control">
+                                      <input type="submit" class="button is-centered" value="REGISTRATI"/>
+                                  </div>
+                              </div>
+                          -->
             </div>
         </div>
     </form>
