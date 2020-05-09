@@ -47,16 +47,20 @@ jaxb.javaGen {
                 "-Xvalue-constructor",
                 "-XenumValue",
                 "-Xfluent-api",
-                "-XtoString", /*"-XtoString-toStringStrategyClass=$group.jaxb.ToStringStrategy",*/
+                "-XtoString", "-XtoString-toStringStrategyClass=$group.jaxb.ToStringStrategy",
                 "-XsimpleEquals", "-XsimpleHashCode"
         )
     }
 
     create("web-service") {
         base(this)
+        packageName = "$packageName.ws"
         schemas = fileTree(mapOf(
                 Pair("dir", "src/main/resources/schema/web-service"),
                 Pair("include", "*.xsd")))
+        bindings = fileTree(mapOf(
+                Pair("dir", "src/main/resources/schema/web-service"),
+                Pair("include", "*.xjb")))
     }
 }
 

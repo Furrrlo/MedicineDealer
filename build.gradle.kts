@@ -4,7 +4,7 @@ plugins {
 
     id("java-convention")
     id("database")
-//    id("jaxb")
+    id("jaxb")
 }
 
 version = "1.0-SNAPSHOT"
