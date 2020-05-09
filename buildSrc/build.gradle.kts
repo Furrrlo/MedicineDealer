@@ -20,4 +20,11 @@ repositories {
 
 dependencies {
     implementation("nu.studer:gradle-jooq-plugin:4.1")
+    implementation("org.flywaydb:flyway-gradle-plugin:6.3.3")
+
+    implementation("com.intershop.gradle.jaxb:jaxb-gradle-plugin:3.0.4")
+}
+
+kotlinDslPluginOptions {
+    experimentalWarning.set(false)
 }
