@@ -23,6 +23,8 @@ dependencies {
 
     jooqRuntime("mysql:mysql-connector-java:8.0.13")
     compile("org.jooq:jooq")
+
+    compile("org.springframework.security:spring-security-crypto:5.3.2.RELEASE")
 }
 
 flyway {
