@@ -1,13 +1,20 @@
 package gov.ismonnet.medicine.api;
 
 import gov.ismonnet.medicine.database.Tables;
+import gov.ismonnet.medicine.jaxb.ws.Medicine;
 import org.jooq.DSLContext;
+import org.jooq.Record2;
+import org.jooq.Result;
+import org.jooq.types.UInteger;
 
 import javax.inject.Inject;
 import javax.ws.rs.GET;
 import javax.ws.rs.Path;
 import javax.ws.rs.Produces;
 import javax.ws.rs.core.MediaType;
+import java.math.BigInteger;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.stream.Collectors;
 
 @Path("farmaci")
@@ -24,18 +31,16 @@ public class Medicines {
 
     @GET
     @Produces(MediaType.APPLICATION_XML)
-    public String getMedicines() {
-        return ctx.select(Tables.FARMACI.COD_AIC, Tables.FARMACI.NOME)
+    public Medicine getMedicines() {
+        Result<Record2<UInteger, String>> query = ctx
+                .select(Tables.FARMACI.COD_AIC, Tables.FARMACI.NOME)
                 .from(Tables.FARMACI)
-                .fetch()
-                .stream()
-                .map(res -> "" +
-                        "<farmaco>" +
-                        "<cod_aic>" + res.value1() + "</cod_aic>" +
-                        "<nome>" + res.value2() + "</nome>" +
-                        "</farmaco>"
-                )
-                .collect(Collectors.joining("", "<farmaci>", "</farmaci>"));
+                .fetch();
+
+        List<Medicine.Medicina> medicinaList = new ArrayList<>();
+        for(Record2<UInteger, String> medicina : query)
+            medicinaList.add(new Medicine.Medicina(medicina.value2(), medicina.value1().toBigInteger()));
+        return new Medicine(medicinaList);
     }
 
     // For the csv files

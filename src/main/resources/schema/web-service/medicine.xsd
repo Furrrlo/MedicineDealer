@@ -1,13 +1,17 @@
 <?xml version="1.0" encoding="UTF-8" ?>
 <xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema">
-<xs:element name="medicineList”> 
-  <xs:complexType> 
-      <xs:sequence> 
-           <xs:element name="name" type="xs:string">
-           <xs:element name="quantitymg" type="xs:string"> 
-           <xs:element name="quantityToTake" type="xs:string"> 
-           <xs:element name=“aic_farmaco”  type=“xs:integer”/>
-      </xs:sequence>  
-   </xs:complexType> 
- </xs:element> 
- </xs:schema>
+    <xs:element name="medicine">
+        <xs:complexType>
+            <xs:sequence>
+                <xs:element name="medicina" minOccurs="0" maxOccurs="unbounded">
+                    <xs:complexType>
+                        <xs:sequence>
+                            <xs:element name="name" type="xs:string"/>
+                            <xs:element name="aic_farmaco" type="xs:integer"/>
+                        </xs:sequence>
+                    </xs:complexType>
+                </xs:element>
+            </xs:sequence>
+        </xs:complexType>
+    </xs:element>
+</xs:schema>
