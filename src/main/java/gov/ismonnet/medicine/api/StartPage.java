@@ -5,6 +5,7 @@ import gov.ismonnet.medicine.jaxb.ws.LoginBean;
 import gov.ismonnet.medicine.jaxb.ws.RegistrationBean;
 import org.jooq.DSLContext;
 import org.jooq.Record1;
+import org.jooq.Result;
 import org.springframework.security.crypto.password.PasswordEncoder;
 
 import javax.inject.Inject;
@@ -28,7 +29,7 @@ public class StartPage {
     @Consumes(MediaType.APPLICATION_XML)
     @Produces(MediaType.APPLICATION_XML)
     public RegistrationBean register(RegistrationBean registrationBean) {
-
+        //TODO: mail must be unique
         final String hash = passwordEncoder.encode(registrationBean.getPassword());
 
         ctx.insertInto(Tables.UTENTI)
@@ -44,15 +45,20 @@ public class StartPage {
 
     @GET
     @Consumes(MediaType.APPLICATION_XML)
-    public String login(LoginBean loginBean) {
+    public String login(@QueryParam( value = "email" )  String  email,
+                        @QueryParam( value = "password" ) String password) {
         // To check if a password matches its hash get the has from the db then
         // passwordEncoder.matches(pw, hash)
-        ctx.select(Tables.UTENTI.PASSWORD)
+
+        final String hash = passwordEncoder.encode(password);
+
+        Result<?> result = ctx.select(Tables.UTENTI.PASSWORD)
                 .from(Tables.UTENTI)
-                .where(Tables.UTENTI.EMAIL.equal(loginBean.getEmail()))
-                .execute();
+                .where(Tables.UTENTI.EMAIL.equal(email))
+                .and(Tables.UTENTI.PASSWORD.equal(password))
+                .fetch();
 
-
+        //if(result)
         return null;
     }
 
