@@ -9,12 +9,30 @@
 
         <xjc:javaType name="java.time.LocalDate"
                       xmlType="xs:date"
-                      adapter="gov.ismonnet.medicine.jaxb.LocalDateTypeAdapter"/>
+                      adapter="gov.ismonnet.medicine.converters.LocalDateXmlAdapter"/>
+        <xjc:javaType name="java.time.LocalTime"
+                      xmlType="xs:time"
+                      adapter="gov.ismonnet.medicine.converters.LocalTimeXmlAdapter"/>
     </jxb:globalBindings>
 
     <jxb:bindings schemaLocation="registrazione.xsd"
                   node="//xs:element[@name='registrazione']">
         <jxb:class name="RegistrationBean"/>
+    </jxb:bindings>
+
+    <jxb:bindings schemaLocation="calendario.xsd"
+                  node="//xs:element[@name='calendario']">
+        <jxb:class name="CalendarBean"/>
+    </jxb:bindings>
+
+    <jxb:bindings schemaLocation="nuovo_evento.xsd"
+                  node="//xs:element[@name='nuovo_evento']">
+        <jxb:class name="NewEventBean"/>
+    </jxb:bindings>
+
+    <jxb:bindings schemaLocation="modifica_evento.xsd"
+                  node="//xs:element[@name='modifica_evento']">
+        <jxb:class name="EditEventBean"/>
     </jxb:bindings>
 
 </jxb:bindings>

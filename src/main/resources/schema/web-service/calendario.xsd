@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema">
+    <xs:element name="calendario">
+        <xs:complexType>
+            <xs:sequence>
+                <xs:element name="evento" minOccurs="0" maxOccurs="unbounded">
+                    <xs:complexType>
+                        <xs:all>
+                            <xs:element name="id" type="xs:integer"/>
+                            <xs:element name="data" type="xs:date"/>
+                            <xs:element name="ora" type="xs:time"/>
+
+                            <xs:element name="medicina">
+                                <xs:complexType>
+                                    <xs:all>
+                                        <xs:element name="nome" type="xs:string"/>
+                                        <xs:element name="aic" type="xs:integer"/>
+                                    </xs:all>
+                                </xs:complexType>
+                            </xs:element>
+
+                            <xs:element name="assunzione" minOccurs="0">
+                                <xs:complexType>
+                                    <xs:all>
+                                        <xs:element name="data" type="xs:date"/>
+                                        <xs:element name="ora" type="xs:time"/>
+                                    </xs:all>
+                                </xs:complexType>
+                            </xs:element>
+
+                        </xs:all>
+                    </xs:complexType>
+                </xs:element>
+            </xs:sequence>
+        </xs:complexType>
+    </xs:element>
+</xs:schema>
