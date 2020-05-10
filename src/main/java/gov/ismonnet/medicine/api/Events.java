@@ -34,13 +34,18 @@ public class Events {
 
     @GET
     @Produces(MediaType.APPLICATION_XML)
-    @Path("{id_porta_medicine}")
-    public CalendarBean getEvents(@PathParam(value = "id_porta_medicine") int deviceId,
+    public CalendarBean getEvents(@QueryParam(value = "id_porta_medicine") Integer deviceId,
                                   @QueryParam(value = "data") LocalDate date,
                                   @QueryParam(value = "granularita") Granularity granularity) {
+        if(granularity == null)
+            throw new BadRequestException();
+        if(date == null)
+            date = LocalDate.now();
+
         // TODO: how to get this?
         final int userId = 0;
-        checkAuthorizedForDevice(userId, deviceId);
+        if(deviceId != null)
+            checkAuthorizedForDevice(userId, deviceId);
 
         final LocalDate startDate;
         final LocalDate endDate;
@@ -85,11 +90,13 @@ public class Events {
                 .join(Tables.FARMACI)
                 .on(Tables.EVENTI.AIC_FARMACO.eq(Tables.FARMACI.COD_AIC))
 
-                .join(Tables.ASSUNZIONI)
+                .leftJoin(Tables.ASSUNZIONI)
                 .on(Tables.EVENTI.ID_ASSUNZIONE.eq(Tables.ASSUNZIONI.ID))
 
-                .where(Tables.ASSOCIATI.ID_PORTA_MEDICINE.eq(deviceId))
-                .and(Tables.ASSOCIATI.ID_UTENTE.eq(userId))
+                .where(Tables.ASSOCIATI.ID_UTENTE.eq(userId))
+                .and(deviceId == null ?
+                        DSL.noCondition() :
+                        Tables.ASSOCIATI.ID_PORTA_MEDICINE.eq(deviceId))
                 .and(granularity == Granularity.ALL ?
                         DSL.noCondition() :
                         Tables.EVENTI.DATA.between(Date.valueOf(startDate), Date.valueOf(endDate)))
@@ -104,7 +111,7 @@ public class Events {
                                 r.get(Tables.FARMACI.NOME),
                                 r.get(Tables.FARMACI.COD_AIC).toBigInteger()
                         ),
-                        r.get(Tables.ASSUNZIONI.ID) != null ?
+                        r.get(Tables.ASSUNZIONI.ID) == null ?
                                 null :
                                 new CalendarBean.Evento.Assunzione(
                                         r.get(Tables.ASSUNZIONI.DATA).toLocalDate(),
@@ -120,9 +127,11 @@ public class Events {
     @Path("{id_porta_medicine}")
     public String addEvent(@PathParam(value = "id_porta_medicine") int deviceId,
                            NewEventBean eventBean) {
+        if(eventBean == null)
+            throw new BadRequestException();
+
         // TODO: how to get this?
         final int userId = 0;
-
         checkAuthorizedForDevice(userId, deviceId);
         return "<id>" +
                 ctx.insertInto(Tables.EVENTI)
@@ -150,6 +159,9 @@ public class Events {
     @Path("{id_evento}")
     public void editEvent(@PathParam(value = "id_evento") int eventId,
                           EditEventBean eventBean) {
+        if(eventBean == null)
+            throw new BadRequestException();
+
         // TODO: how to get this?
         final int userId = 0;
         checkAuthorizedForEvent(userId, eventId);
@@ -172,8 +184,8 @@ public class Events {
     private void checkAuthorizedForDevice(int userId, int deviceId) {
         // Check if the device exists
         if(!ctx.select()
-                .from(Tables.ASSOCIATI)
-                .where(Tables.ASSOCIATI.ID_PORTA_MEDICINE.eq(deviceId))
+                .from(Tables.PORTA_MEDICINE)
+                .where(Tables.PORTA_MEDICINE.ID.eq(deviceId))
                 .fetchOptional()
                 .isPresent())
             throw new NotFoundException();
@@ -208,5 +220,18 @@ public class Events {
             throw new ForbiddenException();
     }
 
-    enum Granularity { DAY, WEEK, MONTH, YEAR, ALL }
+    public enum Granularity {
+        DAY, WEEK, MONTH, YEAR, ALL;
+
+        public static Granularity fromString(String param) {
+            if(param == null || param.isEmpty())
+                return null;
+
+            try {
+                return valueOf(param.toUpperCase());
+            } catch (Exception e) {
+                throw new BadRequestException();
+            }
+        }
+    }
 }
