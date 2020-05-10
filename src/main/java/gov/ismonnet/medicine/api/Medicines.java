@@ -1,7 +1,7 @@
 package gov.ismonnet.medicine.api;
 
 import gov.ismonnet.medicine.database.Tables;
-import gov.ismonnet.medicine.jaxb.ws.Medicine;
+import gov.ismonnet.medicine.jaxb.ws.MedicinesBean;
 import org.jooq.DSLContext;
 import org.jooq.Record2;
 import org.jooq.Result;
@@ -12,10 +12,8 @@ import javax.ws.rs.GET;
 import javax.ws.rs.Path;
 import javax.ws.rs.Produces;
 import javax.ws.rs.core.MediaType;
-import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.stream.Collectors;
 
 @Path("farmaci")
 public class Medicines {
@@ -31,16 +29,16 @@ public class Medicines {
 
     @GET
     @Produces(MediaType.APPLICATION_XML)
-    public Medicine getMedicines() {
+    public MedicinesBean getMedicines() {
         Result<Record2<UInteger, String>> query = ctx
                 .select(Tables.FARMACI.COD_AIC, Tables.FARMACI.NOME)
                 .from(Tables.FARMACI)
                 .fetch();
 
-        List<Medicine.Medicina> medicinaList = new ArrayList<>();
+        List<MedicinesBean.Medicina> medicinaList = new ArrayList<>();
         for(Record2<UInteger, String> medicina : query)
-            medicinaList.add(new Medicine.Medicina(medicina.value2(), medicina.value1().toBigInteger()));
-        return new Medicine(medicinaList);
+            medicinaList.add(new MedicinesBean.Medicina(medicina.value2(), medicina.value1().toBigInteger()));
+        return new MedicinesBean(medicinaList);
     }
 
     // For the csv files

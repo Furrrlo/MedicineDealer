@@ -40,4 +40,9 @@
         <jxb:class name="EditEventBean"/>
     </jxb:bindings>
 
+    <jxb:bindings schemaLocation="medicine.xsd"
+                  node="//xs:element[@name='medicine']">
+        <jxb:class name="MedicinesBean"/>
+    </jxb:bindings>
+
 </jxb:bindings>
