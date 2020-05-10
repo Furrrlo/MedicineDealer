@@ -20,6 +20,11 @@
         <jxb:class name="RegistrationBean"/>
     </jxb:bindings>
 
+    <jxb:bindings schemaLocation="login.xsd"
+                  node="//xs:element[@name='login']">
+        <jxb:class name="LoginBean"/>
+    </jxb:bindings>
+
     <jxb:bindings schemaLocation="calendario.xsd"
                   node="//xs:element[@name='calendario']">
         <jxb:class name="CalendarBean"/>
