@@ -8,8 +8,34 @@
         <script defer src="js/vendor/fontawesome@5.3.1.all.js"></script>
 
         <script>
-            function chkLogin(){
-                location.href = "ca";
+            function chkLogin(event){
+
+                    let form = event.target;
+                    let login = {
+                        "login": {
+                            "email": form.querySelector("input#email").value,
+                            "password": form.querySelector("input#password").value,
+                        }
+                    };
+
+                    console.log(JXON.jsToString(login));
+
+                    fetch(form.action, {
+                        method: form.method,
+                        headers: {
+                            'Content-Type': 'application/xml'
+                        },
+                        body: JXON.jsToString(login)
+                    }).then(async response => {
+                        if(!response.ok)
+                            throw response.status + ": " + (await response.text());
+                        return JXON.stringToJs(await response.text());
+                    }).then(obj => {
+                        console.log(obj);
+                        location.href = "home.html";
+                    }).catch(ex => {
+                        console.error(ex);
+                    });
             }
         </script>
     </head>
@@ -45,7 +71,7 @@
                             <label class="label">Inserisci la password</label>
                             <div class="control">
                                 <input class="input is-primary is-rounded"
-                                       type="password"  placeholder="Password" id="password2" value="123" required/>
+                                       type="password"  placeholder="Password" id="password" value="123" required/>
                             </div>
                         </div>
 

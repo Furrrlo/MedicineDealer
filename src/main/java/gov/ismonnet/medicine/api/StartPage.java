@@ -1,6 +1,7 @@
 package gov.ismonnet.medicine.api;
 
 import gov.ismonnet.medicine.database.Tables;
+import gov.ismonnet.medicine.jaxb.ws.LoginBean;
 import gov.ismonnet.medicine.jaxb.ws.RegistrationBean;
 import org.jooq.DSLContext;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -41,9 +42,15 @@ public class StartPage {
 
     @GET
     @Consumes(MediaType.APPLICATION_XML)
-    public String login() {
+    public String login(LoginBean loginBean) {
         // To check if a password matches its hash get the has from the db then
         // passwordEncoder.matches(pw, hash)
+        ctx.select(Tables.UTENTI.PASSWORD)
+                .from(Tables.UTENTI)
+                .where(Tables.UTENTI.EMAIL.equal(loginBean.getEmail()))
+                .execute();
+
+
         return null;
     }
 }
