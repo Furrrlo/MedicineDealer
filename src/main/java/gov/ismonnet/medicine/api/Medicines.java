@@ -11,20 +11,20 @@ import javax.ws.rs.core.MediaType;
 import java.util.stream.Collectors;
 
 @Path("farmaci")
-public class Farmaci {
+public class Medicines {
 
     private final String TEXT_CSV = "text/csv";
     private final MediaType TEXT_CSV_TYPE = new MediaType("text", "csv");
 
     private final DSLContext ctx;
 
-    @Inject Farmaci(DSLContext ctx) {
+    @Inject Medicines(DSLContext ctx) {
         this.ctx = ctx;
     }
 
     @GET
     @Produces(MediaType.APPLICATION_XML)
-    public String getFarmaci() {
+    public String getMedicines() {
         return ctx.select(Tables.FARMACI.COD_AIC, Tables.FARMACI.NOME)
                 .from(Tables.FARMACI)
                 .fetch()
@@ -42,8 +42,8 @@ public class Farmaci {
 //    @POST
 //    @Path("/csv")
 //    @Consumes(MediaType.MULTIPART_FORM_DATA)
-//    public Response getFarmaci(@FormDataParam("file") InputStream uploadedInputStream,
-//                               @FormDataParam("file") FormDataBodyPart bodyPart) {
+//    public Response parseMedicines(@FormDataParam("file") InputStream uploadedInputStream,
+//                                   @FormDataParam("file") FormDataBodyPart bodyPart) {
 //
 //
 //        if(!bodyPart.getMediaType().equals(TEXT_CSV_TYPE))

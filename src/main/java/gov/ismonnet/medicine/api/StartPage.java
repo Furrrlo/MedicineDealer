@@ -25,14 +25,14 @@ public class StartPage {
     @POST
     @Consumes(MediaType.APPLICATION_XML)
     @Produces(MediaType.APPLICATION_XML)
-    public RegistrationBean registrazione(RegistrationBean registrationBean) {
+    public RegistrationBean register(RegistrationBean registrationBean) {
 
         final String hash = passwordEncoder.encode(registrationBean.getPassword());
 
         ctx.insertInto(Tables.UTENTI)
-                .set(Tables.UTENTI.NOME,registrationBean.getNome())
-                .set(Tables.UTENTI.COGNOME,registrationBean.getCognome())
-                .set(Tables.UTENTI.EMAIL,registrationBean.getEmail())
+                .set(Tables.UTENTI.NOME, registrationBean.getNome())
+                .set(Tables.UTENTI.COGNOME, registrationBean.getCognome())
+                .set(Tables.UTENTI.EMAIL, registrationBean.getEmail())
                 .set(Tables.UTENTI.DATA_NASCITA, Date.valueOf(registrationBean.getDataNascita()))
                 .set(Tables.UTENTI.PASSWORD, hash)
                 .execute();
