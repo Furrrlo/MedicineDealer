@@ -124,15 +124,13 @@ public class Events {
     @POST
     @Consumes(MediaType.APPLICATION_XML)
     @Produces(MediaType.APPLICATION_XML)
-    @Path("{id_porta_medicine}")
-    public String addEvent(@PathParam(value = "id_porta_medicine") int deviceId,
-                           NewEventBean eventBean) {
+    public String addEvent(NewEventBean eventBean) {
         if(eventBean == null)
             throw new BadRequestException();
 
         // TODO: how to get this?
         final int userId = 0;
-        checkAuthorizedForDevice(userId, deviceId);
+        checkAuthorizedForDevice(userId, eventBean.getIdPortaMedicine().intValue());
         return "<id>" +
                 ctx.insertInto(Tables.EVENTI)
                         .columns(
@@ -144,7 +142,7 @@ public class Events {
                         .values(
                                 Date.valueOf(eventBean.getData()),
                                 Time.valueOf(eventBean.getOra()),
-                                deviceId,
+                                eventBean.getIdPortaMedicine().intValue(),
                                 UInteger.valueOf(eventBean.getAicFarmaco().longValueExact())
                         )
                         .returningResult(Tables.EVENTI.fields())
