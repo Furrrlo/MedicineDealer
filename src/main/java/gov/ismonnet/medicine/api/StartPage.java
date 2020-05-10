@@ -27,6 +27,7 @@ public class StartPage {
     public RegistrationBean registrazione(RegistrationBean registrationBean) {
 
         final String hash = passwordEncoder.encode(registrationBean.getPassword());
+
         ctx.insertInto(Tables.UTENTI)
                 .set(Tables.UTENTI.NOME,registrationBean.getNome())
                 .set(Tables.UTENTI.COGNOME,registrationBean.getCognome())
@@ -40,7 +41,7 @@ public class StartPage {
 
     @GET
     @Consumes(MediaType.APPLICATION_XML)
-    public String accedi() {
+    public String login() {
         // To check if a password matches its hash get the has from the db then
         // passwordEncoder.matches(pw, hash)
         return null;

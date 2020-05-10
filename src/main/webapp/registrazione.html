@@ -1,179 +1,161 @@
 <!DOCTYPE html>
 <html>
-<head>
-    <meta charset="utf-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>Registrazione</title>
-    <link rel="stylesheet" href="css/vendor/bulma@0.8.2.min.css">
-    <script defer src="js/vendor/fontawesome@5.3.1.all.js"></script>
-    <script defer src="js/vendor/jxon@2.0.0-beta.5.min.js"></script>
+    <head>
+        <meta charset="utf-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <title>Registrazione</title>
+        <link rel="stylesheet" href="css/vendor/bulma@0.8.2.min.css">
+        <script defer src="js/vendor/fontawesome@5.3.1.all.js"></script>
+        <script defer src="js/vendor/jxon@2.0.0-beta.5.min.js"></script>
 
-    <script>
-        function chkRegistrazione(event) {
+        <script>
 
-            let form = event.target;
-            let registration = {
-                "registrazione": {
-                    "nome": form.querySelector("input#nome").value,
-                    "cognome": form.querySelector("input#cognome").value,
-                    "email": form.querySelector("input#email").value,
-                    "data_nascita": form.querySelector("input#date").value,
-                    "password": form.querySelector("input#password1").value,
+            function canISignUp(){
+                //TODO error what's wrong
+                var password1 = document.getElementById("password1").value;
+                var password2 = document.getElementById("password2").value;
+                if(password1 === password2){
+                //check password complexity
+                    var regex = /^(?=.*\d)(?=.*[a-z])(?=.*[A-Z])[0-9a-zA-Z]{6,}$/;
+                    var ok = regex.test(password1);
+
+                    if(ok){
+                        //check the user has is adult
+                        var today = new Date();
+                        var birthDate = document.getElementById("date").value;
+                        var birthInfo = birthDate.split("-");
+
+                        var age = today.getFullYear() - parseInt(birthInfo[0]);
+                        var m = today.getMonth() - parseInt(birthInfo[1]);
+                        if (m < 0 || (m === 0 && today.getDate() < parseInt(birthInfo[2]))) {
+                            age--;
+                        }
+
+                        if(age < 18){
+                            ok = false;
+                        }
+                    }
                 }
-            };
 
-            console.log(JXON.jsToString(registration));
+                return ok;
+            }
+            function chkRegistrazione(event) {
 
-            fetch(form.action, {
-                method: form.method,
-                headers: {
-                    'Content-Type': 'application/xml'
-                },
-                body: JXON.jsToString(registration)
-            }).then(async response => {
-                if(!response.ok)
-                    throw response.status + ": " + (await response.text());
-                return JXON.stringToJs(await response.text());
-            }).then(obj => {
-                console.log(obj);
-            }).catch(ex => {
-                console.error(ex);
-            });
+                if(canISignUp()){
+                    let form = event.target;
+                    let registration = {
+                        "registrazione": {
+                            "nome": form.querySelector("input#nome").value,
+                            "cognome": form.querySelector("input#cognome").value,
+                            "email": form.querySelector("input#email").value,
+                            "data_nascita": form.querySelector("input#date").value,
+                            "password": form.querySelector("input#password1").value,
+                        }
+                    };
 
-            return false;
-        }
-    </script>
+                    console.log(JXON.jsToString(registration));
 
-</head>
+                    fetch(form.action, {
+                        method: form.method,
+                        headers: {
+                            'Content-Type': 'application/xml'
+                        },
+                        body: JXON.jsToString(registration)
+                    }).then(async response => {
+                        if(!response.ok)
+                            throw response.status + ": " + (await response.text());
+                        return JXON.stringToJs(await response.text());
+                    }).then(obj => {
+                        console.log(obj);
+                        location.href = "login.html";
+                    }).catch(ex => {
+                        console.error(ex);
+                    });
 
-<body>
-<section class="hero is-primary">
-    <div class="hero-body">
-        <div class="container">
-            <h1 class="title is-1" >MEDICINE DEALER</h1>
-            <h2 class="subtitle">GESTISCI L'ACQUISIZIONE DI MEDICINALI CON SEMPLICITA'</h2>
-        </div>
-    </div>
-</section>
+                }
 
-<div class="section">
-    <form method="POST" action="api/pagina_iniziale" onsubmit="return chkRegistrazione(event);">
-        <div class="columns is-centered">
-            <div class="column is-one-quarter ">
+                return false;
+            }
+        </script>
+    </head>
 
-
-                <div class="field">
-                    <label class="label">Inserisci il nome</label>
-                    <div class="control">
-                        <input class="input is-primary is-rounded"
-                               type="text"  placeholder="Nome" id="nome" value="a" required/>
-                    </div>
+    <body>
+        <section class="hero is-primary">
+            <div class="hero-body">
+                <div class="container">
+                    <h1 class="title is-1" >MEDICINE DEALER</h1>
+                    <h2 class="subtitle">GESTISCI L'ACQUISIZIONE DI MEDICINALI CON SEMPLICITA'</h2>
                 </div>
-
-                <div class="field">
-                    <label class="label">Inserisci il cognome</label>
-                    <div class="control">
-                        <input class="input is-primary is-rounded"
-                               type="text"  placeholder="Cognome" id="cognome" value="a"required/>
-                    </div>
-                </div>
-
-                <div class="field">
-                    <label class="label">Inserisci l'e-mail</label>
-                    <div class="control">
-                        <input class="input is-primary is-rounded"
-                               type="email"  placeholder="E-mail" id="email" value="aa@gmail.com" required/>
-                    </div>
-                </div>
-
-                <div class="field">
-                    <label class="label">Seleziona la tua data di nascita</label>
-                    <div class="control">
-                        <input class="input is-primary is-rounded" type="date" id="date" value="02/01/2001" required/>
-                    </div>
-                </div>
-
-                <div class="field">
-                    <label class="label">Inserisci la password</label>
-                    <div class="control">
-                        <input class="input is-primary is-rounded"
-                               type="password"  placeholder="Password" id="password1" value="123" required/>
-                    </div>
-                </div>
-
-                <div class="field">
-                    <label class="label">Inserisci nuovamente la password</label>
-                    <div class="control">
-                        <input class="input is-primary is-rounded"
-                               type="password"  placeholder="Password" id="password2" value="123" required/>
-                    </div>
-                </div>
-
-                <br>
-                <div class="field">
-                    <div class="control">
-                        <input type="submit" class="button is-centered" value="REGISTRATI"/>
-                    </div>
-                </div>
-
-                <!--              <div class="field">
-                                  <label class="label">Inserisci il nome</label>
-                                  <div class="control">
-                                      <input class="input is-primary is-rounded"
-                                             type="text"  placeholder="Nome" id="nome" required/>
-                                  </div>
-                              </div>
-
-                              <div class="field">
-                                  <label class="label">Inserisci il cognome</label>
-                                  <div class="control">
-                                      <input class="input is-primary is-rounded"
-                                             type="text"  placeholder="Cognome" id="cognome" required/>
-                                  </div>
-                              </div>
-
-                              <div class="field">
-                                  <label class="label">Inserisci l'e-mail</label>
-                                  <div class="control">
-                                      <input class="input is-primary is-rounded"
-                                             type="email"  placeholder="E-mail" id="email" required/>
-                                  </div>
-                              </div>
-
-                              <div class="field">
-                                  <label class="label">Seleziona la tua data di nascita</label>
-                                  <div class="control">
-                                      <input class="input is-primary is-rounded" type="date" id="date" required/>
-                                  </div>
-                              </div>
-
-                              <div class="field">
-                                  <label class="label">Inserisci la password</label>
-                                  <div class="control">
-                                      <input class="input is-primary is-rounded"
-                                             type="password"  placeholder="Password" id="password1" required/>
-                                  </div>
-                              </div>
-
-                              <div class="field">
-                                  <label class="label">Inserisci nuovamente la password</label>
-                                  <div class="control">
-                                      <input class="input is-primary is-rounded"
-                                             type="password"  placeholder="Password" id="password2" required/>
-                                  </div>
-                              </div>
-
-                              <br>
-                              <div class="field">
-                                  <div class="control">
-                                      <input type="submit" class="button is-centered" value="REGISTRATI"/>
-                                  </div>
-                              </div>
-                          -->
             </div>
-        </div>
-    </form>
-</div>
+        </section>
 
-</body>
+        <div class="section">
+            <form method="POST" action="api/pagina_iniziale" onsubmit="return chkRegistrazione(event);">
+                <div class="columns is-centered">
+                    <div class="column is-one-quarter ">
+                        <div class="field">
+                            <h1 class="subtitle">REGISTRATI PER GESTIRE I PORTAMEDICINE</h1>
+                        </div>
+
+                                      <div class="field">
+                                          <label class="label">Inserisci il nome</label>
+                                          <div class="control">
+                                              <input class="input is-primary is-rounded"
+                                                     type="text"  placeholder="Nome" id="nome" required/>
+                                          </div>
+                                      </div>
+
+                                      <div class="field">
+                                          <label class="label">Inserisci il cognome</label>
+                                          <div class="control">
+                                              <input class="input is-primary is-rounded"
+                                                     type="text"  placeholder="Cognome" id="cognome" required/>
+                                          </div>
+                                      </div>
+
+                                      <div class="field">
+                                          <label class="label">Inserisci l'e-mail</label>
+                                          <div class="control">
+                                              <input class="input is-primary is-rounded"
+                                                     type="email"  placeholder="E-mail" id="email" required/>
+                                          </div>
+                                      </div>
+
+                                      <div class="field">
+                                          <label class="label">Seleziona la tua data di nascita</label>
+                                          <div class="control">
+                                              <input class="input is-primary is-rounded" type="date" id="date" required/>
+                                          </div>
+                                      </div>
+
+                                      <div class="field">
+                                          <label class="label">Inserisci la password</label>
+                                          <div class="control">
+                                              <input class="input is-primary is-rounded"
+                                                     type="password"  placeholder="Password" id="password1" required/>
+                                          </div>
+                                      </div>
+
+                                      <div class="field">
+                                          <label class="label">Inserisci nuovamente la password</label>
+                                          <div class="control">
+                                              <input class="input is-primary is-rounded"
+                                                     type="password"  placeholder="Password" id="password2" required/>
+                                          </div>
+                                      </div>
+
+                                      <br>
+
+
+                                      <div class="field">
+                                          <div class="control">
+                                              <input type="submit" class="button is-centered" value="REGISTRATI"/>
+                                          </div>
+                                      </div>
+
+                    </div>
+                </div>
+            </form>
+        </div>
+    </body>
 </html>
