@@ -5,9 +5,7 @@ import gov.ismonnet.medicine.database.tables.records.EventiRecord;
 import gov.ismonnet.medicine.jaxb.ws.CalendarBean;
 import gov.ismonnet.medicine.jaxb.ws.EditEventBean;
 import gov.ismonnet.medicine.jaxb.ws.NewEventBean;
-import org.jooq.DSLContext;
-import org.jooq.UpdateSetMoreStep;
-import org.jooq.UpdateSetStep;
+import org.jooq.*;
 import org.jooq.impl.DSL;
 import org.jooq.types.UInteger;
 
@@ -30,6 +28,21 @@ public class Events {
 
     @Inject Events(DSLContext ctx) {
         this.ctx = ctx;
+    }
+
+    @GET
+    @Produces(MediaType.APPLICATION_XML)
+    @Consumes(MediaType.APPLICATION_XML)
+    public String getPortamedicine(@QueryParam(value = "id_utente")Integer userId){
+
+//        Result<? extends Record> results = ctx.select(Tables.PORTA_MEDICINE.ID)
+//                .from(Tables.UTENTI)
+//                .join(Tables.UTENTI)
+//                .on(Tables.UTENTI)
+//                .where(Tables.UTENTI.EMAIL.equal(registrationBean.getEmail()))
+//                .fetch();
+
+        return null;
     }
 
     @GET

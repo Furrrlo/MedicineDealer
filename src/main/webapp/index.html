@@ -18,17 +18,15 @@
                     fetch(form.action + "?email=" + ema + "&password=" + psw, {
                         method: form.method
                     }).then(async response => {
-                        if(!response.ok)
-                            throw response.status + ": " + (await response.text());
                         var code = response.status;
 
                         if ( code == 200 ){
                             //logged
                             location.href = 'home.html';
-                        } else if (code == 402){
+                        } else if (code == 406){
                             //email not found
                             location.href = 'login.html';
-                        } else if (code == 403){
+                        } else if (code == 407){
                             //password wrong
                             location.href = 'login.html';
                         }

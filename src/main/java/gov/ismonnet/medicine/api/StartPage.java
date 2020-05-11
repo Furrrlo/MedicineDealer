@@ -62,8 +62,8 @@ public class StartPage {
         //
         // codes
         // 200: logged
-        // 402: email not found
-        // 403: password wrong
+        // 406: email not found
+        // 407: password wrong
 
         int code = -1;
 
@@ -86,11 +86,11 @@ public class StartPage {
                 code = 200;
             }else{
                 //password not correct
-                code = 403;
+                code = 407;
             }
         }else{
             //Email not found
-            code = 402;
+            code = 406;
         }
 
         return Response.status(code).build();
