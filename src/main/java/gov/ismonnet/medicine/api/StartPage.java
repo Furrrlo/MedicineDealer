@@ -4,6 +4,7 @@ import gov.ismonnet.medicine.database.Tables;
 import gov.ismonnet.medicine.jaxb.ws.LoginBean;
 import gov.ismonnet.medicine.jaxb.ws.RegistrationBean;
 import org.jooq.DSLContext;
+import org.jooq.Record;
 import org.jooq.Record1;
 import org.jooq.Result;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -11,6 +12,7 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import javax.inject.Inject;
 import javax.ws.rs.*;
 import javax.ws.rs.core.MediaType;
+import javax.ws.rs.core.Response;
 import java.sql.Date;
 import java.util.Optional;
 
@@ -29,37 +31,69 @@ public class StartPage {
     @Consumes(MediaType.APPLICATION_XML)
     @Produces(MediaType.APPLICATION_XML)
     public RegistrationBean register(RegistrationBean registrationBean) {
-        //TODO: mail must be unique
         final String hash = passwordEncoder.encode(registrationBean.getPassword());
 
-        ctx.insertInto(Tables.UTENTI)
-                .set(Tables.UTENTI.NOME, registrationBean.getNome())
-                .set(Tables.UTENTI.COGNOME, registrationBean.getCognome())
-                .set(Tables.UTENTI.EMAIL, registrationBean.getEmail())
-                .set(Tables.UTENTI.DATA_NASCITA, Date.valueOf(registrationBean.getDataNascita()))
-                .set(Tables.UTENTI.PASSWORD, hash)
-                .execute();
+
+        Result<? extends Record> results = ctx.select(Tables.UTENTI.PASSWORD)
+                .from(Tables.UTENTI)
+                .where(Tables.UTENTI.EMAIL.equal(registrationBean.getEmail()))
+                .fetch();
+
+        if(results.size() == 0){
+            //email is unique
+            ctx.insertInto(Tables.UTENTI)
+                    .set(Tables.UTENTI.NOME, registrationBean.getNome())
+                    .set(Tables.UTENTI.COGNOME, registrationBean.getCognome())
+                    .set(Tables.UTENTI.EMAIL, registrationBean.getEmail())
+                    .set(Tables.UTENTI.DATA_NASCITA, Date.valueOf(registrationBean.getDataNascita()))
+                    .set(Tables.UTENTI.PASSWORD, hash)
+                    .execute();
+        }
 
         return registrationBean;
     }
 
     @GET
     @Consumes(MediaType.APPLICATION_XML)
-    public String login(@QueryParam( value = "email" )  String  email,
+    public Response login(@QueryParam( value = "email" )  String  email,
                         @QueryParam( value = "password" ) String password) {
         // To check if a password matches its hash get the has from the db then
         // passwordEncoder.matches(pw, hash)
+        //
+        // codes
+        // 200: logged
+        // 402: email not found
+        // 403: password wrong
 
-        final String hash = passwordEncoder.encode(password);
+        int code = -1;
 
-        Result<?> result = ctx.select(Tables.UTENTI.PASSWORD)
+        Result<? extends Record> results = ctx.select(Tables.UTENTI.PASSWORD)
                 .from(Tables.UTENTI)
                 .where(Tables.UTENTI.EMAIL.equal(email))
-                .and(Tables.UTENTI.PASSWORD.equal(password))
                 .fetch();
 
-        //if(result)
-        return null;
+        if(results.size() != 0){
+            //Email found
+            String pass = "";
+            boolean logged = false;
+            for(Record result : results){
+                pass = result.get(Tables.UTENTI.PASSWORD);
+                if(passwordEncoder.matches(password,pass)) logged = true;
+            }
+
+            if(logged){
+                //password correct
+                code = 200;
+            }else{
+                //password not correct
+                code = 403;
+            }
+        }else{
+            //Email not found
+            code = 402;
+        }
+
+        return Response.status(code).build();
     }
 
     @POST
