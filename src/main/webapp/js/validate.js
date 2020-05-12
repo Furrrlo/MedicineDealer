@@ -44,8 +44,10 @@ document.addEventListener('DOMContentLoaded', () => {
 
             const evtListener = () => {
                 // Check browser error msg
-                if(!input.validity.valid)
+                if(!input.validity.valid) {
                     input.setCustomError(input.validationMessage);
+                    return;
+                }
                 // Check custom error msg
                 const allValid = customValidators.every(validator => {
                     const result = validator(input);
