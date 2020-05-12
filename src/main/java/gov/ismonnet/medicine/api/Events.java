@@ -41,7 +41,7 @@ public class Events {
             date = LocalDate.now();
 
         // TODO: how to get this?
-        final int userId = 0;
+        final int userId = 1;
         if(deviceId != null)
             checkAuthorizedForDevice(userId, deviceId);
 
@@ -127,7 +127,7 @@ public class Events {
             throw new BadRequestException();
 
         // TODO: how to get this?
-        final int userId = 0;
+        final int userId = 1;
         checkAuthorizedForDevice(userId, eventBean.getIdPortaMedicine().intValue());
         return "<id>" +
                 ctx.insertInto(Tables.EVENTI)
@@ -159,7 +159,7 @@ public class Events {
             throw new BadRequestException();
 
         // TODO: how to get this?
-        final int userId = 0;
+        final int userId = 1;
         checkAuthorizedForEvent(userId, eventId);
 
         final UpdateSetStep<EventiRecord> update = ctx.update(Tables.EVENTI);

@@ -25,7 +25,7 @@ public class Devices {
     @Produces(MediaType.APPLICATION_XML)
     public DevicesBean getDevices() {
         // TODO: how to get this?
-        final int userId = 0;
+        final int userId = 1;
         return new DevicesBean(ctx
                 .select(Tables.PORTA_MEDICINE.ID, Tables.ASSOCIATI.NOME)
                 .from(Tables.PORTA_MEDICINE)
@@ -48,7 +48,7 @@ public class Devices {
     public void associate(@PathParam(value = "cod_invito") String inviteCode) {
 
         // TODO: how to get this?
-        final int userId = 0;
+        final int userId = 1;
 
         final Optional<Integer> optionalId = ctx.select(Tables.PORTA_MEDICINE.ID)
                 .from(Tables.PORTA_MEDICINE)
