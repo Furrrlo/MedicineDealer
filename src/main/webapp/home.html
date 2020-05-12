@@ -25,9 +25,8 @@
     </div>
 
     <div class="section">
-
-        <div class="column is-one-half has-background-white-ter" id="login">
-            <form method="GET" action="api/home" onsubmit="return chkLogin(event)">
+        <div class="column is-one-half has-background-white-ter">
+            <form method="GET" action="api/home">
                 <div class="field">
                     <h1 class="subtitle">SELEZIONA IL PORTAMEDICINE CHE DESIDERI CONSULTARE</h1>
                 </div>
@@ -36,10 +35,12 @@
                 <div class="field">
                     <div class="control">
                         <div class="select is-rounded is-fullwidth">
-                            <select onload="return addOptions(event)">
-                                <option>Select dropdown</option>
-                                <option>With options</option>
+                            <!-- Template -->
+                            <select class="is-hidden">
+                                <option class="porta-medicine-template"></option>
                             </select>
+                            <!-- Container -->
+                            <select id="porta-medicine-container"></select>
                         </div>
                     </div>
                 </div>
@@ -51,36 +52,48 @@
                 </div>
             </form>
         </div>
-
-
-
-        <form method="POST" action="api/home" onsubmit="return chkLogin(event)">
-            <div class="column is-one-half has-background-white-ter" id="login">
-                <div class="field">
-                    <h1 class="subtitle">VUOI ASSOCIARE UN ALTRO PORTA MEDICINE?</h1>
-
-                </div>
-                <br>
-
-                <div class="field">
-                    <label class="label">Inserisci il codice d'invito</label>
-                    <div class="control">
-                        <input class="input is-primary is-rounded" type="text"  placeholder="Cod-Invito" id="cod_invito" required/>
-
-                    </div>
-                </div>
-
-                <div class="field">
-                    <div class="control has-text-centered">
-                        <input type="submit" class="button is-rounded" value="INVIA RICHIESTA"/>
-                    </div>
-                </div>
-            </div>
-        </form>
-
     </div>
-
-
 </div>
+
+<script>
+    window.addEventListener('load', function () {
+
+        const templateClass = 'porta-medicine-template';
+        const template = document.querySelector('.' + templateClass);
+        const container = document.querySelector('#porta-medicine-container');
+
+        const loadDevices = function (devices) {
+            // Cleanup container
+            while (container.firstChild)
+                container.removeChild(container.firstChild);
+            // Load devices
+            if(!devices.forEach)
+                return;
+
+            devices.forEach(device => {
+                const deviceNode = template.cloneNode(true);
+                deviceNode.classList.remove(templateClass);
+
+                deviceNode.value = device.id;
+                deviceNode.textContent = device.nome;
+
+                container.appendChild(deviceNode);
+            });
+        };
+
+        fetch('api/porta_medicine').then(async response => {
+            if(!response.ok)
+                throw response.status + ": " + (await response.text());
+            return JXON.stringToJs(await response.text());
+        }).then(devices => {
+            // XML is kinda shit to use
+            loadDevices(devices.porta_medicine.porta_medicina);
+        }).catch(ex => {
+            console.error(ex);
+        });
+    });
+</script>
+
 </body>
+
 </html>
