@@ -45,4 +45,9 @@
         <jxb:class name="MedicinesBean"/>
     </jxb:bindings>
 
+    <jxb:bindings schemaLocation="porta_medicine.xsd"
+                  node="//xs:element[@name='porta_medicine']">
+        <jxb:class name="DevicesBean"/>
+    </jxb:bindings>
+
 </jxb:bindings>

@@ -32,21 +32,6 @@ public class Events {
 
     @GET
     @Produces(MediaType.APPLICATION_XML)
-    @Consumes(MediaType.APPLICATION_XML)
-    public String getPortamedicine(@QueryParam(value = "id_utente")Integer userId){
-
-//        Result<? extends Record> results = ctx.select(Tables.PORTA_MEDICINE.ID)
-//                .from(Tables.UTENTI)
-//                .join(Tables.UTENTI)
-//                .on(Tables.UTENTI)
-//                .where(Tables.UTENTI.EMAIL.equal(registrationBean.getEmail()))
-//                .fetch();
-
-        return null;
-    }
-
-    @GET
-    @Produces(MediaType.APPLICATION_XML)
     public CalendarBean getEvents(@QueryParam(value = "id_porta_medicine") Integer deviceId,
                                   @QueryParam(value = "data") LocalDate date,
                                   @QueryParam(value = "granularita") Granularity granularity) {
