@@ -7,9 +7,10 @@
     <link rel="stylesheet" href="css/vendor/bulma@0.8.2.min.css">
     <script defer src="js/vendor/fontawesome@5.3.1.all.js"></script>
     <script defer src="js/vendor/jxon@2.0.0-beta.5.min.js"></script>
+    <script src="js/validate.js"></script>
 
     <script>
-        function chkLogin(event){
+        function chkLogin(event) {
             const form = event.target;
 
             const ema = document.getElementById("email").value;
@@ -25,7 +26,7 @@
                     location.href = 'home.html';
                 } else if(code === 401) {
                     // password wrong or email not found
-                    location.href = 'login.html';
+                    form.setCustomError("Credenziali non valide");
                 }
             }).catch(ex => {
                 console.error(ex);
@@ -67,6 +68,7 @@
                         <input class="input is-primary is-rounded"
                                type="email"  placeholder="Email" id="email" required/>
                     </div>
+                    <p class="help is-danger err"></p>
                 </div>
 
                 <div class="field">
@@ -75,15 +77,22 @@
                         <input class="input is-primary is-rounded"
                                type="password"  placeholder="Password" id="psw"required/>
                     </div>
+                    <p class="help is-danger err"></p>
                 </div>
 
                 <div class="field">
-                    <div class="control">
+                    <p class="help has-text-centered is-danger form-err"></p>
+
+                    <div class="control has-text-centered">
                         <input type="submit" class="button is-rounded" value="ACCEDI"/>
                     </div>
+
+                    <p class="help has-text-centered">
+                        Se non sei ancora regitrato clicca
+                        <a href="registrazione.html">QUI</a>
+                    </p>
                 </div>
 
-                <a class="label" href="registrazione.html">Se non sei ancora regitrato clicca QUI </a>
             </div>
         </form>
     </div>

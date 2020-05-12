@@ -7,9 +7,10 @@
     <link rel="stylesheet" href="css/vendor/bulma@0.8.2.min.css">
     <script defer src="js/vendor/fontawesome@5.3.1.all.js"></script>
     <script defer src="js/vendor/jxon@2.0.0-beta.5.min.js"></script>
+    <script src="js/validate.js"></script>
 
     <script>
-        function chkLogin(event){
+        function chkLogin(event) {
 
             const form = event.target;
 
@@ -26,7 +27,7 @@
                     location.href = 'home.html';
                 } else if(code === 401) {
                     // email not found or password wrong
-                    location.href = 'login.html';
+                    form.setCustomError("Credenziali non valide");
                 }
             }).catch(ex => {
                 console.error(ex);
@@ -60,8 +61,9 @@
                     <label class="label">Inserisci l'e-mail</label>
                     <div class="control">
                         <input class="input is-primary is-rounded"
-                               type="email"  placeholder="E-mail" id="email" required/>
+                               type="email" placeholder="E-mail" id="email" required/>
                     </div>
+                    <p class="help is-danger err"></p>
                 </div>
 
                 <div class="field">
@@ -70,12 +72,14 @@
                         <input class="input is-primary is-rounded"
                                type="password"  placeholder="Password" id="password" required/>
                     </div>
+                    <p class="help is-danger err"></p>
                 </div>
 
-                <br>
                 <div class="field">
+                    <p class="help has-text-centered is-danger form-err"></p>
+                    <br>
                     <div class="control">
-                        <input type="submit" class="button is-centered" value="ACCEDI"/>
+                        <button class="button is-rounded is-fullwidth">ACCEDI</button>
                     </div>
                 </div>
             </div>
