@@ -1,7 +1,6 @@
 package gov.ismonnet.medicine.api;
 
 import gov.ismonnet.medicine.database.Tables;
-import gov.ismonnet.medicine.jaxb.ws.LoginBean;
 import gov.ismonnet.medicine.jaxb.ws.RegistrationBean;
 import org.jooq.DSLContext;
 import org.jooq.Record;
@@ -56,7 +55,7 @@ public class StartPage {
     @GET
     @Consumes(MediaType.APPLICATION_XML)
     public Response login(@QueryParam( value = "email" )  String  email,
-                        @QueryParam( value = "password" ) String password) {
+                          @QueryParam( value = "password" ) String password) {
         // To check if a password matches its hash get the has from the db then
         // passwordEncoder.matches(pw, hash)
         //
@@ -65,31 +64,33 @@ public class StartPage {
         // 406: email not found
         // 407: password wrong
 
-        int code = -1;
-
+        int code;
         Result<? extends Record> results = ctx.select(Tables.UTENTI.PASSWORD)
                 .from(Tables.UTENTI)
                 .where(Tables.UTENTI.EMAIL.equal(email))
                 .fetch();
 
         if(results.size() != 0){
-            //Email found
-            String pass = "";
+            // Email found
+            String pass;
             boolean logged = false;
-            for(Record result : results){
+            for(Record result : results) {
                 pass = result.get(Tables.UTENTI.PASSWORD);
-                if(passwordEncoder.matches(password,pass)) logged = true;
+                if(passwordEncoder.matches(password, pass)) {
+                    logged = true;
+                    break;
+                }
             }
 
-            if(logged){
-                //password correct
+            if(logged) {
+                // password correct
                 code = 200;
-            }else{
-                //password not correct
+            } else {
+                // password not correct
                 code = 407;
             }
-        }else{
-            //Email not found
+        } else {
+            // Email not found
             code = 406;
         }
 

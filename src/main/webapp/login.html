@@ -1,89 +1,89 @@
 <!DOCTYPE html>
 <html>
-    <head>
-        <meta charset="utf-8">
-        <meta name="viewport" content="width=device-width, initial-scale=1">
-        <title>Benvenuto in MEDICINE DEALER</title>
-        <link rel="stylesheet" href="css/vendor/bulma@0.8.2.min.css">
-        <script defer src="js/vendor/fontawesome@5.3.1.all.js"></script>
-        <script defer src="js/vendor/jxon@2.0.0-beta.5.min.js"></script>
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Benvenuto in MEDICINE DEALER</title>
+    <link rel="stylesheet" href="css/vendor/bulma@0.8.2.min.css">
+    <script defer src="js/vendor/fontawesome@5.3.1.all.js"></script>
+    <script defer src="js/vendor/jxon@2.0.0-beta.5.min.js"></script>
 
-        <script>
-            function chkLogin(event){
+    <script>
+        function chkLogin(event){
 
-                    let form = event.target;
+            const form = event.target;
 
-                    var ema = document.getElementById("email").value;
-                    var psw = document.getElementById("password").value;
+            const ema = document.getElementById("email").value;
+            const psw = document.getElementById("password").value;
 
-                    fetch(form.action + "?email=" + ema + "&password=" + psw, {
-                        method: form.method
-                    }).then(async response => {
-                        var code = response.status;
+            fetch(form.action + "?email=" + ema + "&password=" + psw, {
+                method: form.method
+            }).then(async response => {
+                const code = response.status;
 
-                        if ( code == 200 ){
-                            //logged
-                            location.href = 'home.html';
-                        } else if (code == 406){
-                            //email not found
-                            location.href = 'login.html';
-                        } else if (code == 407){
-                            //password wrong
-                            location.href = 'login.html';
-                        }
-                    }).catch(ex => {
-                        console.error(ex);
-                    });
+                if (code === 200) {
+                    //logged
+                    location.href = 'home.html';
+                } else if(code === 406) {
+                    //email not found
+                    location.href = 'login.html';
+                } else if(code === 407) {
+                    //password wrong
+                    location.href = 'login.html';
+                }
+            }).catch(ex => {
+                console.error(ex);
+            });
 
-                     return false;
-            }
-        </script>
-    </head>
+            return false;
+        }
+    </script>
+</head>
 
-    <body>
-        <section class="hero is-primary">
-            <div class="hero-body">
-                <div class="container">
-                    <h1 class="title is-1" >MEDICINE DEALER</h1>
-                    <h2 class="subtitle">GESTISCI L'ACQUISIZIONE DI MEDICINALI CON SEMPLICITA'</h2>
+<body>
+<section class="hero is-primary">
+    <div class="hero-body">
+        <div class="container">
+            <h1 class="title is-1" >MEDICINE DEALER</h1>
+            <h2 class="subtitle">GESTISCI L'ACQUISIZIONE DI MEDICINALI CON SEMPLICITA'</h2>
+        </div>
+    </div>
+</section>
+
+<div class="section">
+    <form method="GET" action="api/pagina_iniziale" onsubmit="return chkLogin(event);">
+        <div class="columns is-centered">
+            <div class="column is-one-quarter ">
+
+                <div class="field">
+                    <h1 class="subtitle">ACCEDI PER GESTIRE I PORTAMEDICINE</h1>
                 </div>
-            </div>
-        </section>
 
-        <div class="section">
-            <form method="GET" action="api/pagina_iniziale" onsubmit="return chkLogin(event);">
-                <div class="columns is-centered">
-                    <div class="column is-one-quarter ">
-
-                        <div class="field">
-                            <h1 class="subtitle">ACCEDI PER GESTIRE I PORTAMEDICINE</h1>
-                        </div>
-
-                        <div class="field">
-                            <label class="label">Inserisci l'e-mail</label>
-                            <div class="control">
-                                <input class="input is-primary is-rounded"
-                                       type="email"  placeholder="E-mail" id="email" required/>
-                            </div>
-                        </div>
-
-                        <div class="field">
-                            <label class="label">Inserisci la password</label>
-                            <div class="control">
-                                <input class="input is-primary is-rounded"
-                                       type="password"  placeholder="Password" id="password" required/>
-                            </div>
-                        </div>
-
-                        <br>
-                        <div class="field">
-                            <div class="control">
-                                <input type="submit" class="button is-centered" value="ACCEDI"/>
-                            </div>
-                        </div>
+                <div class="field">
+                    <label class="label">Inserisci l'e-mail</label>
+                    <div class="control">
+                        <input class="input is-primary is-rounded"
+                               type="email"  placeholder="E-mail" id="email" required/>
                     </div>
                 </div>
-            </form>
+
+                <div class="field">
+                    <label class="label">Inserisci la password</label>
+                    <div class="control">
+                        <input class="input is-primary is-rounded"
+                               type="password"  placeholder="Password" id="password" required/>
+                    </div>
+                </div>
+
+                <br>
+                <div class="field">
+                    <div class="control">
+                        <input type="submit" class="button is-centered" value="ACCEDI"/>
+                    </div>
+                </div>
+            </div>
         </div>
-    </body>
+    </form>
+</div>
+</body>
 </html>

@@ -1,86 +1,86 @@
 <!DOCTYPE html>
 <html lang="en">
-    <head>
-        <meta charset="utf-8">
-        <meta name="viewport" content="width=device-width, initial-scale=1">
-        <title>home</title>
-        <link rel="stylesheet" href="css/vendor/bulma@0.8.2.min.css">
-        <script defer src="js/vendor/fontawesome@5.3.1.all.js"></script>
-        <script defer src="js/vendor/jxon@2.0.0-beta.5.min.js"></script>
-    </head>
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>home</title>
+    <link rel="stylesheet" href="css/vendor/bulma@0.8.2.min.css">
+    <script defer src="js/vendor/fontawesome@5.3.1.all.js"></script>
+    <script defer src="js/vendor/jxon@2.0.0-beta.5.min.js"></script>
+</head>
 
-    <body>
-        <section class="hero is-primary">
-            <div class="hero-body">
-                <div class="container">
-                    <h1 class="title is-1" >MEDICINE DEALER</h1>
-                    <h2 class="subtitle">GESTISCI L'ACQUISIZIONE DI MEDICINALI CON SEMPLICITA'</h2>
+<body>
+<section class="hero is-primary">
+    <div class="hero-body">
+        <div class="container">
+            <h1 class="title is-1" >MEDICINE DEALER</h1>
+            <h2 class="subtitle">GESTISCI L'ACQUISIZIONE DI MEDICINALI CON SEMPLICITA'</h2>
+        </div>
+    </div>
+</section>
+
+<div class="columns">
+    <div class="column auto" id="description">
+
+    </div>
+
+    <div class="section">
+
+        <div class="column is-one-half has-background-white-ter" id="login">
+            <form method="GET" action="api/home" onsubmit="return chkLogin(event)">
+                <div class="field">
+                    <h1 class="subtitle">SELEZIONA IL PORTAMEDICINE CHE DESIDERI CONSULTARE</h1>
+                </div>
+                <br>
+
+                <div class="field">
+                    <div class="control">
+                        <div class="select is-rounded is-fullwidth">
+                            <select onload="return addOptions(event)">
+                                <option>Select dropdown</option>
+                                <option>With options</option>
+                            </select>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="field">
+                    <div class="control has-text-centered">
+                        <input type="submit" class="button is-rounded" value="RICERCA IL PORTA MEDICINE"/>
+                    </div>
+                </div>
+            </form>
+        </div>
+
+
+
+        <form method="POST" action="api/home" onsubmit="return chkLogin(event)">
+            <div class="column is-one-half has-background-white-ter" id="login">
+                <div class="field">
+                    <h1 class="subtitle">VUOI ASSOCIARE UN ALTRO PORTA MEDICINE?</h1>
+
+                </div>
+                <br>
+
+                <div class="field">
+                    <label class="label">Inserisci il codice d'invito</label>
+                    <div class="control">
+                        <input class="input is-primary is-rounded" type="text"  placeholder="Cod-Invito" id="cod_invito" required/>
+
+                    </div>
+                </div>
+
+                <div class="field">
+                    <div class="control has-text-centered">
+                        <input type="submit" class="button is-rounded" value="INVIA RICHIESTA"/>
+                    </div>
                 </div>
             </div>
-        </section>
+        </form>
 
-        <div class="columns">
-            <div class="column auto" id="description">
-
-            </div>
-
-            <div class="section">
-
-                    <div class="column is-one-half has-background-white-ter" id="login">
-                        <form method="GET" action="api/home" onsubmit="return chkLogin(event)">
-                            <div class="field">
-                                <h1 class="subtitle">SELEZIONA IL PORTAMEDICINE CHE DESIDERI CONSULTARE</h1>
-                            </div>
-                            <br>
-
-                            <div class="field">
-                                <div class="control">
-                                    <div class="select is-rounded is-fullwidth">
-                                        <select onload="return addOptions(event)">
-                                            <option>Select dropdown</option>
-                                            <option>With options</option>
-                                        </select>
-                                    </div>
-                                </div>
-                            </div>
-
-                            <div class="field">
-                                <div class="control has-text-centered">
-                                    <input type="submit" class="button is-rounded" value="RICERCA IL PORTA MEDICINE"/>
-                                </div>
-                            </div>
-                        </form>
-                    </div>
+    </div>
 
 
-
-                    <form method="POST" action="api/home" onsubmit="return chkLogin(event)">
-                        <div class="column is-one-half has-background-white-ter" id="login">
-                            <div class="field">
-                                <h1 class="subtitle">VUOI ASSOCIARE UN ALTRO PORTA MEDICINE?</h1>
-
-                            </div>
-                            <br>
-
-                            <div class="field">
-                                <label class="label">Inserisci il codice d'invito</label>
-                                <div class="control">
-                                    <input class="input is-primary is-rounded" type="text"  placeholder="Cod-Invito" id="cod_invito" required/>
-
-                                </div>
-                            </div>
-
-                            <div class="field">
-                                <div class="control has-text-centered">
-                                    <input type="submit" class="button is-rounded" value="INVIA RICHIESTA"/>
-                                </div>
-                            </div>
-                        </div>
-                    </form>
-                
-        </div>
-
-
-        </div>
-    </body>
+</div>
+</body>
 </html>

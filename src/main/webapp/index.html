@@ -10,86 +10,86 @@
 
     <script>
         function chkLogin(event){
-                    let form = event.target;
+            const form = event.target;
 
-                    var ema = document.getElementById("email").value;
-                    var psw = document.getElementById("psw").value;
+            const ema = document.getElementById("email").value;
+            const psw = document.getElementById("psw").value;
 
-                    fetch(form.action + "?email=" + ema + "&password=" + psw, {
-                        method: form.method
-                    }).then(async response => {
-                        var code = response.status;
+            fetch(form.action + "?email=" + ema + "&password=" + psw, {
+                method: form.method
+            }).then(async response => {
+                const code = response.status;
 
-                        if ( code == 200 ){
-                            //logged
-                            location.href = 'home.html';
-                        } else if (code == 406){
-                            //email not found
-                            location.href = 'login.html';
-                        } else if (code == 407){
-                            //password wrong
-                            location.href = 'login.html';
-                        }
-                    }).catch(ex => {
-                        console.error(ex);
-                    });
+                if(code === 200) {
+                    //logged
+                    location.href = 'home.html';
+                } else if(code === 406) {
+                    //email not found
+                    location.href = 'login.html';
+                } else if(code === 407) {
+                    //password wrong
+                    location.href = 'login.html';
+                }
+            }).catch(ex => {
+                console.error(ex);
+            });
 
-                    return false;
+            return false;
         }
     </script>
 </head>
 
-    <body>
-        <section class="hero is-primary">
-            <div class="hero-body">
-                <div class="container">
-                    <h1 class="title is-1" >MEDICINE DEALER</h1>
-                    <h2 class="subtitle">GESTISCI L'ACQUISIZIONE DI MEDICINALI CON SEMPLICITA'</h2>
-                </div>
-            </div>
-        </section>
-
-        <div class="columns">
-            <div class="column auto" id="description">
-                <div class="field">
-                    <h1 class="title">COME FUNZIONA MEDICINE DEALER</h1>
-                    <p class="paragraph"></p>
-                </div>
-            </div>
-
-            <div class="section">
-                <form method="GET" action="api/pagina_iniziale" onsubmit="return chkLogin(event)">
-                    <div class="column is-one-half has-background-white-ter" id="login">
-                        <div class="field">
-                            <h1 class="subtitle">EFFETTUA IL LOGIN PER GESTIRE I PORTAMEDICINE</h1>
-                        </div>
-                        <br>
-                        <div class="field">
-                            <label class="label">Inserisci l'email</label>
-                            <div class="control">
-                                <input class="input is-primary is-rounded"
-                                       type="email"  placeholder="Email" id="email" required/>
-                            </div>
-                        </div>
-
-                        <div class="field">
-                            <label class="label">Inserisci la password</label>
-                            <div class="control">
-                                <input class="input is-primary is-rounded"
-                                       type="password"  placeholder="Password" id="psw"required/>
-                            </div>
-                        </div>
-
-                        <div class="field">
-                            <div class="control">
-                                <input type="submit" class="button is-rounded" value="ACCEDI"/>
-                            </div>
-                        </div>
-
-                        <a class="label" href="registrazione.html">Se non sei ancora regitrato clicca QUI </a>
-                    </div>
-                </form>
-            </div>
+<body>
+<section class="hero is-primary">
+    <div class="hero-body">
+        <div class="container">
+            <h1 class="title is-1" >MEDICINE DEALER</h1>
+            <h2 class="subtitle">GESTISCI L'ACQUISIZIONE DI MEDICINALI CON SEMPLICITA'</h2>
         </div>
-    </body>
+    </div>
+</section>
+
+<div class="columns">
+    <div class="column auto" id="description">
+        <div class="field">
+            <h1 class="title">COME FUNZIONA MEDICINE DEALER</h1>
+            <p class="paragraph"></p>
+        </div>
+    </div>
+
+    <div class="section">
+        <form method="GET" action="api/pagina_iniziale" onsubmit="return chkLogin(event)">
+            <div class="column is-one-half has-background-white-ter" id="login">
+                <div class="field">
+                    <h1 class="subtitle">EFFETTUA IL LOGIN PER GESTIRE I PORTAMEDICINE</h1>
+                </div>
+                <br>
+                <div class="field">
+                    <label class="label">Inserisci l'email</label>
+                    <div class="control">
+                        <input class="input is-primary is-rounded"
+                               type="email"  placeholder="Email" id="email" required/>
+                    </div>
+                </div>
+
+                <div class="field">
+                    <label class="label">Inserisci la password</label>
+                    <div class="control">
+                        <input class="input is-primary is-rounded"
+                               type="password"  placeholder="Password" id="psw"required/>
+                    </div>
+                </div>
+
+                <div class="field">
+                    <div class="control">
+                        <input type="submit" class="button is-rounded" value="ACCEDI"/>
+                    </div>
+                </div>
+
+                <a class="label" href="registrazione.html">Se non sei ancora regitrato clicca QUI </a>
+            </div>
+        </form>
+    </div>
+</div>
+</body>
 </html>
