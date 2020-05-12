@@ -54,44 +54,27 @@ public class StartPage {
     @Consumes(MediaType.APPLICATION_XML)
     public Response login(@QueryParam( value = "email" )  String  email,
                           @QueryParam( value = "password" ) String password) {
-        // To check if a password matches its hash get the has from the db then
-        // passwordEncoder.matches(pw, hash)
-        //
         // codes
         // 200: logged
-        // 406: email not found
-        // 407: password wrong
+        // 401: wrong credentials
 
-        int code;
         Result<? extends Record> results = ctx.select(Tables.UTENTI.PASSWORD)
                 .from(Tables.UTENTI)
                 .where(Tables.UTENTI.EMAIL.equal(email))
                 .fetch();
 
-        if(results.size() != 0){
-            // Email found
-            String pass;
-            boolean logged = false;
-            for(Record result : results) {
-                pass = result.get(Tables.UTENTI.PASSWORD);
-                if(passwordEncoder.matches(password, pass)) {
-                    logged = true;
-                    break;
-                }
+        boolean logged = false;
+        for(Record result : results) {
+            final String pass = result.get(Tables.UTENTI.PASSWORD);
+            if(passwordEncoder.matches(password, pass)) {
+                logged = true;
+                break;
             }
-
-            if(logged) {
-                // password correct
-                code = 200;
-            } else {
-                // password not correct
-                code = 407;
-            }
-        } else {
-            // Email not found
-            code = 406;
         }
 
-        return Response.status(code).build();
+        return Response.status(logged ?
+                Response.Status.OK : // password correct
+                Response.Status.UNAUTHORIZED // email not found or password not correct
+        ).build();
     }
 }

@@ -22,13 +22,10 @@
                 const code = response.status;
 
                 if (code === 200) {
-                    //logged
+                    // logged
                     location.href = 'home.html';
-                } else if(code === 406) {
-                    //email not found
-                    location.href = 'login.html';
-                } else if(code === 407) {
-                    //password wrong
+                } else if(code === 401) {
+                    // email not found or password wrong
                     location.href = 'login.html';
                 }
             }).catch(ex => {
