@@ -46,7 +46,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 // Check browser error msg
                 if(!input.validity.valid) {
                     input.setCustomError(input.validationMessage);
-                    return;
+                    return false;
                 }
                 // Check custom error msg
                 const allValid = customValidators.every(validator => {
@@ -64,6 +64,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
                 if(allValid) // All valid, reset error
                     input.setCustomError('');
+                return allValid;
             };
 
             input.addEventListener('input', evtListener);
