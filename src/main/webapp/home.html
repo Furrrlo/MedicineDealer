@@ -11,11 +11,12 @@
     <link href='js/fullcalendar/packages/core/main.css' rel='stylesheet' />
     <link href='js/fullcalendar/packages/daygrid/main.css' rel='stylesheet' />
     <link href='js/fullcalendar/packages/list/main.css' rel='stylesheet' />
+    <link href='js/fullcalendar/packages/timegrid/main.css' rel='stylesheet' />
     <script src='js/fullcalendar/packages/core/main.js'></script>
     <script src='js/fullcalendar/packages/interaction/main.js'></script>
     <script src='js/fullcalendar/packages/daygrid/main.js'></script>
     <script src='js/fullcalendar/packages/list/main.js'></script>
-    <script src='js/fullcalendar/packages/google-calendar/main.js'></script>
+    <script src='js/fullcalendar/packages/timegrid/main.js'></script>
 
 </head>
 
@@ -31,6 +32,10 @@
 
 <div class="columns">
     <div class="column auto" id="description">
+        <div class="container has-text-centered">
+            <h1 class="title ">Porta medicine di: </h1>
+            <br>
+        </div>
         <div class="calendar"id='calendar'>
 
         </div>
@@ -63,8 +68,35 @@
                     </div>
                 </div>
             </form>
+
+            <br>
+
+            <div class="field has-text-centered">
+                <h1 class="subtitle">VUOI AGGIUNGERE UN FARMACO ALL'ELENCO?</h1>
+                    <div class="control has-text-centered">
+                        <input type="submit" class="button is-rounded" value="AGGIUNGI UN FARMACO" onclick="aggiungiFarmaco()"/>
+                    </div>
+                </div>
+            <br>
+
+            <div class="field has-text-centered">
+                <h1 class="subtitle">VUOI RIMUOVERE UN FARMACO DALL'ELENCO?</h1>
+                <div class="control has-text-centered">
+                    <input type="submit" class="button is-rounded" value="RIMUOVI UN FARMACO" onclick="rimuoviFarmaco()"/>
+                </div>
+            </div>
+
+            <div class="field has-text-centered">
+                <h1 class="subtitle">SE CLICCHI SU UN GIORNO DEL CALENDARIO DOVREBBE USCIRE L'ELENCO DELLE MEDICINE RELATIVE A QUEL GIORNO</h1>
+                <div class="control has-text-centered">
+                    <input type="submit" class="button is-rounded" value="TIPO COSI" onclick="farmaciDelGiorno()"/>
+                </div>
+            </div>
+            <br>
         </div>
     </div>
+
+
 </div>
 
 <script>
@@ -110,38 +142,40 @@
         var calendarEl = document.getElementById('calendar');
 
         var calendar = new FullCalendar.Calendar(calendarEl, {
-
-          plugins: [ 'interaction', 'dayGrid', 'list', 'googleCalendar' ],
-
+          plugins: [ 'interaction', 'dayGrid', 'timeGrid' ],
           header: {
             left: 'prev,next today',
             center: 'title',
-            right: 'dayGridMonth,listYear'
+            right: 'dayGridMonth,timeGridWeek,timeGridDay'
           },
-
-          displayEventTime: false, // don't show the time column in list view
-
-          // THIS KEY WON'T WORK IN PRODUCTION!!!
-          // To make your own Google API key, follow the directions here:
-          // http://fullcalendar.io/docs/google_calendar/
-          googleCalendarApiKey: 'AIzaSyDcnW6WejpTOCffshGDDb4neIrXVUA1EAE',
-
-          eventClick: function(arg) {
-            // opens events in a popup window
-            window.open(arg.event.url, 'google-calendar-event', 'width=700,height=600');
-
-            arg.jsEvent.preventDefault() // don't navigate in main tab
+          defaultDate: '2020-02-12',
+          navLinks: true, // can click day/week names to navigate views
+          selectable: true,
+          selectMirror: true,
+          select: function(arg) {
+            var title = prompt('Event Title:');
+            if (title) {
+              calendar.addEvent({
+                title: title,
+                start: arg.start,
+                end: arg.end,
+                allDay: arg.allDay
+              })
+            }
+            calendar.unselect()
           },
-
-          loading: function(bool) {
-            document.getElementById('loading').style.display =
-              bool ? 'block' : 'none';
-          }
-
+          editable: true,
+          eventLimit: true, // allow "more" link when too many events
+          events: [ ]
         });
 
         calendar.render();
     }
+
+
+    function aggiungiFarmaco(){ location.href = "aggiungiFarmaco.html"; }
+    function rimuoviFarmaco() { location.href = "rimuoviFarmaco.html"; }
+    function farmaciDelGiorno() {location.href = "farmaciDelGiorno.html"; }
 </script>
 
 </body>
