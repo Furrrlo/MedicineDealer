@@ -25,9 +25,12 @@ dependencies {
     runtime("org.glassfish.jersey.containers:jersey-container-servlet:$jerseyVersion")
     // Needed for custom parameter values
     compile("org.glassfish.jersey.core:jersey-server:$jerseyVersion")
+    runtime("org.glassfish.jersey.inject:jersey-hk2:$jerseyVersion")
+
+    providedCompile("jakarta.validation:jakarta.validation-api:2.0.2");
+    runtime("org.glassfish.jersey.ext:jersey-bean-validation:$jerseyVersion")
 
     compile("org.glassfish.jersey.media:jersey-media-multipart:$jerseyVersion")
-    runtime("org.glassfish.jersey.inject:jersey-hk2:$jerseyVersion")
 
     // Guice
 

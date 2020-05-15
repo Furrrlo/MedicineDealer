@@ -13,6 +13,7 @@ import org.jooq.impl.DSL;
 import org.jooq.types.UInteger;
 
 import javax.inject.Inject;
+import javax.validation.constraints.NotNull;
 import javax.ws.rs.*;
 import javax.ws.rs.core.MediaType;
 import java.math.BigInteger;
@@ -38,9 +39,7 @@ public class Events {
     public CalendarBean getEvents(@Authenticated int userId,
                                   @QueryParam(value = "id_porta_medicine") Integer deviceId,
                                   @QueryParam(value = "data") LocalDate date,
-                                  @QueryParam(value = "granularita") Granularity granularity) {
-        if(granularity == null)
-            throw new BadRequestException();
+                                  @NotNull @QueryParam(value = "granularita") Granularity granularity) {
         if(date == null)
             date = LocalDate.now();
 
@@ -125,7 +124,7 @@ public class Events {
     @Consumes(MediaType.APPLICATION_XML)
     @Produces(MediaType.APPLICATION_XML)
     public String addEvent(@Authenticated int userId,
-                           NewEventBean eventBean) {
+                           @NotNull NewEventBean eventBean) {
         if(eventBean == null)
             throw new BadRequestException();
 
@@ -156,7 +155,7 @@ public class Events {
     @Path("{id_evento}")
     public void editEvent(@Authenticated int userId,
                           @PathParam(value = "id_evento") int eventId,
-                          EditEventBean eventBean) {
+                          @NotNull EditEventBean eventBean) {
         if(eventBean == null)
             throw new BadRequestException();
 
@@ -220,13 +219,10 @@ public class Events {
         DAY, WEEK, MONTH, YEAR, ALL;
 
         public static Granularity fromString(String param) {
-            if(param == null || param.isEmpty())
-                return null;
-
             try {
                 return valueOf(param.toUpperCase());
             } catch (Exception e) {
-                throw new BadRequestException();
+                return null;
             }
         }
     }

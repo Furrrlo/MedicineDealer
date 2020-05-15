@@ -11,6 +11,7 @@ import org.jooq.exception.SQLStateClass;
 import org.springframework.security.crypto.password.PasswordEncoder;
 
 import javax.inject.Inject;
+import javax.validation.constraints.NotNull;
 import javax.ws.rs.*;
 import javax.ws.rs.core.*;
 import java.sql.Date;
@@ -42,7 +43,7 @@ public class StartPage {
     @Consumes(MediaType.APPLICATION_XML)
     @Produces(MediaType.APPLICATION_XML)
     public Response register(@Context UriInfo uriInfo,
-                             RegistrationBean registrationBean) {
+                             @NotNull RegistrationBean registrationBean) {
 
         try {
             // email has unique constraint
@@ -70,8 +71,8 @@ public class StartPage {
     @GET
     @Consumes(MediaType.APPLICATION_XML)
     public Response login(@Context UriInfo uriInfo,
-                          @QueryParam( value = "email" )  String  email,
-                          @QueryParam( value = "password" ) String password) {
+                          @NotNull @QueryParam(value = "email") String email,
+                          @NotNull @QueryParam(value = "password") String password) {
         // codes
         // 200: logged
         // 401: wrong credentials

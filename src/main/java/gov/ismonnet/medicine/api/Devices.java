@@ -7,6 +7,7 @@ import org.jooq.DSLContext;
 import org.jooq.Record1;
 
 import javax.inject.Inject;
+import javax.validation.constraints.NotNull;
 import javax.ws.rs.*;
 import javax.ws.rs.core.MediaType;
 import java.math.BigInteger;
@@ -45,7 +46,7 @@ public class Devices {
     @POST
     @Path("{cod_invito}")
     public void associate(@Authenticated int userId,
-                          @PathParam(value = "cod_invito") String inviteCode) {
+                          @NotNull @PathParam(value = "cod_invito") String inviteCode) {
         final Optional<Integer> optionalId = ctx.select(Tables.PORTA_MEDICINE.ID)
                 .from(Tables.PORTA_MEDICINE)
                 .where(Tables.PORTA_MEDICINE.COD_INVITO.equal(inviteCode))
