@@ -28,8 +28,11 @@
                 } else if(code === 401) {
                     // email not found or password wrong
                     form.setCustomError("Credenziali non valide");
+                } else if(!response.ok) {
+                    throw response.status + ": " + (await response.text());
                 }
             }).catch(ex => {
+                form.setCustomError("Errore del server");
                 console.error(ex);
             });
 
