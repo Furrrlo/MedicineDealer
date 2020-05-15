@@ -1,5 +1,6 @@
 package gov.ismonnet.medicine.api;
 
+import gov.ismonnet.medicine.authentication.Authenticated;
 import gov.ismonnet.medicine.database.Tables;
 import gov.ismonnet.medicine.jaxb.ws.DevicesBean;
 import org.jooq.DSLContext;
@@ -23,9 +24,7 @@ public class Devices {
 
     @GET
     @Produces(MediaType.APPLICATION_XML)
-    public DevicesBean getDevices() {
-        // TODO: how to get this?
-        final int userId = 1;
+    public DevicesBean getDevices(@Authenticated int userId) {
         return new DevicesBean(ctx
                 .select(Tables.PORTA_MEDICINE.ID, Tables.ASSOCIATI.NOME)
                 .from(Tables.PORTA_MEDICINE)
@@ -45,11 +44,8 @@ public class Devices {
 
     @POST
     @Path("{cod_invito}")
-    public void associate(@PathParam(value = "cod_invito") String inviteCode) {
-
-        // TODO: how to get this?
-        final int userId = 1;
-
+    public void associate(@Authenticated int userId,
+                          @PathParam(value = "cod_invito") String inviteCode) {
         final Optional<Integer> optionalId = ctx.select(Tables.PORTA_MEDICINE.ID)
                 .from(Tables.PORTA_MEDICINE)
                 .where(Tables.PORTA_MEDICINE.COD_INVITO.equal(inviteCode))

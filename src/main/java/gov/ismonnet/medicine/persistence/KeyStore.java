@@ -12,5 +12,5 @@ import java.lang.annotation.Target;
 @Target({ElementType.METHOD, ElementType.FIELD, ElementType.PARAMETER})
 @BindingAnnotation
 @Qualifier
-public @interface Credentials {
+public @interface KeyStore {
 }

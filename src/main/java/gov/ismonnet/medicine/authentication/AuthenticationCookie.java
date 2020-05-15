@@ -1,4 +1,4 @@
-package gov.ismonnet.medicine.persistence;
+package gov.ismonnet.medicine.authentication;
 
 import com.google.inject.BindingAnnotation;
 
@@ -12,5 +12,5 @@ import java.lang.annotation.Target;
 @Target({ElementType.METHOD, ElementType.FIELD, ElementType.PARAMETER})
 @BindingAnnotation
 @Qualifier
-public @interface Credentials {
+public @interface AuthenticationCookie {
 }

@@ -1,11 +1,14 @@
 package gov.ismonnet.medicine.api;
 
+import gov.ismonnet.medicine.authentication.Authenticated;
 import gov.ismonnet.medicine.database.Tables;
 import gov.ismonnet.medicine.database.tables.records.EventiRecord;
 import gov.ismonnet.medicine.jaxb.ws.CalendarBean;
 import gov.ismonnet.medicine.jaxb.ws.EditEventBean;
 import gov.ismonnet.medicine.jaxb.ws.NewEventBean;
-import org.jooq.*;
+import org.jooq.DSLContext;
+import org.jooq.UpdateSetMoreStep;
+import org.jooq.UpdateSetStep;
 import org.jooq.impl.DSL;
 import org.jooq.types.UInteger;
 
@@ -32,7 +35,8 @@ public class Events {
 
     @GET
     @Produces(MediaType.APPLICATION_XML)
-    public CalendarBean getEvents(@QueryParam(value = "id_porta_medicine") Integer deviceId,
+    public CalendarBean getEvents(@Authenticated int userId,
+                                  @QueryParam(value = "id_porta_medicine") Integer deviceId,
                                   @QueryParam(value = "data") LocalDate date,
                                   @QueryParam(value = "granularita") Granularity granularity) {
         if(granularity == null)
@@ -40,8 +44,6 @@ public class Events {
         if(date == null)
             date = LocalDate.now();
 
-        // TODO: how to get this?
-        final int userId = 1;
         if(deviceId != null)
             checkAuthorizedForDevice(userId, deviceId);
 
@@ -122,12 +124,11 @@ public class Events {
     @POST
     @Consumes(MediaType.APPLICATION_XML)
     @Produces(MediaType.APPLICATION_XML)
-    public String addEvent(NewEventBean eventBean) {
+    public String addEvent(@Authenticated int userId,
+                           NewEventBean eventBean) {
         if(eventBean == null)
             throw new BadRequestException();
 
-        // TODO: how to get this?
-        final int userId = 1;
         checkAuthorizedForDevice(userId, eventBean.getIdPortaMedicine().intValue());
         return "<id>" +
                 ctx.insertInto(Tables.EVENTI)
@@ -153,13 +154,12 @@ public class Events {
     @Consumes(MediaType.APPLICATION_XML)
     @Produces(MediaType.APPLICATION_XML)
     @Path("{id_evento}")
-    public void editEvent(@PathParam(value = "id_evento") int eventId,
+    public void editEvent(@Authenticated int userId,
+                          @PathParam(value = "id_evento") int eventId,
                           EditEventBean eventBean) {
         if(eventBean == null)
             throw new BadRequestException();
 
-        // TODO: how to get this?
-        final int userId = 1;
         checkAuthorizedForEvent(userId, eventId);
 
         final UpdateSetStep<EventiRecord> update = ctx.update(Tables.EVENTI);

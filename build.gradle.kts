@@ -23,15 +23,18 @@ dependencies {
     val jerseyVersion = "2.30.1"
     providedCompile("jakarta.ws.rs:jakarta.ws.rs-api:2.1.6")
     runtime("org.glassfish.jersey.containers:jersey-container-servlet:$jerseyVersion")
+    // Needed for custom parameter values
+    compile("org.glassfish.jersey.core:jersey-server:$jerseyVersion")
 
     compile("org.glassfish.jersey.media:jersey-media-multipart:$jerseyVersion")
     runtime("org.glassfish.jersey.inject:jersey-hk2:$jerseyVersion")
 
     // Guice
 
+    val guiceVersion = "4.2.3"
     compile("org.glassfish.hk2:guice-bridge:2.6.1")
-    compile("com.google.inject:guice:4.2.3'")
-    compile("com.google.inject.extensions:guice-assistedinject:4.2.3")
+    compile("com.google.inject:guice:$guiceVersion")
+    compile("com.google.inject.extensions:guice-assistedinject:$guiceVersion")
 
     // Logging
 
@@ -42,6 +45,12 @@ dependencies {
     runtime("org.slf4j:slf4j-api:1.7.30")
     runtime("org.slf4j:jcl-over-slf4j:1.7.30") // Needed by spring crypto stuff
     runtime("org.apache.logging.log4j:log4j-slf4j-impl:$log4jVer")
+
+    // JJWT
+
+    compile("io.jsonwebtoken:jjwt-api:0.11.1")
+    runtime("io.jsonwebtoken:jjwt-impl:0.11.1")
+    runtime("io.jsonwebtoken:jjwt-jackson:0.11.1")
 
     // Test
 

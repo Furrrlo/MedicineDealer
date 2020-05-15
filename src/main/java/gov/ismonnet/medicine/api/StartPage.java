@@ -1,80 +1,107 @@
 package gov.ismonnet.medicine.api;
 
+import gov.ismonnet.medicine.authentication.AuthenticationCookie;
+import gov.ismonnet.medicine.authentication.AuthenticationService;
+import gov.ismonnet.medicine.authentication.AuthorizationSchema;
 import gov.ismonnet.medicine.database.Tables;
 import gov.ismonnet.medicine.jaxb.ws.RegistrationBean;
 import org.jooq.DSLContext;
-import org.jooq.Record;
-import org.jooq.Result;
 import org.springframework.security.crypto.password.PasswordEncoder;
 
 import javax.inject.Inject;
 import javax.ws.rs.*;
-import javax.ws.rs.core.MediaType;
-import javax.ws.rs.core.Response;
+import javax.ws.rs.core.*;
 import java.sql.Date;
+import java.util.Optional;
 
 @Path("pagina_iniziale")
 public class StartPage {
 
     private final DSLContext ctx;
     private final PasswordEncoder passwordEncoder;
+    private final AuthenticationService authenticationService;
 
-    @Inject StartPage(DSLContext ctx, PasswordEncoder passwordEncoder) {
+    public final String authorizationHeaderSchema;
+    public final String authenticationCookieName;
+
+    @Inject StartPage(DSLContext ctx,
+                      PasswordEncoder passwordEncoder,
+                      AuthenticationService authenticationService,
+                      @AuthorizationSchema String authorizationHeaderSchema,
+                      @AuthenticationCookie String authenticationCookieName) {
         this.ctx = ctx;
         this.passwordEncoder = passwordEncoder;
+        this.authenticationService = authenticationService;
+        this.authorizationHeaderSchema = authorizationHeaderSchema;
+        this.authenticationCookieName = authenticationCookieName;
     }
 
     @POST
     @Consumes(MediaType.APPLICATION_XML)
     @Produces(MediaType.APPLICATION_XML)
-    public RegistrationBean register(RegistrationBean registrationBean) {
-        final String hash = passwordEncoder.encode(registrationBean.getPassword());
+    public Response register(@Context UriInfo uriInfo,
+                             RegistrationBean registrationBean) {
 
+        // TODO: email has unique constraint, check for exceptions
+        ctx.insertInto(Tables.UTENTI)
+                .set(Tables.UTENTI.NOME, registrationBean.getNome())
+                .set(Tables.UTENTI.COGNOME, registrationBean.getCognome())
+                .set(Tables.UTENTI.EMAIL, registrationBean.getEmail())
+                .set(Tables.UTENTI.DATA_NASCITA, Date.valueOf(registrationBean.getDataNascita()))
+                .set(Tables.UTENTI.PASSWORD, passwordEncoder.encode(registrationBean.getPassword()))
+                .execute();
 
-        Result<? extends Record> results = ctx.select(Tables.UTENTI.PASSWORD)
-                .from(Tables.UTENTI)
-                .where(Tables.UTENTI.EMAIL.equal(registrationBean.getEmail()))
-                .fetch();
-
-        if(results.size() == 0){
-            //email is unique
-            ctx.insertInto(Tables.UTENTI)
-                    .set(Tables.UTENTI.NOME, registrationBean.getNome())
-                    .set(Tables.UTENTI.COGNOME, registrationBean.getCognome())
-                    .set(Tables.UTENTI.EMAIL, registrationBean.getEmail())
-                    .set(Tables.UTENTI.DATA_NASCITA, Date.valueOf(registrationBean.getDataNascita()))
-                    .set(Tables.UTENTI.PASSWORD, hash)
-                    .execute();
-        }
-
-        return registrationBean;
+        final String token = authenticationService.generateToken(registrationBean.getEmail(), uriInfo);
+        return Response.ok()
+                .header(HttpHeaders.AUTHORIZATION, authorizationHeaderSchema + " " + token)
+                .cookie(makeAuthCookie(token))
+                .build();
     }
 
     @GET
     @Consumes(MediaType.APPLICATION_XML)
-    public Response login(@QueryParam( value = "email" )  String  email,
+    public Response login(@Context UriInfo uriInfo,
+                          @QueryParam( value = "email" )  String  email,
                           @QueryParam( value = "password" ) String password) {
         // codes
         // 200: logged
         // 401: wrong credentials
 
-        Result<? extends Record> results = ctx.select(Tables.UTENTI.PASSWORD)
+        Optional<String> actualEmail = ctx
+                .select(Tables.UTENTI.EMAIL, Tables.UTENTI.PASSWORD)
                 .from(Tables.UTENTI)
                 .where(Tables.UTENTI.EMAIL.equal(email))
-                .fetch();
+                .fetch()
+                .stream()
+                .filter(r -> passwordEncoder.matches(password, r.get(Tables.UTENTI.PASSWORD)))
+                .map(r -> r.get(Tables.UTENTI.EMAIL))
+                .findFirst();
 
-        boolean logged = false;
-        for(Record result : results) {
-            final String pass = result.get(Tables.UTENTI.PASSWORD);
-            if(passwordEncoder.matches(password, pass)) {
-                logged = true;
-                break;
-            }
-        }
+        if(!actualEmail.isPresent())
+            return Response
+                    .status(Response.Status.UNAUTHORIZED)
+                    .build();
 
-        return Response.status(logged ?
-                Response.Status.OK : // password correct
-                Response.Status.UNAUTHORIZED // email not found or password not correct
-        ).build();
+        final String token = authenticationService.generateToken(actualEmail.get(), uriInfo);
+        return Response.ok()
+                .header(HttpHeaders.AUTHORIZATION, authorizationHeaderSchema + " " + token)
+                .cookie(makeAuthCookie(token))
+                .build();
+    }
+
+    private NewCookie makeAuthCookie(String token) {
+        return new NewCookie(
+                authenticationCookieName,
+                token,
+                null, // the URI path for which the cookie is valid
+                null, // the host domain for which the cookie is valid. TODO: should probably set this
+                NewCookie.DEFAULT_VERSION, // the version of the specification to which the cookie complies
+                null, // the comment
+                // No max-age and expiry set, cookie expires when the browser gets closed
+                NewCookie.DEFAULT_MAX_AGE, // the maximum age of the cookie in seconds
+                null, // the cookie expiry date
+                false, // specifies whether the cookie will only be sent over a secure connection
+                true // if {@code true} make the cookie HTTP only
+        );
     }
 }

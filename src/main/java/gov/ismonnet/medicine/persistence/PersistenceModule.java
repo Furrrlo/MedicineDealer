@@ -13,7 +13,13 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.Properties;
 
-public class CredentialsModule extends AbstractModule {
+public class PersistenceModule extends AbstractModule {
+
+    @Override
+    protected void configure() {
+        bind(KeyStoreService.class).to(FileKeyStoreService.class);
+        bind(FileKeyStoreService.class).asEagerSingleton();
+    }
 
     @Provides
     @Singleton
@@ -27,5 +33,11 @@ public class CredentialsModule extends AbstractModule {
         } catch (IOException ex) {
             throw new UncheckedIOException("Cannot read credentials file", ex);
         }
+    }
+
+    @Provides
+    @KeyStore
+    public Path provideKeyStorePath(@KeyStore String keyStorePath) {
+        return Paths.get(keyStorePath);
     }
 }

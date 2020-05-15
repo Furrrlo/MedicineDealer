@@ -1,6 +1,7 @@
 package gov.ismonnet.medicine.persistence;
 
 import javax.inject.Inject;
+import java.util.Optional;
 import java.util.Properties;
 
 public class PropertiesCredentialsService implements CredentialsService {
@@ -20,6 +21,11 @@ public class PropertiesCredentialsService implements CredentialsService {
     }
 
     @Override
+    public Optional<String> getOptional(String key) {
+        return Optional.ofNullable(properties.getProperty(key));
+    }
+
+    @Override
     public int getInt(String key) {
         try {
             return Integer.parseInt(get(key));
@@ -29,11 +35,33 @@ public class PropertiesCredentialsService implements CredentialsService {
     }
 
     @Override
+    public Optional<Integer> getOptionalInt(String key) {
+        return getOptional(key).map(v -> {
+            try {
+                return Integer.parseInt(v);
+            } catch (NumberFormatException ex) {
+                throw new AssertionError("Invalid int value for key " + key + " specified in credentials properties!");
+            }
+        });
+    }
+
+    @Override
     public double getDouble(String key) {
         try {
             return Double.parseDouble(get(key));
         } catch (NumberFormatException ex) {
             throw new AssertionError("Invalid double value for key " + key + " specified in credentials properties!");
         }
+    }
+
+    @Override
+    public Optional<Double> getOptionalDouble(String key) {
+        return getOptional(key).map(v -> {
+            try {
+                return Double.parseDouble(v);
+            } catch (NumberFormatException ex) {
+                throw new AssertionError("Invalid double value for key " + key + " specified in credentials properties!");
+            }
+        });
     }
 }
