@@ -78,11 +78,14 @@
                 },
                 body: JXON.jsToString(registration)
             }).then(async response => {
+                if(response.status === 409) {
+                    form.setCustomError("Email già utilizzata");
+                    return;
+                }
+
                 if(!response.ok)
                     throw response.status + ": " + (await response.text());
-                return JXON.stringToJs(await response.text());
-            }).then(obj => {
-                location.href = "login.html";
+                location.href = "home.html";
             }).catch(ex => {
                 form.setCustomError("Errore del server");
                 console.error(ex);

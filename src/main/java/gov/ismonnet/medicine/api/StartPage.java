@@ -6,6 +6,8 @@ import gov.ismonnet.medicine.authentication.AuthorizationSchema;
 import gov.ismonnet.medicine.database.Tables;
 import gov.ismonnet.medicine.jaxb.ws.RegistrationBean;
 import org.jooq.DSLContext;
+import org.jooq.exception.DataAccessException;
+import org.jooq.exception.SQLStateClass;
 import org.springframework.security.crypto.password.PasswordEncoder;
 
 import javax.inject.Inject;
@@ -42,14 +44,21 @@ public class StartPage {
     public Response register(@Context UriInfo uriInfo,
                              RegistrationBean registrationBean) {
 
-        // TODO: email has unique constraint, check for exceptions
-        ctx.insertInto(Tables.UTENTI)
-                .set(Tables.UTENTI.NOME, registrationBean.getNome())
-                .set(Tables.UTENTI.COGNOME, registrationBean.getCognome())
-                .set(Tables.UTENTI.EMAIL, registrationBean.getEmail())
-                .set(Tables.UTENTI.DATA_NASCITA, Date.valueOf(registrationBean.getDataNascita()))
-                .set(Tables.UTENTI.PASSWORD, passwordEncoder.encode(registrationBean.getPassword()))
-                .execute();
+        try {
+            // email has unique constraint
+            ctx.insertInto(Tables.UTENTI)
+                    .set(Tables.UTENTI.NOME, registrationBean.getNome())
+                    .set(Tables.UTENTI.COGNOME, registrationBean.getCognome())
+                    .set(Tables.UTENTI.EMAIL, registrationBean.getEmail())
+                    .set(Tables.UTENTI.DATA_NASCITA, Date.valueOf(registrationBean.getDataNascita()))
+                    .set(Tables.UTENTI.PASSWORD, passwordEncoder.encode(registrationBean.getPassword()))
+                    .execute();
+        } catch (DataAccessException ex) {
+            if(ex.sqlStateClass() == SQLStateClass.C23_INTEGRITY_CONSTRAINT_VIOLATION)
+                // violated unique constraint
+                return Response.status(Response.Status.CONFLICT).build();
+            throw ex;
+        }
 
         final String token = authenticationService.generateToken(registrationBean.getEmail(), uriInfo);
         return Response.ok()
