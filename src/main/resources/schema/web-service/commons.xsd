@@ -1,0 +1,142 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema">
+
+    <xs:complexType name="porta_medicina">
+        <xs:all>
+            <xs:element name="id" type="id"/>
+            <xs:element name="nome" type="xs:string"/>
+        </xs:all>
+    </xs:complexType>
+
+    <xs:complexType name="medicina">
+        <xs:sequence>
+            <xs:element name="name" type="xs:string"/>
+            <xs:element name="aic_farmaco" type="aic"/>
+        </xs:sequence>
+    </xs:complexType>
+
+    <xs:complexType name="event_with_assunzioni">
+        <xs:complexContent>
+            <xs:extension base="immutable_event">
+                <xs:sequence>
+                    <xs:element name="assunzioni">
+                        <xs:complexType>
+                            <xs:sequence>
+                                <xs:element name="assunzione" type="assunzione" minOccurs="0" maxOccurs="unbounded"/>
+                            </xs:sequence>
+                        </xs:complexType>
+                    </xs:element>
+                </xs:sequence>
+            </xs:extension>
+        </xs:complexContent>
+    </xs:complexType>
+
+    <xs:complexType name="immutable_event">
+        <xs:complexContent>
+            <xs:extension base="immutable_event_base">
+                <xs:sequence>
+                    <xs:element name="id" type="id"/>
+                </xs:sequence>
+            </xs:extension>
+        </xs:complexContent>
+    </xs:complexType>
+
+    <xs:complexType name="immutable_event_base">
+        <xs:sequence>
+            <xs:element name="id_porta_medicine" type="id"/>
+            <xs:element name="aic_farmaco" type="aic"/>
+            <xs:element name="data" type="xs:date"/>
+            <xs:element name="cadenza" type="cadenza" minOccurs="0"/>
+            <xs:element name="orari">
+                <xs:complexType>
+                    <xs:sequence>
+                        <xs:element name="ora" type="xs:time" minOccurs="0" maxOccurs="unbounded"/>
+                    </xs:sequence>
+                </xs:complexType>
+            </xs:element>
+        </xs:sequence>
+    </xs:complexType>
+
+    <xs:complexType name="mutable_event">
+        <xs:complexContent>
+            <xs:extension base="mutable_event_base">
+                <xs:sequence>
+                    <xs:element name="id" type="id"/>
+                </xs:sequence>
+            </xs:extension>
+        </xs:complexContent>
+    </xs:complexType>
+
+    <xs:complexType name="mutable_event_base">
+        <xs:sequence>
+            <xs:element name="id_porta_medicine" type="id" minOccurs="0"/>
+            <xs:element name="aic_farmaco" type="aic" minOccurs="0"/>
+            <xs:element name="data" type="xs:date" minOccurs="0"/>
+            <xs:element name="cadenza" type="cadenza" minOccurs="0"/>
+            <xs:element name="orari" minOccurs="0">
+                <xs:complexType>
+                    <xs:sequence>
+                        <xs:element name="ora" type="xs:time" minOccurs="0" maxOccurs="unbounded"/>
+                    </xs:sequence>
+                </xs:complexType>
+            </xs:element>
+        </xs:sequence>
+    </xs:complexType>
+
+    <xs:complexType name="cadenza">
+        <xs:sequence>
+            <xs:element name="intervallo" type="xs:integer"/>
+            <xs:choice>
+                <xs:element name="giornaliera"/>
+                <xs:element name="settimanale" type="settimana"/>
+            </xs:choice>
+            <xs:element name="fine" type="fine_cadenza" minOccurs="0">
+            </xs:element>
+
+        </xs:sequence>
+    </xs:complexType>
+
+    <xs:complexType name="settimana">
+        <xs:all>
+            <xs:element name="lunedi" type="xs:boolean"/>
+            <xs:element name="martedi" type="xs:boolean"/>
+            <xs:element name="mercoledi" type="xs:boolean"/>
+            <xs:element name="giovedi" type="xs:boolean"/>
+            <xs:element name="venerdi" type="xs:boolean"/>
+            <xs:element name="sabato" type="xs:boolean"/>
+            <xs:element name="domenica" type="xs:boolean"/>
+        </xs:all>
+    </xs:complexType>
+
+    <xs:complexType name="fine_cadenza">
+        <xs:choice>
+            <xs:element name="data" type="xs:date"/>
+            <xs:element name="occorenze" type="xs:integer"/>
+        </xs:choice>
+    </xs:complexType>
+
+    <xs:complexType name="assunzione">
+        <xs:all>
+            <xs:element name="data" type="xs:date"/>
+            <xs:element name="ora" type="xs:time"/>
+            <xs:element name="data_reale" type="xs:date" minOccurs="0"/>
+            <xs:element name="ora_reale" type="xs:time" minOccurs="0"/>
+        </xs:all>
+    </xs:complexType>
+
+    <xs:simpleType name="id">
+        <xs:restriction base="xs:integer"/>
+    </xs:simpleType>
+
+    <xs:simpleType name="aic">
+        <xs:restriction base="xs:integer"/>
+    </xs:simpleType>
+
+    <xs:simpleType name="email">
+        <xs:restriction base="xs:string"/>
+    </xs:simpleType>
+
+    <xs:simpleType name="password">
+        <xs:restriction base="xs:string"/>
+    </xs:simpleType>
+</xs:schema>

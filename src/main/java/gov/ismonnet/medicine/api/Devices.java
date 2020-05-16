@@ -3,6 +3,7 @@ package gov.ismonnet.medicine.api;
 import gov.ismonnet.medicine.authentication.Authenticated;
 import gov.ismonnet.medicine.database.Tables;
 import gov.ismonnet.medicine.jaxb.ws.DevicesBean;
+import gov.ismonnet.medicine.jaxb.ws.PortaMedicina;
 import org.jooq.DSLContext;
 import org.jooq.Record1;
 
@@ -36,7 +37,7 @@ public class Devices {
                 .where(Tables.ASSOCIATI.ID_UTENTE.equal(userId))
                 .fetch()
                 .stream()
-                .map(r -> new DevicesBean.PortaMedicina(
+                .map(r -> new PortaMedicina(
                         BigInteger.valueOf(r.get(Tables.PORTA_MEDICINE.ID)),
                         r.get(Tables.ASSOCIATI.NOME)
                 ))

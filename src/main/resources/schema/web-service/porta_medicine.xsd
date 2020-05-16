@@ -1,16 +1,11 @@
 <?xml version="1.0" encoding="UTF-8" ?>
 <xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema">
+    <xs:include schemaLocation="commons.xsd"/>
+
     <xs:element name="porta_medicine">
         <xs:complexType>
             <xs:sequence>
-                <xs:element name="porta_medicina" minOccurs="0" maxOccurs="unbounded">
-                    <xs:complexType>
-                        <xs:all>
-                            <xs:element name="id" type="xs:integer"/>
-                            <xs:element name="nome" type="xs:string"/>
-                        </xs:all>
-                    </xs:complexType>
-                </xs:element>
+                <xs:element name="porta_medicina" type="porta_medicina" minOccurs="0" maxOccurs="unbounded"/>
             </xs:sequence>
         </xs:complexType>
     </xs:element>

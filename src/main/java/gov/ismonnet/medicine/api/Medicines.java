@@ -1,6 +1,7 @@
 package gov.ismonnet.medicine.api;
 
 import gov.ismonnet.medicine.database.Tables;
+import gov.ismonnet.medicine.jaxb.ws.Medicina;
 import gov.ismonnet.medicine.jaxb.ws.MedicinesBean;
 import org.jooq.DSLContext;
 import org.jooq.Record2;
@@ -35,9 +36,9 @@ public class Medicines {
                 .from(Tables.FARMACI)
                 .fetch();
 
-        List<MedicinesBean.Medicina> medicinaList = new ArrayList<>();
+        List<Medicina> medicinaList = new ArrayList<>();
         for(Record2<UInteger, String> medicina : query)
-            medicinaList.add(new MedicinesBean.Medicina(medicina.value2(), medicina.value1().toBigInteger()));
+            medicinaList.add(new Medicina(medicina.value2(), medicina.value1().toBigInteger()));
         return new MedicinesBean(medicinaList);
     }
 

@@ -1,13 +1,6 @@
 <?xml version="1.0" encoding="UTF-8" ?>
 <xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema">
-    <xs:element name="nuovo_evento">
-        <xs:complexType>
-            <xs:all>
-                <xs:element name="id_porta_medicine" type="xs:integer"/>
-                <xs:element name="data" type="xs:date"/>
-                <xs:element name="ora" type="xs:time"/>
-                <xs:element name="aic_farmaco" type="xs:integer"/>
-            </xs:all>
-        </xs:complexType>
-    </xs:element>
+    <xs:include schemaLocation="commons.xsd"/>
+
+    <xs:element name="nuovo_evento" type="immutable_event_base"/>
 </xs:schema>

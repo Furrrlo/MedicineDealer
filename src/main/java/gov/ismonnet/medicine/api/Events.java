@@ -2,14 +2,13 @@ package gov.ismonnet.medicine.api;
 
 import gov.ismonnet.medicine.authentication.Authenticated;
 import gov.ismonnet.medicine.database.Tables;
+import gov.ismonnet.medicine.database.enums.EventiCadenza;
 import gov.ismonnet.medicine.database.tables.records.EventiRecord;
-import gov.ismonnet.medicine.jaxb.ws.CalendarBean;
-import gov.ismonnet.medicine.jaxb.ws.EditEventBean;
-import gov.ismonnet.medicine.jaxb.ws.NewEventBean;
+import gov.ismonnet.medicine.jaxb.ws.*;
 import org.jooq.DSLContext;
-import org.jooq.UpdateSetMoreStep;
-import org.jooq.UpdateSetStep;
+import org.jooq.InsertSetMoreStep;
 import org.jooq.impl.DSL;
+import org.jooq.types.UByte;
 import org.jooq.types.UInteger;
 
 import javax.inject.Inject;
@@ -21,9 +20,13 @@ import java.sql.Date;
 import java.sql.Time;
 import java.time.DayOfWeek;
 import java.time.LocalDate;
+import java.time.LocalTime;
 import java.time.temporal.TemporalAdjusters;
 import java.time.temporal.WeekFields;
+import java.util.*;
 import java.util.stream.Collectors;
+
+import static gov.ismonnet.medicine.utils.EventUtils.*;
 
 @Path("eventi")
 public class Events {
@@ -42,7 +45,6 @@ public class Events {
                                   @NotNull @QueryParam(value = "granularita") Granularity granularity) {
         if(date == null)
             date = LocalDate.now();
-
         if(deviceId != null)
             checkAuthorizedForDevice(userId, deviceId);
 
@@ -75,12 +77,14 @@ public class Events {
                 throw new AssertionError("Unimplemented value: " + granularity);
         }
 
-        return new CalendarBean(ctx
-                .select(
-                        Tables.EVENTI.ID, Tables.EVENTI.DATA, Tables.EVENTI.ORA,
-                        Tables.FARMACI.COD_AIC, Tables.FARMACI.NOME,
-                        Tables.ASSUNZIONI.ID, Tables.ASSUNZIONI.DATA, Tables.ASSUNZIONI.ORA
-                )
+        final List<EventWithAssunzioni> events = ctx.select(
+                Tables.EVENTI.ID, Tables.EVENTI.ID_PORTA_MEDICINE, Tables.EVENTI.DATA,
+                Tables.EVENTI.CADENZA, Tables.EVENTI.INTERVALLO, Tables.EVENTI.GIORNI_SETTIMANA,
+                Tables.EVENTI.DATA_FINE_INTERVALLO, Tables.EVENTI.OCCORRENZE_FINE_INTERVALLO,
+                Tables.ORARI.ORA,
+                Tables.FARMACI.COD_AIC, Tables.FARMACI.NOME,
+                Tables.ASSUNZIONI.DATA, Tables.ASSUNZIONI.DATA_REALE, Tables.ASSUNZIONI.ORA_REALE
+        )
                 .from(Tables.EVENTI)
 
                 .join(Tables.ASSOCIATI)
@@ -89,8 +93,11 @@ public class Events {
                 .join(Tables.FARMACI)
                 .on(Tables.EVENTI.AIC_FARMACO.eq(Tables.FARMACI.COD_AIC))
 
+                .join(Tables.ORARI)
+                .on(Tables.EVENTI.ID.eq(Tables.ORARI.ID_EVENTO))
+
                 .leftJoin(Tables.ASSUNZIONI)
-                .on(Tables.EVENTI.ID_ASSUNZIONE.eq(Tables.ASSUNZIONI.ID))
+                .on(Tables.ORARI.ID.eq(Tables.ASSUNZIONI.ID_ORARIO))
 
                 .where(Tables.ASSOCIATI.ID_UTENTE.eq(userId))
                 .and(deviceId == null ?
@@ -98,26 +105,89 @@ public class Events {
                         Tables.ASSOCIATI.ID_PORTA_MEDICINE.eq(deviceId))
                 .and(granularity == Granularity.ALL ?
                         DSL.noCondition() :
-                        Tables.EVENTI.DATA.between(Date.valueOf(startDate), Date.valueOf(endDate)))
+                        // If the event is not repeated, check if the date is between the two
+                        // otherwise it's handled further down
+                        Tables.EVENTI.CADENZA.isNotNull()
+                                .or(Tables.EVENTI.DATA.between(Date.valueOf(startDate), Date.valueOf(endDate))))
 
                 .fetch()
                 .stream()
-                .map(r -> new CalendarBean.Evento(
-                        BigInteger.valueOf(r.get(Tables.EVENTI.ID)),
-                        r.get(Tables.EVENTI.DATA).toLocalDate(),
-                        r.get(Tables.EVENTI.ORA).toLocalTime(),
-                        new CalendarBean.Evento.Medicina(
-                                r.get(Tables.FARMACI.NOME),
-                                r.get(Tables.FARMACI.COD_AIC).toBigInteger()
-                        ),
-                        r.get(Tables.ASSUNZIONI.ID) == null ?
-                                null :
-                                new CalendarBean.Evento.Assunzione(
-                                        r.get(Tables.ASSUNZIONI.DATA).toLocalDate(),
-                                        r.get(Tables.ASSUNZIONI.ORA).toLocalTime()
-                                )
+                .collect(Collectors.groupingBy(
+                        r -> {
+                            final EventiCadenza cadenza = r.get(Tables.EVENTI.CADENZA);
+                            final UByte week = r.get(Tables.EVENTI.GIORNI_SETTIMANA);
+
+                            final Date endIntervalDate = r.get(Tables.EVENTI.DATA_FINE_INTERVALLO);
+                            final Integer endOccurrences = r.get(Tables.EVENTI.OCCORRENZE_FINE_INTERVALLO);
+
+                            return new EventWithAssunzioni()
+                                    .withId(BigInteger.valueOf(r.get(Tables.EVENTI.ID)))
+                                    .withIdPortaMedicine(BigInteger.valueOf(r.get(Tables.EVENTI.ID_PORTA_MEDICINE)))
+                                    .withAicFarmaco(r.get(Tables.FARMACI.COD_AIC).toBigInteger())
+                                    .withData(r.get(Tables.EVENTI.DATA).toLocalDate())
+                                    .withCadenza(cadenza == null ? null :
+                                            new Cadenza()
+                                                    .withIntervallo(BigInteger.valueOf(r.get(Tables.EVENTI.INTERVALLO)))
+                                                    .withGiornaliera(cadenza != EventiCadenza.giornaliera ?
+                                                            null :
+                                                            new Object())
+                                                    .withSettimanale(cadenza != EventiCadenza.settimanale ?
+                                                            null :
+                                                            bitmaskToWeek(week.intValue()))
+                                                    .withFine((endIntervalDate == null && endOccurrences == null) ? null :
+                                                            new FineCadenza()
+                                                                    .withData(endIntervalDate != null ? endIntervalDate.toLocalDate() : null)
+                                                                    .withOccorenze(endOccurrences != null ? BigInteger.valueOf(endOccurrences) : null))
+                                    );
+                        }, Collectors.mapping(r -> r, Collectors.toSet())
                 ))
-                .collect(Collectors.toList()));
+                .entrySet()
+                .stream()
+                .map(e -> e.getKey()
+                        .withOrari(e.getValue().stream()
+                                .map(r -> r.get(Tables.ORARI.ORA).toLocalTime())
+                                .collect(Collectors.toList()))
+                        .withAssunzioni(e.getValue().stream()
+                                .filter(r -> r.get(Tables.ASSUNZIONI.DATA) != null)
+                                .map(r -> {
+                                    final Date assumptionRealDate = r.get(Tables.ASSUNZIONI.DATA_REALE);
+                                    final Time assumptionRealTime = r.get(Tables.ASSUNZIONI.ORA_REALE);
+                                    return new Assunzione()
+                                            .withData(r.get(Tables.ASSUNZIONI.DATA).toLocalDate())
+                                            .withOra(r.get(Tables.ORARI.ORA).toLocalTime())
+                                            .withDataReale(assumptionRealDate != null ? assumptionRealDate.toLocalDate() : null)
+                                            .withOraReale(assumptionRealTime != null ? assumptionRealTime.toLocalTime() : null);
+                                })
+                                .collect(Collectors.toList()))
+                )
+                .collect(Collectors.toList());
+        // Generate missing assumptions
+        events.forEach(event -> {
+            // Already sorted out in the query
+            if(event.getCadenza() == null)
+                return;
+
+            final Map<Map.Entry<LocalDate, LocalTime>, Assunzione> assumptions = new HashMap<>();
+            // Populate already existing ones
+            if(event.getAssunzioni() != null)
+                event.getAssunzioni().stream()
+                        .filter(a -> granularity == Granularity.ALL || a.getData().isAfter(startDate) || a.getData().isEqual(startDate))
+                        .filter(a -> granularity == Granularity.ALL || a.getData().isBefore(endDate) || a.getData().isEqual(endDate))
+                        .forEach(assumption -> assumptions.put(
+                                new AbstractMap.SimpleEntry<>(assumption.getData(), assumption.getOra()),
+                                assumption));
+            // For all the absent ones, create a new one
+            final Set<LocalDate> allDates = granularity == Granularity.ALL ?
+                    getAllDates(event) :
+                    getAllDates(event, startDate, endDate);
+            allDates.forEach(d -> event.getOrari().forEach(o -> assumptions.computeIfAbsent(
+                    new AbstractMap.SimpleEntry<>(d, o),
+                    e -> new Assunzione()
+                            .withData(e.getKey())
+                            .withOra(e.getValue()))));
+        });
+
+        return new CalendarBean(events);
     }
 
     @POST
@@ -125,27 +195,44 @@ public class Events {
     @Produces(MediaType.APPLICATION_XML)
     public String addEvent(@Authenticated int userId,
                            @NotNull NewEventBean eventBean) {
-        if(eventBean == null)
-            throw new BadRequestException();
+        final ImmutableEventBase event = eventBean.getValue();
+        checkAuthorizedForDevice(userId, event.getIdPortaMedicine().intValue());
 
-        checkAuthorizedForDevice(userId, eventBean.getIdPortaMedicine().intValue());
-        return "<id>" +
-                ctx.insertInto(Tables.EVENTI)
-                        .columns(
-                                Tables.EVENTI.DATA,
-                                Tables.EVENTI.ORA,
-                                Tables.EVENTI.ID_PORTA_MEDICINE,
-                                Tables.EVENTI.AIC_FARMACO
-                        )
-                        .values(
-                                Date.valueOf(eventBean.getData()),
-                                Time.valueOf(eventBean.getOra()),
-                                eventBean.getIdPortaMedicine().intValue(),
-                                UInteger.valueOf(eventBean.getAicFarmaco().longValueExact())
-                        )
-                        .returningResult(Tables.EVENTI.fields())
-                        .fetchOne()
-                        .map(r -> r.getValue(Tables.EVENTI.ID)) +
+        final InsertSetMoreStep<EventiRecord> insert = ctx.insertInto(Tables.EVENTI)
+                .set(Tables.EVENTI.ID_PORTA_MEDICINE, event.getIdPortaMedicine().intValue())
+                .set(Tables.EVENTI.AIC_FARMACO, UInteger.valueOf(event.getAicFarmaco().longValueExact()))
+                .set(Tables.EVENTI.DATA, Date.valueOf(event.getData()));
+
+        final Cadenza cadenza = event.getCadenza();
+        if(cadenza != null) {
+            if(cadenza.getGiornaliera() != null) {
+                insert.set(Tables.EVENTI.CADENZA, EventiCadenza.giornaliera);
+                insert.set(Tables.EVENTI.INTERVALLO, cadenza.getIntervallo().intValue());
+            } else if(cadenza.getSettimanale() != null) {
+                final Settimana week = cadenza.getSettimanale();
+
+                insert.set(Tables.EVENTI.CADENZA, EventiCadenza.settimanale);
+                insert.set(Tables.EVENTI.INTERVALLO, cadenza.getIntervallo().intValue());
+                insert.set(Tables.EVENTI.GIORNI_SETTIMANA, UByte.valueOf(weekToBitmask(week)));
+            } else {
+                throw new AssertionError("XML cadenza choice element wasn't respected");
+            }
+
+            final FineCadenza fine = cadenza.getFine();
+            if(fine != null) {
+                if(fine.getData() != null)
+                    insert.set(Tables.EVENTI.DATA_FINE_INTERVALLO, Date.valueOf(fine.getData()));
+                else if(fine.getOccorenze() != null)
+                    insert.set(Tables.EVENTI.OCCORRENZE_FINE_INTERVALLO, fine.getOccorenze().intValue());
+                else
+                    throw new AssertionError("XML fine choice element wasn't respected");
+            }
+        }
+
+        return "<id>" + insert
+                .returningResult(Tables.EVENTI.fields())
+                .fetchOne()
+                .map(r -> r.getValue(Tables.EVENTI.ID)) +
                 "</id>";
     }
 
@@ -156,24 +243,23 @@ public class Events {
     public void editEvent(@Authenticated int userId,
                           @PathParam(value = "id_evento") int eventId,
                           @NotNull EditEventBean eventBean) {
-        if(eventBean == null)
-            throw new BadRequestException();
-
-        checkAuthorizedForEvent(userId, eventId);
-
-        final UpdateSetStep<EventiRecord> update = ctx.update(Tables.EVENTI);
-        if(eventBean.getData() != null)
-            update.set(Tables.EVENTI.DATA, Date.valueOf(eventBean.getData()));
-        if(eventBean.getOra() != null)
-            update.set(Tables.EVENTI.ORA, Time.valueOf(eventBean.getOra()));
-        if(eventBean.getAicFarmaco() != null)
-            update.set(Tables.EVENTI.AIC_FARMACO, UInteger.valueOf(eventBean.getAicFarmaco().longValueExact()));
-
-        if(!(update instanceof UpdateSetMoreStep))
-            return;
-        ((UpdateSetMoreStep<EventiRecord>) update)
-                .where(Tables.EVENTI.ID.eq(eventId))
-                .execute();
+        // TODO: edit
+//        final MutableEvent event = eventBean.getValue();
+//        checkAuthorizedForEvent(userId, eventId);
+//
+//        final UpdateSetStep<EventiRecord> update = ctx.update(Tables.EVENTI);
+//        if(event.getData() != null)
+//            update.set(Tables.EVENTI.DATA, Date.valueOf(event.getData()));
+//        if(event.getOra() != null)
+//            update.set(Tables.EVENTI.ORA, Time.valueOf(event.getOra()));
+//        if(event.getAicFarmaco() != null)
+//            update.set(Tables.EVENTI.AIC_FARMACO, UInteger.valueOf(event.getAicFarmaco().longValueExact()));
+//
+//        if(!(update instanceof UpdateSetMoreStep))
+//            return;
+//        ((UpdateSetMoreStep<EventiRecord>) update)
+//                .where(Tables.EVENTI.ID.eq(eventId))
+//                .execute();
     }
 
     private void checkAuthorizedForDevice(int userId, int deviceId) {

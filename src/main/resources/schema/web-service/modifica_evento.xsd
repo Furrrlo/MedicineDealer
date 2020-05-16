@@ -1,12 +1,6 @@
 <?xml version="1.0" encoding="UTF-8" ?>
 <xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema">
-    <xs:element name="modifica_evento">
-        <xs:complexType>
-            <xs:choice>
-                <xs:element name="data" type="xs:date" minOccurs="0"/>
-                <xs:element name="ora" type="xs:time" minOccurs="0"/>
-                <xs:element name="aic_farmaco" type="xs:integer" minOccurs="0"/>
-            </xs:choice>
-        </xs:complexType>
-    </xs:element>
+    <xs:include schemaLocation="commons.xsd"/>
+
+    <xs:element name="modifica_evento" type="mutable_event"/>
 </xs:schema>
