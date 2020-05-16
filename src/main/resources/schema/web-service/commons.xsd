@@ -87,7 +87,13 @@
         <xs:sequence>
             <xs:element name="intervallo" type="xs:integer"/>
             <xs:choice>
-                <xs:element name="giornaliera"/>
+                <!-- Empty element otherwise jaxb does weird stuff -->
+                <xs:element name="giornaliera">
+                    <xs:complexType>
+                        <xs:sequence/>
+                    </xs:complexType>
+                </xs:element>
+
                 <xs:element name="settimanale" type="settimana"/>
             </xs:choice>
             <xs:element name="fine" type="fine_cadenza" minOccurs="0">

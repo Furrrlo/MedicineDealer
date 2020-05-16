@@ -130,7 +130,7 @@ public class Events {
                                                     .withIntervallo(BigInteger.valueOf(r.get(Tables.EVENTI.INTERVALLO)))
                                                     .withGiornaliera(cadenza != EventiCadenza.giornaliera ?
                                                             null :
-                                                            new Object())
+                                                            new Cadenza.Giornaliera())
                                                     .withSettimanale(cadenza != EventiCadenza.settimanale ?
                                                             null :
                                                             bitmaskToWeek(week.intValue()))
@@ -185,8 +185,16 @@ public class Events {
                     e -> new Assunzione()
                             .withData(e.getKey())
                             .withOra(e.getValue()))));
+
+            final List<Assunzione> newAssumptions = new ArrayList<>(assumptions.values());
+            newAssumptions.sort(Comparator
+                    .comparing(Assunzione::getData)
+                    .thenComparing(Assunzione::getOra));
+            event.setAssunzioni(newAssumptions);
         });
 
+        events.removeIf(e -> e.getAssunzioni().isEmpty());
+        events.sort(Comparator.comparing(EventWithAssunzioni::getData));
         return new CalendarBean(events);
     }
 
