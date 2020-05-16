@@ -67,4 +67,7 @@ jooq {
 
 tasks.named("generateDatabaseJooqSchemaSource").configure {
     dependsOn(tasks.flywayMigrate)
+    inputs.files(project.fileTree("src/main/resources/db/migration"))
+            .withPropertyName("migrations")
+            .withPathSensitivity(PathSensitivity.RELATIVE)
 }
