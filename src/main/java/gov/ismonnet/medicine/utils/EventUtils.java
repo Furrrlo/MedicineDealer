@@ -7,13 +7,13 @@ import gov.ismonnet.medicine.jaxb.ws.Settimana;
 import java.time.LocalDate;
 import java.time.temporal.ChronoUnit;
 import java.time.temporal.TemporalAdjusters;
-import java.time.temporal.TemporalUnit;
 import java.time.temporal.WeekFields;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.Objects;
 import java.util.Set;
 import java.util.function.BiFunction;
+import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
 public class EventUtils {
@@ -65,7 +65,7 @@ public class EventUtils {
     public static Set<LocalDate> getAllDates(final ImmutableEventBase event) {
         if(event.getCadenza() == null)
             return Collections.singleton(event.getData());
-        return getAllDates(event.getData(), LocalDate.now(), event.getCadenza());
+        return getAllDates(event, event.getData(), LocalDate.now());
     }
 
     public static Set<LocalDate> getAllDates(final ImmutableEventBase event,
@@ -83,11 +83,41 @@ public class EventUtils {
             return Collections.emptySet();
         }
 
-        return getAllDates(clampEventStartDate(event, startDate), endDate, event.getCadenza());
+        final Cadenza cadence = event.getCadenza();
+        final LocalDate clampedStartDate = clampEventStartDate(event, startDate);
+        final LocalDate clampedEndDate = clampCadenceEndDate(cadence, endDate);
+
+        final boolean usesOccurrences = cadence.getFine() != null && cadence.getFine().getOccorenze() != null;
+
+        final LocalDate from;
+        final BiFunction<LocalDate, Set<LocalDate>, Boolean> until;
+        if(!usesOccurrences) {
+            from = clampedStartDate;
+            until = (currDate, res) -> currDate.isAfter(clampedEndDate);
+        } else {
+            final int occurrences = cadence.getFine().getOccorenze().intValue();
+            from = event.getData();
+            until = (currDate, res) -> res.size() >= occurrences;
+        }
+
+        final Set<LocalDate> res;
+        if(cadence.getGiornaliera() != null)
+            res = getAllDatesDailyCadence(from, until, cadence);
+        else if(cadence.getSettimanale() != null)
+            res = getAllDatesWeeklyCadence(from, until, cadence);
+        else
+            throw new AssertionError("Unimplemented cadence " + cadence);
+
+        if(!usesOccurrences)
+            return res;
+        return res.stream()
+                .filter(d -> !d.isBefore(clampedStartDate))
+                .filter(d -> !d.isAfter(clampedEndDate))
+                .collect(Collectors.toSet());
     }
 
-    public static LocalDate clampEventStartDate(final ImmutableEventBase event,
-                                                final LocalDate startDate) {
+    public static LocalDate clampEventStartDate(final ImmutableEventBase event, final LocalDate startDate) {
+
         if(event.getData().isAfter(startDate) || event.getData().isEqual(startDate)) {
             return event.getData();
         } else {
@@ -98,41 +128,15 @@ public class EventUtils {
         }
     }
 
-    public static Set<LocalDate> getAllDates(final LocalDate startDate,
-                                             final LocalDate endDate,
-                                             final Cadenza cadence) {
-        final BiFunction<LocalDate, Set<LocalDate>, Boolean> until;
-        if(cadence != null && cadence.getFine() != null && cadence.getFine().getOccorenze() != null) {
-            final int occurrences = cadence.getFine().getOccorenze().intValue();
-            until = (currDate, res) -> res.size() >= occurrences;
-        } else {
-            final LocalDate clampedEndDate = clampCadenceEndDate(cadence, startDate, endDate);
-            until = (currDate, res) -> currDate.isAfter(clampedEndDate);
-        }
-
-        if(cadence.getGiornaliera() != null)
-            return getAllDatesDailyCadence(startDate, until, cadence);
-        else if(cadence.getSettimanale() != null)
-            return getAllDatesWeeklyCadence(startDate, until, cadence);
-        throw new AssertionError("Unimplemented cadence " + cadence);
-    }
-
-    public static LocalDate clampCadenceEndDate(final Cadenza cadence,
-                                                final LocalDate startDate,
-                                                final LocalDate endDate) {
+    public static LocalDate clampCadenceEndDate(final Cadenza cadence, final LocalDate endDate) {
         if(cadence.getFine() == null)
             return endDate;
-        if(cadence.getFine().getData() != null)
-            return cadence.getFine().getData();
-        if(cadence.getFine().getOccorenze() != null) {
-            final long occurrences = cadence.getFine().getOccorenze().longValue();
-            final long interval = cadence.getIntervallo().longValue();
-            final TemporalUnit timeUnit = cadence.getGiornaliera() != null ?
-                    ChronoUnit.DAYS :
-                    cadence.getSettimanale() != null ?
-                            ChronoUnit.WEEKS :
-                            null;
-            return startDate.plus(occurrences * interval, timeUnit);
+        if(cadence.getFine().getOccorenze() != null)
+            return endDate;
+        if(cadence.getFine().getData() != null) {
+            if(cadence.getFine().getData().isBefore(endDate))
+                return cadence.getFine().getData();
+            return endDate;
         }
         throw new AssertionError("Unexpected FineCadenza");
     }
