@@ -15,7 +15,7 @@ ALTER TABLE `medicine_dealer`.`eventi`
     DROP INDEX `fk_eventi_assunzione_idx` ;
 
 CREATE TABLE `medicine_dealer`.`orari` (
-    `id` INT NOT NULL,
+    `id` INT NOT NULL AUTO_INCREMENT,
     `id_evento` INT(11) NOT NULL,
     `ora` TIME NOT NULL,
     PRIMARY KEY (`id`),

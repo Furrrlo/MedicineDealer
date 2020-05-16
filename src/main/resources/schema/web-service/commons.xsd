@@ -50,7 +50,7 @@
             <xs:element name="orari">
                 <xs:complexType>
                     <xs:sequence>
-                        <xs:element name="ora" type="xs:time" minOccurs="0" maxOccurs="unbounded"/>
+                        <xs:element name="ora" type="xs:time" maxOccurs="unbounded"/>
                     </xs:sequence>
                 </xs:complexType>
             </xs:element>
