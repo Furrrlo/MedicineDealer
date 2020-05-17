@@ -36,6 +36,7 @@
             <xs:extension base="immutable_event_base">
                 <xs:sequence>
                     <xs:element name="id" type="id"/>
+                    <xs:element name="finito" type="xs:boolean"/>
                 </xs:sequence>
             </xs:extension>
         </xs:complexContent>
@@ -69,10 +70,12 @@
 
     <xs:complexType name="mutable_event_base">
         <xs:sequence>
-            <xs:element name="id_porta_medicine" type="id" minOccurs="0"/>
             <xs:element name="aic_farmaco" type="aic" minOccurs="0"/>
             <xs:element name="data" type="xs:date" minOccurs="0"/>
-            <xs:element name="cadenza" type="cadenza" minOccurs="0"/>
+            <xs:choice minOccurs="0">
+                <xs:element name="elimina_cadenza" type="emtpy"/>
+                <xs:element name="cadenza" type="deletable_cadenza"/>
+            </xs:choice>
             <xs:element name="orari" minOccurs="0">
                 <xs:complexType>
                     <xs:sequence>
@@ -87,18 +90,24 @@
         <xs:sequence>
             <xs:element name="intervallo" type="xs:integer"/>
             <xs:choice>
-                <!-- Empty element otherwise jaxb does weird stuff -->
-                <xs:element name="giornaliera">
-                    <xs:complexType>
-                        <xs:sequence/>
-                    </xs:complexType>
-                </xs:element>
-
+                <xs:element name="giornaliera" type="emtpy"/>
                 <xs:element name="settimanale" type="settimana"/>
             </xs:choice>
-            <xs:element name="fine" type="fine_cadenza" minOccurs="0">
-            </xs:element>
+            <xs:element name="fine" type="fine_cadenza" minOccurs="0"/>
+        </xs:sequence>
+    </xs:complexType>
 
+    <xs:complexType name="deletable_cadenza">
+        <xs:sequence>
+            <xs:element name="intervallo" type="xs:integer"/>
+            <xs:choice>
+                <xs:element name="giornaliera" type="emtpy"/>
+                <xs:element name="settimanale" type="settimana"/>
+            </xs:choice>
+            <xs:choice minOccurs="0">
+                <xs:element name="fine" type="fine_cadenza"/>
+                <xs:element name="elimina_fine" type="emtpy"/>
+            </xs:choice>
         </xs:sequence>
     </xs:complexType>
 
@@ -128,6 +137,11 @@
             <xs:element name="data_reale" type="xs:date" minOccurs="0"/>
             <xs:element name="ora_reale" type="xs:time" minOccurs="0"/>
         </xs:all>
+    </xs:complexType>
+
+    <!-- For empty elements otherwise jaxb does weird stuff -->
+    <xs:complexType name="emtpy">
+        <xs:sequence/>
     </xs:complexType>
 
     <xs:simpleType name="id">

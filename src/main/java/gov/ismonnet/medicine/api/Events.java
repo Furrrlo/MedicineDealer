@@ -3,10 +3,11 @@ package gov.ismonnet.medicine.api;
 import gov.ismonnet.medicine.authentication.Authenticated;
 import gov.ismonnet.medicine.database.Tables;
 import gov.ismonnet.medicine.database.enums.EventiCadenza;
+import gov.ismonnet.medicine.database.tables.records.AssunzioniRecord;
 import gov.ismonnet.medicine.database.tables.records.EventiRecord;
+import gov.ismonnet.medicine.database.tables.records.OrariRecord;
 import gov.ismonnet.medicine.jaxb.ws.*;
-import org.jooq.DSLContext;
-import org.jooq.InsertSetMoreStep;
+import org.jooq.*;
 import org.jooq.impl.DSL;
 import org.jooq.types.UByte;
 import org.jooq.types.UInteger;
@@ -23,6 +24,7 @@ import java.time.LocalDate;
 import java.time.LocalTime;
 import java.time.temporal.TemporalAdjusters;
 import java.time.temporal.WeekFields;
+import java.util.Comparator;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -77,29 +79,7 @@ public class Events {
                 throw new AssertionError("Unimplemented value: " + granularity);
         }
 
-        final List<EventWithAssunzioni> events = ctx.select(
-                Tables.EVENTI.ID, Tables.EVENTI.ID_PORTA_MEDICINE, Tables.EVENTI.DATA,
-                Tables.EVENTI.CADENZA, Tables.EVENTI.INTERVALLO, Tables.EVENTI.GIORNI_SETTIMANA,
-                Tables.EVENTI.DATA_FINE_INTERVALLO, Tables.EVENTI.OCCORRENZE_FINE_INTERVALLO,
-                Tables.ORARI.ORA,
-                Tables.FARMACI.COD_AIC, Tables.FARMACI.NOME,
-                Tables.ASSUNZIONI.DATA, Tables.ASSUNZIONI.DATA_REALE, Tables.ASSUNZIONI.ORA_REALE
-        )
-                .from(Tables.EVENTI)
-
-                .join(Tables.ASSOCIATI)
-                .on(Tables.EVENTI.ID_PORTA_MEDICINE.eq(Tables.ASSOCIATI.ID_PORTA_MEDICINE))
-
-                .join(Tables.FARMACI)
-                .on(Tables.EVENTI.AIC_FARMACO.eq(Tables.FARMACI.COD_AIC))
-
-                .join(Tables.ORARI)
-                .on(Tables.EVENTI.ID.eq(Tables.ORARI.ID_EVENTO))
-
-                .leftJoin(Tables.ASSUNZIONI)
-                .on(Tables.ORARI.ID.eq(Tables.ASSUNZIONI.ID_ORARIO))
-
-                .where(Tables.ASSOCIATI.ID_UTENTE.eq(userId))
+        final List<EventWithAssunzioni> events = fetchEvent(ctx, Tables.ASSOCIATI.ID_UTENTE.eq(userId)
                 .and(deviceId == null ?
                         DSL.noCondition() :
                         Tables.ASSOCIATI.ID_PORTA_MEDICINE.eq(deviceId))
@@ -107,91 +87,45 @@ public class Events {
                         DSL.noCondition() :
                         // If the event is not repeated, check if the date is between the two
                         // otherwise it's handled further down
-                        Tables.EVENTI.CADENZA.isNotNull()
-                                .or(Tables.EVENTI.DATA.between(Date.valueOf(startDate), Date.valueOf(endDate))))
-
-                .fetch()
-                .stream()
-                .collect(Collectors.groupingBy(
-                        r -> {
-                            final EventiCadenza cadenza = r.get(Tables.EVENTI.CADENZA);
-                            final UByte week = r.get(Tables.EVENTI.GIORNI_SETTIMANA);
-
-                            final Date endIntervalDate = r.get(Tables.EVENTI.DATA_FINE_INTERVALLO);
-                            final Integer endOccurrences = r.get(Tables.EVENTI.OCCORRENZE_FINE_INTERVALLO);
-
-                            return new EventWithAssunzioni()
-                                    .withId(BigInteger.valueOf(r.get(Tables.EVENTI.ID)))
-                                    .withIdPortaMedicine(BigInteger.valueOf(r.get(Tables.EVENTI.ID_PORTA_MEDICINE)))
-                                    .withAicFarmaco(r.get(Tables.FARMACI.COD_AIC).toBigInteger())
-                                    .withData(r.get(Tables.EVENTI.DATA).toLocalDate())
-                                    .withCadenza(cadenza == null ? null :
-                                            new Cadenza()
-                                                    .withIntervallo(BigInteger.valueOf(r.get(Tables.EVENTI.INTERVALLO)))
-                                                    .withGiornaliera(cadenza != EventiCadenza.giornaliera ?
-                                                            null :
-                                                            new Cadenza.Giornaliera())
-                                                    .withSettimanale(cadenza != EventiCadenza.settimanale ?
-                                                            null :
-                                                            bitmaskToWeek(week.intValue()))
-                                                    .withFine((endIntervalDate == null && endOccurrences == null) ? null :
-                                                            new FineCadenza()
-                                                                    .withData(endIntervalDate != null ? endIntervalDate.toLocalDate() : null)
-                                                                    .withOccorenze(endOccurrences != null ? BigInteger.valueOf(endOccurrences) : null))
-                                    );
-                        }, Collectors.mapping(r -> r, Collectors.toSet())
-                ))
-                .entrySet()
-                .stream()
-                .map(e -> e.getKey()
-                        .withOrari(e.getValue().stream()
-                                .map(r -> r.get(Tables.ORARI.ORA).toLocalTime())
-                                .collect(Collectors.toList()))
-                        .withAssunzioni(e.getValue().stream()
-                                .filter(r -> r.get(Tables.ASSUNZIONI.DATA) != null)
-                                .map(r -> {
-                                    final Date assumptionRealDate = r.get(Tables.ASSUNZIONI.DATA_REALE);
-                                    final Time assumptionRealTime = r.get(Tables.ASSUNZIONI.ORA_REALE);
-                                    return new Assunzione()
-                                            .withData(r.get(Tables.ASSUNZIONI.DATA).toLocalDate())
-                                            .withOra(r.get(Tables.ORARI.ORA).toLocalTime())
-                                            .withDataReale(assumptionRealDate != null ? assumptionRealDate.toLocalDate() : null)
-                                            .withOraReale(assumptionRealTime != null ? assumptionRealTime.toLocalTime() : null);
-                                })
-                                .collect(Collectors.toList()))
-                )
-                .collect(Collectors.toList());
+                        Tables.EVENTI.CADENZA.isNotNull().or(Tables.EVENTI.DATA.between(Date.valueOf(startDate), Date.valueOf(endDate))))
+        );
         // Generate missing assumptions
-        events.forEach(event -> {
-            // Already sorted out in the query
-            if(event.getCadenza() == null)
-                return;
+        final LocalDate today = LocalDate.now();
+        final LocalTime now = LocalTime.now();
 
-            final Map<Map.Entry<LocalDate, LocalTime>, Assunzione> assumptions = new HashMap<>();
-            // Populate already existing ones
-            if(event.getAssunzioni() != null)
-                event.getAssunzioni().stream()
-                        .filter(a -> granularity == Granularity.ALL || a.getData().isAfter(startDate) || a.getData().isEqual(startDate))
-                        .filter(a -> granularity == Granularity.ALL || a.getData().isBefore(endDate) || a.getData().isEqual(endDate))
-                        .forEach(assumption -> assumptions.put(
-                                new AbstractMap.SimpleEntry<>(assumption.getData(), assumption.getOra()),
-                                assumption));
-            // For all the absent ones, create a new one
-            final Set<LocalDate> allDates = granularity == Granularity.ALL ?
-                    getAllDates(event) :
-                    getAllDates(event, startDate, endDate);
-            allDates.forEach(d -> event.getOrari().forEach(o -> assumptions.computeIfAbsent(
-                    new AbstractMap.SimpleEntry<>(d, o),
-                    e -> new Assunzione()
-                            .withData(e.getKey())
-                            .withOra(e.getValue()))));
+        if(granularity != Granularity.ALL)
+            events.forEach(event -> {
+                // If it already happened and it's all done, no need to generate anything
+                if(event.isFinito())
+                    return;
+                // Already sorted out in the query
+                if(event.getCadenza() == null)
+                    return;
 
-            final List<Assunzione> newAssumptions = new ArrayList<>(assumptions.values());
-            newAssumptions.sort(Comparator
-                    .comparing(Assunzione::getData)
-                    .thenComparing(Assunzione::getOra));
-            event.setAssunzioni(newAssumptions);
-        });
+                final Map<Map.Entry<LocalDate, LocalTime>, Assunzione> assumptions = new HashMap<>();
+                // Populate already existing ones
+                if(event.getAssunzioni() != null)
+                    event.getAssunzioni().stream()
+                            .filter(a -> !a.getData().isBefore(startDate))
+                            .filter(a -> !a.getData().isAfter(endDate))
+                            .forEach(assumption -> assumptions.put(
+                                    new AbstractMap.SimpleEntry<>(assumption.getData(), assumption.getOra()),
+                                    assumption));
+                // For all the absent ones (which are supposed to be new), create new ones
+                getAllDates(event, today, endDate).forEach(d -> event.getOrari().stream()
+                        .filter(o -> d.isAfter(today) || o.isAfter(now))
+                        .forEach(o -> assumptions.computeIfAbsent(
+                                new AbstractMap.SimpleEntry<>(d, o),
+                                e -> new Assunzione()
+                                        .withData(e.getKey())
+                                        .withOra(e.getValue()))));
+
+                final List<Assunzione> newAssumptions = new ArrayList<>(assumptions.values());
+                newAssumptions.sort(Comparator
+                        .comparing(Assunzione::getData)
+                        .thenComparing(Assunzione::getOra));
+                event.setAssunzioni(newAssumptions);
+            });
 
         events.removeIf(e -> e.getAssunzioni().isEmpty());
         events.sort(Comparator.comparing(EventWithAssunzioni::getData));
@@ -206,42 +140,52 @@ public class Events {
         final ImmutableEventBase event = eventBean.getValue();
         checkAuthorizedForDevice(userId, event.getIdPortaMedicine().intValue());
 
-        final InsertSetMoreStep<EventiRecord> insert = ctx.insertInto(Tables.EVENTI)
-                .set(Tables.EVENTI.ID_PORTA_MEDICINE, event.getIdPortaMedicine().intValue())
-                .set(Tables.EVENTI.AIC_FARMACO, UInteger.valueOf(event.getAicFarmaco().longValueExact()))
-                .set(Tables.EVENTI.DATA, Date.valueOf(event.getData()));
+        return ctx.transactionResult(conf -> {
+            final DSLContext ctx = conf.dsl();
+            final InsertSetMoreStep<EventiRecord> insert = ctx.insertInto(Tables.EVENTI)
+                    .set(Tables.EVENTI.ID_PORTA_MEDICINE, event.getIdPortaMedicine().intValue())
+                    .set(Tables.EVENTI.AIC_FARMACO, UInteger.valueOf(event.getAicFarmaco().longValueExact()))
+                    .set(Tables.EVENTI.DATA, Date.valueOf(event.getData()));
 
-        final Cadenza cadenza = event.getCadenza();
-        if(cadenza != null) {
-            if(cadenza.getGiornaliera() != null) {
-                insert.set(Tables.EVENTI.CADENZA, EventiCadenza.giornaliera);
-                insert.set(Tables.EVENTI.INTERVALLO, cadenza.getIntervallo().intValue());
-            } else if(cadenza.getSettimanale() != null) {
-                final Settimana week = cadenza.getSettimanale();
+            final Cadenza cadenza = event.getCadenza();
+            if(cadenza != null) {
+                if(cadenza.getGiornaliera() != null) {
+                    insert.set(Tables.EVENTI.CADENZA, EventiCadenza.giornaliera);
+                    insert.set(Tables.EVENTI.INTERVALLO, cadenza.getIntervallo().intValue());
+                } else if(cadenza.getSettimanale() != null) {
+                    final Settimana week = cadenza.getSettimanale();
 
-                insert.set(Tables.EVENTI.CADENZA, EventiCadenza.settimanale);
-                insert.set(Tables.EVENTI.INTERVALLO, cadenza.getIntervallo().intValue());
-                insert.set(Tables.EVENTI.GIORNI_SETTIMANA, UByte.valueOf(weekToBitmask(week)));
-            } else {
-                throw new AssertionError("XML cadenza choice element wasn't respected");
+                    insert.set(Tables.EVENTI.CADENZA, EventiCadenza.settimanale);
+                    insert.set(Tables.EVENTI.INTERVALLO, cadenza.getIntervallo().intValue());
+                    insert.set(Tables.EVENTI.GIORNI_SETTIMANA, UByte.valueOf(weekToBitmask(week)));
+                } else {
+                    throw new AssertionError("XML cadenza choice element wasn't respected");
+                }
+
+                final FineCadenza fine = cadenza.getFine();
+                if(fine != null) {
+                    if(fine.getData() != null)
+                        insert.set(Tables.EVENTI.DATA_FINE_INTERVALLO, Date.valueOf(fine.getData()));
+                    else if(fine.getOccorenze() != null)
+                        insert.set(Tables.EVENTI.OCCORRENZE_FINE_INTERVALLO, fine.getOccorenze().intValue());
+                    else
+                        throw new AssertionError("XML fine choice element wasn't respected");
+                }
             }
 
-            final FineCadenza fine = cadenza.getFine();
-            if(fine != null) {
-                if(fine.getData() != null)
-                    insert.set(Tables.EVENTI.DATA_FINE_INTERVALLO, Date.valueOf(fine.getData()));
-                else if(fine.getOccorenze() != null)
-                    insert.set(Tables.EVENTI.OCCORRENZE_FINE_INTERVALLO, fine.getOccorenze().intValue());
-                else
-                    throw new AssertionError("XML fine choice element wasn't respected");
-            }
-        }
+            final int eventId = insert
+                    .returningResult(Tables.EVENTI.fields())
+                    .fetchOne()
+                    .map(r -> r.getValue(Tables.EVENTI.ID));
 
-        return "<id>" + insert
-                .returningResult(Tables.EVENTI.fields())
-                .fetchOne()
-                .map(r -> r.getValue(Tables.EVENTI.ID)) +
-                "</id>";
+            final InsertValuesStep2<OrariRecord, Integer, Time> insertHours = ctx
+                    .insertInto(Tables.ORARI)
+                    .columns(Tables.ORARI.ID_EVENTO, Tables.ORARI.ORA);
+            event.getOrari().forEach(hour -> insertHours.values(eventId, Time.valueOf(hour)));
+            insertHours.execute();
+
+            return "<id>" + eventId + "</id>";
+        });
     }
 
     @PUT
@@ -249,25 +193,105 @@ public class Events {
     @Produces(MediaType.APPLICATION_XML)
     @Path("{id_evento}")
     public void editEvent(@Authenticated int userId,
-                          @PathParam(value = "id_evento") int eventId,
+                          @PathParam(value = "id_evento") int oldEventId,
                           @NotNull EditEventBean eventBean) {
-        // TODO: edit
-//        final MutableEvent event = eventBean.getValue();
-//        checkAuthorizedForEvent(userId, eventId);
-//
-//        final UpdateSetStep<EventiRecord> update = ctx.update(Tables.EVENTI);
-//        if(event.getData() != null)
-//            update.set(Tables.EVENTI.DATA, Date.valueOf(event.getData()));
-//        if(event.getOra() != null)
-//            update.set(Tables.EVENTI.ORA, Time.valueOf(event.getOra()));
-//        if(event.getAicFarmaco() != null)
-//            update.set(Tables.EVENTI.AIC_FARMACO, UInteger.valueOf(event.getAicFarmaco().longValueExact()));
-//
-//        if(!(update instanceof UpdateSetMoreStep))
-//            return;
-//        ((UpdateSetMoreStep<EventiRecord>) update)
-//                .where(Tables.EVENTI.ID.eq(eventId))
-//                .execute();
+        final MutableEvent eventEdit = eventBean.getValue();
+        checkAuthorizedForEvent(userId, oldEventId);
+
+        ctx.transaction(conf -> {
+            final DSLContext ctx = conf.dsl();
+
+            final EventWithAssunzioni oldEvent = fetchEvent(ctx, Tables.EVENTI.ID.eq(oldEventId)).get(0);
+            final Record record = ctx.select(Tables.EVENTI.fields())
+                    .from(Tables.EVENTI)
+                    .where(Tables.EVENTI.ID.eq(oldEventId))
+                    .fetchOne();
+            final Record original = record.original();
+
+            // If it's a non repeating event it can only be edited if it did not happen yet
+            if(original.get(Tables.EVENTI.FINITO) == 1)
+                throw new BadRequestException("Cannot edit past request");
+
+            if(eventEdit.getAicFarmaco() != null)
+                record.set(Tables.EVENTI.AIC_FARMACO, UInteger.valueOf(eventEdit.getAicFarmaco().longValueExact()));
+            if(eventEdit.getData() != null)
+                record.set(Tables.EVENTI.DATA, Date.valueOf(eventEdit.getData()));
+
+            if(eventEdit.getEliminaCadenza() != null) {
+                record.set(Tables.EVENTI.CADENZA, null);
+                record.set(Tables.EVENTI.INTERVALLO, null);
+                record.set(Tables.EVENTI.GIORNI_SETTIMANA, null);
+                record.set(Tables.EVENTI.DATA_FINE_INTERVALLO, null);
+                record.set(Tables.EVENTI.OCCORRENZE_FINE_INTERVALLO, null);
+            } else if(eventEdit.getCadenza() != null) {
+                final DeletableCadenza cadenza = eventEdit.getCadenza();
+
+                if(cadenza.getGiornaliera() != null) {
+                    record.set(Tables.EVENTI.CADENZA, EventiCadenza.giornaliera);
+                    record.set(Tables.EVENTI.INTERVALLO, cadenza.getIntervallo().intValue());
+                    record.set(Tables.EVENTI.GIORNI_SETTIMANA, null);
+                } else if(cadenza.getSettimanale() != null) {
+                    final Settimana week = cadenza.getSettimanale();
+
+                    record.set(Tables.EVENTI.CADENZA, EventiCadenza.settimanale);
+                    record.set(Tables.EVENTI.INTERVALLO, cadenza.getIntervallo().intValue());
+                    record.set(Tables.EVENTI.GIORNI_SETTIMANA, UByte.valueOf(weekToBitmask(week)));
+                }
+
+                if(cadenza.getEliminaFine() != null) {
+                    record.set(Tables.EVENTI.DATA_FINE_INTERVALLO, null);
+                    record.set(Tables.EVENTI.OCCORRENZE_FINE_INTERVALLO, null);
+                } else if(cadenza.getFine() != null) {
+                    final FineCadenza fine = cadenza.getFine();
+
+                    if(fine.getData() != null) {
+                        record.set(Tables.EVENTI.DATA_FINE_INTERVALLO, Date.valueOf(fine.getData()));
+                        record.set(Tables.EVENTI.OCCORRENZE_FINE_INTERVALLO, null);
+                    } else if(fine.getOccorenze() != null) {
+                        record.set(Tables.EVENTI.DATA_FINE_INTERVALLO, null);
+                        record.set(Tables.EVENTI.OCCORRENZE_FINE_INTERVALLO, fine.getOccorenze().intValue());
+                    }
+                }
+            }
+
+            // Set the old record as finished
+            ctx.update(Tables.EVENTI)
+                    .set(Tables.EVENTI.FINITO, (byte) 1)
+                    .where(Tables.EVENTI.ID.eq(oldEventId))
+                    .execute();
+            // Insert all the missing assumptions on the old one
+            final InsertValuesStep3<AssunzioniRecord, Integer, Date, Time> insertAssumptions = ctx
+                    .insertInto(Tables.ASSUNZIONI)
+                    .columns(Tables.ASSUNZIONI.ID_EVENTO, Tables.ASSUNZIONI.DATA, Tables.ASSUNZIONI.ORA);
+
+            final LocalDate today = LocalDate.now();
+            final LocalTime now = LocalTime.now();
+            getAllDates(oldEvent, today, today).forEach(d -> oldEvent.getOrari().stream()
+                    .filter(o -> !d.isAfter(today) && o.isBefore(now))
+                    .forEach(o -> insertAssumptions.values(oldEventId, Date.valueOf(d), Time.valueOf(o))));
+
+            insertAssumptions // The unique constraint will prevent stuff from being duped
+                    .onDuplicateKeyIgnore()
+                    .execute();
+            // Insert a new record with the edits
+            record.changed(true);
+            record.changed(Tables.EVENTI.ID, false); // Do not insert the old ID
+            final int newEventId = ctx
+                    .insertInto(Tables.EVENTI)
+                    .set(record)
+                    .returningResult(Tables.EVENTI.fields())
+                    .fetchOne()
+                    .map(r -> r.getValue(Tables.EVENTI.ID));
+
+            final InsertValuesStep2<OrariRecord, Integer, Time> insertHours = ctx
+                    .insertInto(Tables.ORARI)
+                    .columns(Tables.ORARI.ID_EVENTO, Tables.ORARI.ORA);
+            if(eventEdit.getOrari() == null) // Clone the old ones
+                oldEvent.getOrari().forEach(hour -> insertHours.values(newEventId, Time.valueOf(hour)));
+            else // Put in the new ones
+                eventEdit.getOrari().forEach(hour -> insertHours.values(oldEventId, Time.valueOf(hour)));
+            insertHours.execute();
+        });
     }
 
     private void checkAuthorizedForDevice(int userId, int deviceId) {
@@ -307,6 +331,85 @@ public class Events {
                 .fetchOptional()
                 .isPresent())
             throw new ForbiddenException();
+    }
+
+    private List<EventWithAssunzioni> fetchEvent(final DSLContext ctx, final Condition condition) {
+        return ctx.select(
+                Tables.EVENTI.ID, Tables.EVENTI.ID_PORTA_MEDICINE, Tables.EVENTI.DATA, Tables.EVENTI.FINITO,
+                Tables.EVENTI.CADENZA, Tables.EVENTI.INTERVALLO, Tables.EVENTI.GIORNI_SETTIMANA,
+                Tables.EVENTI.DATA_FINE_INTERVALLO, Tables.EVENTI.OCCORRENZE_FINE_INTERVALLO,
+                Tables.ORARI.ORA,
+                Tables.FARMACI.COD_AIC, Tables.FARMACI.NOME,
+                Tables.ASSUNZIONI.DATA, Tables.ASSUNZIONI.DATA_REALE, Tables.ASSUNZIONI.ORA_REALE
+        )
+                .from(Tables.EVENTI)
+
+                .join(Tables.ASSOCIATI)
+                .on(Tables.EVENTI.ID_PORTA_MEDICINE.eq(Tables.ASSOCIATI.ID_PORTA_MEDICINE))
+
+                .join(Tables.FARMACI)
+                .on(Tables.EVENTI.AIC_FARMACO.eq(Tables.FARMACI.COD_AIC))
+
+                .join(Tables.ORARI)
+                .on(Tables.EVENTI.ID.eq(Tables.ORARI.ID_EVENTO))
+
+                .leftJoin(Tables.ASSUNZIONI)
+                .on(Tables.EVENTI.ID.eq(Tables.ASSUNZIONI.ID_EVENTO))
+
+                .where(condition)
+
+                .fetch()
+                .stream()
+                .collect(Collectors.groupingBy(
+                        r -> {
+                            final EventiCadenza cadenza = r.get(Tables.EVENTI.CADENZA);
+                            final UByte week = r.get(Tables.EVENTI.GIORNI_SETTIMANA);
+
+                            final Date endIntervalDate = r.get(Tables.EVENTI.DATA_FINE_INTERVALLO);
+                            final Integer endOccurrences = r.get(Tables.EVENTI.OCCORRENZE_FINE_INTERVALLO);
+
+                            return new EventWithAssunzioni()
+                                    .withId(BigInteger.valueOf(r.get(Tables.EVENTI.ID)))
+                                    .withIdPortaMedicine(BigInteger.valueOf(r.get(Tables.EVENTI.ID_PORTA_MEDICINE)))
+                                    .withAicFarmaco(r.get(Tables.FARMACI.COD_AIC).toBigInteger())
+                                    .withData(r.get(Tables.EVENTI.DATA).toLocalDate())
+                                    .withFinito(r.get(Tables.EVENTI.FINITO) == 1)
+                                    .withCadenza(cadenza == null ? null :
+                                            new Cadenza()
+                                                    .withIntervallo(BigInteger.valueOf(r.get(Tables.EVENTI.INTERVALLO)))
+                                                    .withGiornaliera(cadenza != EventiCadenza.giornaliera ?
+                                                            null :
+                                                            new Emtpy())
+                                                    .withSettimanale(cadenza != EventiCadenza.settimanale ?
+                                                            null :
+                                                            bitmaskToWeek(week.intValue()))
+                                                    .withFine((endIntervalDate == null && endOccurrences == null) ? null :
+                                                            new FineCadenza()
+                                                                    .withData(endIntervalDate != null ? endIntervalDate.toLocalDate() : null)
+                                                                    .withOccorenze(endOccurrences != null ? BigInteger.valueOf(endOccurrences) : null))
+                                    );
+                        }, Collectors.mapping(r -> r, Collectors.toSet())
+                ))
+                .entrySet()
+                .stream()
+                .map(e -> e.getKey()
+                        .withOrari(e.getValue().stream()
+                                .map(r -> r.get(Tables.ORARI.ORA).toLocalTime())
+                                .collect(Collectors.toList()))
+                        .withAssunzioni(e.getValue().stream()
+                                .filter(r -> r.get(Tables.ASSUNZIONI.DATA) != null)
+                                .map(r -> {
+                                    final Date assumptionRealDate = r.get(Tables.ASSUNZIONI.DATA_REALE);
+                                    final Time assumptionRealTime = r.get(Tables.ASSUNZIONI.ORA_REALE);
+                                    return new Assunzione()
+                                            .withData(r.get(Tables.ASSUNZIONI.DATA).toLocalDate())
+                                            .withOra(r.get(Tables.ORARI.ORA).toLocalTime())
+                                            .withDataReale(assumptionRealDate != null ? assumptionRealDate.toLocalDate() : null)
+                                            .withOraReale(assumptionRealTime != null ? assumptionRealTime.toLocalTime() : null);
+                                })
+                                .collect(Collectors.toList()))
+                )
+                .collect(Collectors.toList());
     }
 
     public enum Granularity {

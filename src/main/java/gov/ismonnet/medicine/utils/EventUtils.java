@@ -77,10 +77,13 @@ public class EventUtils {
         Objects.requireNonNull(startDate);
         Objects.requireNonNull(endDate);
 
+        if(startDate.isAfter(endDate))
+            return Collections.emptySet();
+
         if(event.getCadenza() == null) {
             if(event.getData().isBefore(startDate) || event.getData().isAfter(endDate))
                 return Collections.emptySet();
-            return Collections.emptySet();
+            return Collections.singleton(event.getData());
         }
 
         final Cadenza cadence = event.getCadenza();
