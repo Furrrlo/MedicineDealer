@@ -26,7 +26,7 @@ public class MySqlModule extends AbstractModule {
 
     @Provides
     public DSLContext provideDsl(DataSource dataSource) {
-        return DSL.using(dataSource, SQLDialect.MYSQL_8_0);
+        return DSL.using(dataSource, SQLDialect.MARIADB);
     }
 
     @Provides
