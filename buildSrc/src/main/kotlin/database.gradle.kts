@@ -7,14 +7,14 @@ plugins {
     id("org.flywaydb.flyway")
 }
 
-val dbDriver = "com.mysql.cj.jdbc.Driver"
-val dbSchema = "medicine_dealer"
-val dbUrl = "jdbc:mysql://localhost:3306/"
-
 val dbProperties = Properties()
 file("database.properties").inputStream().use { dbProperties.load(it) }
 val dbUser = dbProperties.getProperty("user") ?: throw IllegalArgumentException("Database user has not been specified")
 val dbPassword = dbProperties.getProperty("password") ?: throw IllegalArgumentException("Database password has not been specified")
+
+val dbDriver = dbProperties.getProperty("database.driver", "com.mysql.cj.jdbc.Driver")
+val dbSchema = dbProperties.getProperty("database.schema", "medicine_dealer")
+val dbUrl = dbProperties.getProperty("database.url") ?: "jdbc:mysql://localhost:${dbProperties.getProperty("database.port", "3306")}/"
 
 dependencies {
     compile("mysql:mysql-connector-java:8.0.13")
@@ -54,7 +54,7 @@ jooq {
                 newline = "\r\n"
             }
             database {
-                name = "org.jooq.meta.mysql.MySQLDatabase"
+                name = "org.jooq.meta.mariadb.MariaDBDatabase"
                 inputSchema = dbSchema
             }
             target {

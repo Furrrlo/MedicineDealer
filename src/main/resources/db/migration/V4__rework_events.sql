@@ -26,13 +26,9 @@ CREATE TABLE `medicine_dealer`.`orari` (
 ALTER TABLE `medicine_dealer`.`assunzioni`
     ADD COLUMN `id_orario` INT(11) NOT NULL AFTER `data`,
     ADD COLUMN `data_reale` DATE NULL AFTER `id_orario`,
-    CHANGE COLUMN `ora` `ora_reale` TIME NULL ,
-    ADD INDEX `fk_assunzione_orario_idx` (`id_orario` ASC) VISIBLE;
-;
-ALTER TABLE `medicine_dealer`.`assunzioni`
-    ADD CONSTRAINT `fk_assunzione_orario`
-        FOREIGN KEY (`id_orario`)
-            REFERENCES `medicine_dealer`.`orari` (`id`)
-            ON DELETE RESTRICT
-            ON UPDATE CASCADE;
+    CHANGE COLUMN `ora` `ora_reale` TIME NULL AFTER `data_reale`,
+    ADD CONSTRAINT `fk_assunzione_orario` FOREIGN KEY (`id_orario`)
+        REFERENCES `orari` (`id`)
+        ON DELETE RESTRICT
+        ON UPDATE CASCADE;
 

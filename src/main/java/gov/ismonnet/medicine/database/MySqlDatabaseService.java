@@ -10,19 +10,28 @@ import java.nio.charset.StandardCharsets;
 
 public class MySqlDatabaseService implements DatabaseService {
 
-    private static final String SCHEMA_NAME = "medicine_dealer";;
-
     private final PoolProperties properties;
     private final DataSource dataSource;
 
     @Inject MySqlDatabaseService(CredentialsService credentialsService) {
         properties = new PoolProperties();
-        properties.setUrl("jdbc:mysql://localhost:3306/" + SCHEMA_NAME + "?" +
+
+        final String schemaName = credentialsService
+                .getOptional("database.schema")
+                .orElse("medicine_dealer");
+        final String url = credentialsService
+                .getOptional("database.url")
+                .orElseGet(() -> "jdbc:mysql://localhost:" + credentialsService
+                        .getOptional("database.port")
+                        .orElse("3306") + "/");
+        properties.setUrl(url + schemaName + "?" +
                 "createDatabaseIfNotExist=true&" +
                 "serverTimezone=UTC&" +
                 "useUnicode=yes&" +
                 "characterEncoding=UTF-8");
-        properties.setDriverClassName("com.mysql.cj.jdbc.Driver");
+        properties.setDriverClassName(credentialsService
+                .getOptional("database.driver")
+                .orElse("com.mysql.cj.jdbc.Driver"));
         properties.setUsername(credentialsService.get("user"));
         properties.setPassword(credentialsService.get("password"));
         properties.setInitialSize(15);
@@ -35,7 +44,7 @@ public class MySqlDatabaseService implements DatabaseService {
         // Making sure everything exists.
         final Flyway flyway = Flyway.configure()
                 .dataSource(dataSource)
-                .schemas(SCHEMA_NAME)
+                .schemas(schemaName)
                 .encoding(StandardCharsets.UTF_8)
                 .load();
         flyway.migrate();
