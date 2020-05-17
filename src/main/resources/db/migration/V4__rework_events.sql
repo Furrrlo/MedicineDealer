@@ -19,13 +19,9 @@ CREATE TABLE `medicine_dealer`.`orari` (
     `id_evento` INT(11) NOT NULL,
     `ora` TIME NOT NULL,
     PRIMARY KEY (`id`),
-    INDEX `fk_orario_evento_idx` (`id_evento` ASC) VISIBLE,
-    CONSTRAINT `fk_orario_evento`
-        FOREIGN KEY (`id_evento`)
-            REFERENCES `medicine_dealer`.`eventi` (`id`)
-            ON DELETE CASCADE
-            ON UPDATE CASCADE
-);
+    KEY `fk_orario_evento_idx` (`id_evento`),
+    CONSTRAINT `fk_orario_evento` FOREIGN KEY (`id_evento`) REFERENCES `eventi` (`id`) ON DELETE CASCADE ON UPDATE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;;
 
 ALTER TABLE `medicine_dealer`.`assunzioni`
     ADD COLUMN `id_orario` INT(11) NOT NULL AFTER `data`,
