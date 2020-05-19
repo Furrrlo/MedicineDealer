@@ -18,6 +18,8 @@
     <script src='js/fullcalendar/packages/list/main.js'></script>
     <script src='js/fullcalendar/packages/timegrid/main.js'></script>
 
+    <script src="js/moment/moment.js"></script>
+
 </head>
 
 <body>
@@ -95,8 +97,9 @@
 </div>
 
 <script>
-    window.addEventListener('load', function () {
 
+
+    window.addEventListener('load', function () {
 
         const templateClass = 'porta-medicine-template';
         const template = document.querySelector('.' + templateClass);
@@ -140,57 +143,84 @@
         });
     });
 
-    function loadEvent(){
-        fetch('api/eventi').then(async response => {
-
-            if(!response.ok)
-                throw response.status + ": " + (await response.text());
-            return JXON.stringToJs(await response.text());
-        }).catch(ex => {
-            console.error(ex);
-        });
-
-    }
-
     function addCal(){
         var calendarEl = document.getElementById('calendar');
 
-        loadEvent();
         var calendar = new FullCalendar.Calendar(calendarEl, {
-          plugins: [ 'interaction', 'dayGrid', 'timeGrid' ],
-          header: {
-            left: 'prev,next today',
-            center: 'title',
-            right: ''
-          },
-          defaultDate: '2020-02-12',
-          navLinks: true, // can click day/week names to navigate views
-          selectable: true,
-          selectMirror: true,
-          select: function(arg) {
-            var title = prompt('Event Title:');
-            if (title) {
-              calendar.addEvent({
-                title: title,
-                start: arg.start,
-                end: arg.end,
-                allDay: arg.allDay
-              })
-            }
-            calendar.unselect()
-          },
-          editable: true,
-          eventLimit: true, // allow "more" link when too many events
-          events: [  ]
+            plugins: [ 'interaction', 'dayGrid', 'timeGrid' ],
+            header: {
+                left: 'prev,next today',
+                center: 'title',
+                right: ''
+            },
+            defaultDate: '2020-02-12',
+            navLinks: true, // can click day/week names to navigate views
+            selectable: true,
+            selectMirror: true,
+            editable: true,
+            event: []
         });
 
+        let a = loadEvent();
         calendar.render();
     }
 
+    function loadEvent(){
+        //TODO: How to get granularity
+        var granularity = "MONTH"
+        var path = "api/eventi?granularita=" + granularity;
+
+        fetch(path).then(async response => {
+            if(!response.ok)
+                throw response.status + ": " + (await response.text());
+            return JXON.stringToJs(await response.text());
+        }).then(events => {
+            console.log(events);
+
+            let obj = events.calendario.evento;
+
+            return getEvents( obj );
+
+        }).catch(ex => {
+            console.error(ex);
+        });
+    }
+
+    function getEvents(events){
+
+        var eventList = [];
+        var event = null;
+
+        console.log(events);
+
+        events.forEach(event=>{
+            console.log(event)
+            //name
+            var medicine = event.aic_farmaco;
+            //time
+            var assunzioni = event.assunzioni.assunzione;
+            assunzioni.forEach(assunzione => {
+
+                var b = assunzione.data + " " + assunzione.ora
+                var myDateTime = moment(b,'YYYY-MM-DD HH:mm').format();
+
+                event = {
+                    title: medicine,
+                    start: myDateTime
+                };
+                eventList.push(event);
+                event = null;
+            });
+        });
+
+        console.log(eventList);
+        return eventList;
+    }
 
     function aggiungiFarmaco(){ location.href = "aggiungiFarmaco.html"; }
     function rimuoviFarmaco() { location.href = "rimuoviFarmaco.html"; }
     function farmaciDelGiorno() {location.href = "farmaciDelGiorno.html"; }
+
 </script>
 
 </body>
