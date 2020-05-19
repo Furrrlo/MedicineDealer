@@ -62,11 +62,6 @@
                     </div>
                 </div>
 
-                <div class="field">
-                    <div class="control has-text-centered">
-                        <input type="submit" class="button is-rounded" value="RICERCA IL PORTA MEDICINE"/>
-                    </div>
-                </div>
             </form>
 
             <br>
@@ -101,7 +96,7 @@
 
 <script>
     window.addEventListener('load', function () {
-        addCal();
+
 
         const templateClass = 'porta-medicine-template';
         const template = document.querySelector('.' + templateClass);
@@ -132,21 +127,41 @@
             return JXON.stringToJs(await response.text());
         }).then(devices => {
             // XML is kinda shit to use
-            loadDevices(devices.porta_medicine.porta_medicina);
+            let obj = devices.porta_medicine.porta_medicina;
+            if(obj.forEach){
+                loadDevices(obj);
+            } else{
+                loadDevices([ obj ]);
+            }
+
+            addCal();
         }).catch(ex => {
             console.error(ex);
         });
     });
 
+    function loadEvent(){
+        fetch('api/eventi').then(async response => {
+
+            if(!response.ok)
+                throw response.status + ": " + (await response.text());
+            return JXON.stringToJs(await response.text());
+        }).catch(ex => {
+            console.error(ex);
+        });
+
+    }
+
     function addCal(){
         var calendarEl = document.getElementById('calendar');
 
+        loadEvent();
         var calendar = new FullCalendar.Calendar(calendarEl, {
           plugins: [ 'interaction', 'dayGrid', 'timeGrid' ],
           header: {
             left: 'prev,next today',
             center: 'title',
-            right: 'dayGridMonth,timeGridWeek,timeGridDay'
+            right: ''
           },
           defaultDate: '2020-02-12',
           navLinks: true, // can click day/week names to navigate views
@@ -166,7 +181,7 @@
           },
           editable: true,
           eventLimit: true, // allow "more" link when too many events
-          events: [ ]
+          events: [  ]
         });
 
         calendar.render();
