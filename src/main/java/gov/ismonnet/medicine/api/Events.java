@@ -201,15 +201,15 @@ public class Events {
         ctx.transaction(conf -> {
             final DSLContext ctx = conf.dsl();
 
-            final EventWithAssunzioni oldEvent = fetchEvent(ctx, Tables.EVENTI.ID.eq(oldEventId)).get(0);
             final Record record = ctx.select(Tables.EVENTI.fields())
                     .from(Tables.EVENTI)
                     .where(Tables.EVENTI.ID.eq(oldEventId))
+                    .forShare()
                     .fetchOne();
-            final Record original = record.original();
+            final EventWithAssunzioni oldEvent = fetchEvent(ctx, Tables.EVENTI.ID.eq(oldEventId)).get(0);
 
             // If it's a non repeating event it can only be edited if it did not happen yet
-            if(original.get(Tables.EVENTI.FINITO) == 1)
+            if(record.get(Tables.EVENTI.FINITO) == 1)
                 throw new BadRequestException("Cannot edit past request");
 
             if(eventEdit.getAicFarmaco() != null)
