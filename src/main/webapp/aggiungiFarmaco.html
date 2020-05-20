@@ -8,11 +8,6 @@
     <script defer src="js/vendor/fontawesome@5.3.1.all.js"></script>
     <script defer src="js/vendor/jxon@2.0.0-beta.5.min.js"></script>
     <script src="js/validate.js"></script>
-
-    <script>
-        function home(){ location.href="home.html"; }
-        function cadenzaFarmaco(){ location.href="cadenzaFarmaco.html"; }
-    </script>
 </head>
 
 <body>
@@ -25,10 +20,10 @@
     </div>
 </section>
 
-<div class="columns">
-    <div class="section">
-        <div class="column is-one-half" id="description">
-
+<div class="columns is-centered">
+    <form method="post" action="api/eventi" onsubmit="return newEvent(event)">
+        <div class="section">
+            <div class="column is-one-half" id="description">
                 <div class="field">
                     <h1 class="SUBTITLE">AGGIUNGI UNA NUOVA MEDICINA AL CALENDARIO</h1>
                     <div class="field">
@@ -74,10 +69,25 @@
                         <label class="label">Con che cadenza verrà presa la medicina</label>
                         <div class="control">
                             <div class="select is-rounded is-fullwidth">
-                                <select>
-                                    <option>Oraria</option>
-                                    <option>Giornaliera</option>
-                                    <option>Settimanale</option>
+                                <select id="cadenza" onchange="cadenzaChanged()" required>
+                                    <option value="-">SELEZIONA LA CADENZA DI ACQUISIZIONE</option>
+                                    <option value="Non si ripete">Non si ripete</option>
+                                    <option value="Giornaliera">Giornaliera</option>
+                                    <option value="Settimanale">Settimanale</option>
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="field">
+                        <label class="label">Quando terminare l'assunzione?</label>
+                        <div class="control">
+                            <div class="select is-rounded is-fullwidth">
+                                <select id="termine" onchange="fineChanged()" required>
+                                    <option value="-">SELEZIONA QUANDO TERMINARE L'ASSUNZIONE DEL MEDICINALE</option>
+                                    <option value="Mai">Mai</option>
+                                    <option value="Data">Data</option>
+                                    <option value="Num_assunzioni">Numero di assunzioni</option>
                                 </select>
                             </div>
                         </div>
@@ -88,19 +98,149 @@
                     </div>
 
                     <div class="control">
-                        <button class="button is-rounded is-fullwidth" onclick="cadenzaFarmaco()">PROSEGUI</button>
+                        <input type="submit" class="button is-rounded is-fullwidth" value="AGGIUNGI FARMACO"/>
+                    </div>
+                </div>
+            </div>
+
+                <div class="modal" id="modal_cadenza_giornaliera">
+                    <div class="modal-background"></div>
+                    <div class="modal-card">
+                        <header class="modal-card-head">
+                            <p class="modal-card-title">CADENZA GIORNALIERA</p>
+                            <button class="delete" aria-label="close" onclick="cancelCadenzaGiornaliera()"></button>
+                        </header>
+                        <section class="modal-card-body">
+                            <div class="field">
+                                <label class="label">Ogni quanti giorni devi prendere la medicina</label>
+                                <div class="control">
+                                    <input class="input is-primary is-rounded"
+                                           type="number"  placeholder="Ogni quanti giorni" id="cadenza_giornaliera_text"/>
+                                </div>
+                                <p class="help is-danger err"></p>
+                            </div>
+                        </section>
+                        <footer class="modal-card-foot">
+                            <button class="button is-success" onclick="saveCadenzaGiornaliera()">Save changes</button>
+                            <button class="button" onclick="cancelCadenzaGiornaliera()">Cancel</button>
+                        </footer>
+                    </div>
+                </div>
+
+                <div class="modal" id="modal_cadenza_settimanale">
+                    <div class="modal-background"></div>
+                    <div class="modal-card">
+                        <header class="modal-card-head">
+                            <p class="modal-card-title">CADENZA SETTIMANALE</p>
+                            <button class="delete" aria-label="close" onclick="cancelCadenzaSettimanale()"></button>
+                        </header>
+                        <section class="modal-card-body">
+                            <div class="field">
+                                <label class="label">Selezionare quali giorni della settimana va assunta la medicina</label>
+                                <div class="control">
+                                    <label class="checkbox">
+                                        <input type="checkbox">
+                                        Lunedì
+                                        <br>
+                                        <input type="checkbox">
+                                        Martedì
+                                        <br>
+                                        <input type="checkbox">
+                                        Mercoledì
+                                        <br>
+                                        <input type="checkbox">
+                                        Giovedì
+                                        <br>
+                                        <input type="checkbox">
+                                        Venerdì
+                                        <br>
+                                        <input type="checkbox">
+                                        Sabato
+                                        <br>
+                                        <input type="checkbox">
+                                        Domenica
+                                        <br>
+                                    </label>
+                                    <label class="label">Ogni quanto va ripetuto?</label>
+                                    <input class="input is-primary is-rounded"
+                                           type="number" placeholder="Ogni quanto va ripetuto?" id="cadenza_settimanale_text"/>
+
+                                </div>
+                            </div>
+                        </section>
+                        <footer class="modal-card-foot">
+                            <button class="button is-success" onclick="saveCadenzaSettimanale()">Salva cambiamenti</button>
+                            <button class="button" onclick="cancelCadenzaSettimanale()">Annulla</button>
+                        </footer>
                     </div>
                 </div>
 
         </div>
 
-    </div>
 
-    <div class="section">
-        <div class="column is-one-third">
 
-        </div>
-    </div>
+    </form>
+
 </div>
+
+<script>
+    function newEvent(event){
+        //TODO: NEW EVENT
+
+
+        return false;
+    }
+
+    function cadenzaChanged(){
+        let selected = document.getElementById("cadenza").value;
+
+        if(selected != "-"){
+
+            if(selected != "Non si ripete")
+                if (selected == "Giornaliera"){
+                    //set required things
+                    document.getElementById("cadenza_giornaliera_text").required = true;
+                    document.getElementById("cadenza_settimanale_text").required = false;
+
+                    let element = document.getElementById("modal_cadenza_giornaliera");
+                    element.style.display = 'block';
+                } else if(selected == "Settimanale"){
+                    //set required things
+                    document.getElementById("cadenza_giornaliera_text").required = false;
+                    document.getElementById("cadenza_settimanale_text").required = true;
+
+                    let element = document.getElementById("modal_cadenza_settimanale");
+                    element.style.display = 'block';
+                }
+        }
+
+    }
+
+    function saveCadenzaSettimanale(){
+        let modal = document.getElementById("modal_cadenza_settimanale");
+        let cadenza = document.getElementById("cadenza_settimanale_text").value;
+    }
+    
+    function cancelCadenzaSettimanale() {
+        let modal = document.getElementById("modal_cadenza_settimanale");
+        document.getElementById("cadenza_settimanale_text").value = "";
+        modal.style.display = "none";
+    }
+
+    function saveCadenzaGiornaliera(){
+        let modal = document.getElementById("modal_cadenza_giornaliera");
+        modal.style.display = "none";
+    }
+
+    function cancelCadenzaGiornaliera() {
+        let modal = document.getElementById("modal_cadenza_giornaliera");
+        document.getElementById("cadenza_giornaliera_text").value = "";
+        modal.style.display = "none";
+    }
+
+    function home(){ location.href="home.html"; }
+
+</script>
+
 </body>
 </html>
