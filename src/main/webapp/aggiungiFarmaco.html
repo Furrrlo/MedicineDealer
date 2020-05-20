@@ -96,12 +96,14 @@
                     </div>
 
                     <div class="control">
+                        <input type="submit" class="button is-rounded is-fullwidth" value="AGGIUNGI FARMACO"/>
+                    </div>
+
+
+                    <div class="control">
                         <button class="button is-rounded is-fullwidth" onclick="home()">ANNULLA</button>
                     </div>
 
-                    <div class="control">
-                        <input type="submit" class="button is-rounded is-fullwidth" value="AGGIUNGI FARMACO"/>
-                    </div>
                 </div>
             </div>
 
@@ -244,9 +246,38 @@
 
     function newEvent(event){
         //TODO: NEW EVENT
+        if(chkInput()){
 
+        }
 
         return false;
+    }
+
+    function chkInput() {
+        const cadenza = document.getElementById("cadenza").value;
+        if(cadenza == "-"){
+            //TODO: No cadenza selected
+            return false;
+        }
+
+        const termine = document.getElementById("termine").value;
+        if(cadenza != "no_rep" && termine == "-"){
+            //TODO: No termine selected
+            return false;
+        }
+
+        const firstDate = new Date(document.getElementById("firstDate").value);
+        const today = new Date();
+        if(firstDate.getTime() < today.getTime()){
+            //TODO: Invalid date
+            return false;
+        }
+
+        return true;
+    }
+
+    function loadSlot(){
+        //TODO: get the number of slot of the selected portamedicine
     }
 
     function cadenzaChanged(){
@@ -269,6 +300,7 @@
                 }
             } else {
                 document.getElementById("termine").disabled = true;
+
                 cancelCadenzaGiornaliera();
                 cancelCadenzaSettimanale();
             }
@@ -282,9 +314,7 @@
         let selected = document.getElementById("termine").value;
 
         if(selected != "-"){
-
             if(selected != "mai"){
-
                 if (selected == "date"){
 
                     let element = document.getElementById("modal_termine_date");
@@ -308,7 +338,7 @@
         let cadenza = document.getElementById("cadenza_settimanale_text").value;
 
         if( cadenza == "" || cadenza <= 0 ) {
-            //toDO ???
+
         }
         else{
             modal.style.display = "none";
@@ -322,6 +352,7 @@
         let cadenza = document.getElementById("cadenza_giornaliera_text").value;
 
         if( cadenza == "" || cadenza <= 0 ) {
+
 
         }
         else{
@@ -366,8 +397,6 @@
             document.getElementById("termine").selectedIndex = "0";
 
         modal.style.display = "none";
-
-        document.getElementById("termine").selectedIndex = "0";
     }
 
     function cancelNumAss(){
@@ -378,8 +407,6 @@
             document.getElementById("termine").selectedIndex = "0";
 
         modal.style.display = "none";
-
-        document.getElementById("termine").selectedIndex = "0";
     }
 
     function cancelCadenzaSettimanale() {
@@ -398,7 +425,6 @@
             document.getElementById("cadenza").selectedIndex = "0";
 
         modal.style.display = "none";
-        document.getElementById("cadenza").selectedIndex = "0";
     }
 
 
@@ -410,8 +436,6 @@
             document.getElementById("cadenza").selectedIndex = "0";
 
         modal.style.display = "none";
-
-
     }
 
     function home(){ location.href="home.html"; }
