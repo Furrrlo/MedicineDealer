@@ -42,38 +42,4 @@ public class Medicines {
             medicinaList.add(new Medicine.Medicina(medicina.value2(), medicina.value1().toBigInteger()));
         return new Medicine(medicinaList);
     }
-
-    // For the csv files
-//    @POST
-//    @Path("/csv")
-//    @Consumes(MediaType.MULTIPART_FORM_DATA)
-//    public Response parseMedicines(@FormDataParam("file") InputStream uploadedInputStream,
-//                                   @FormDataParam("file") FormDataBodyPart bodyPart) {
-//
-//
-//        if(!bodyPart.getMediaType().equals(TEXT_CSV_TYPE))
-//            return Response.status(Response.Status.UNSUPPORTED_MEDIA_TYPE).build();
-//
-//        final InsertValuesStep2<FarmaciRecord, UInteger, String> insert = ctx
-//                .insertInto(Tables.FARMACI)
-//                .columns(Tables.FARMACI.COD_AIC, Tables.FARMACI.NOME);
-//
-//        try(CSVParser parser = CSVFormat.DEFAULT.parse(new InputStreamReader(uploadedInputStream, StandardCharsets.UTF_8))) {
-//            parser.forEach(record -> {
-//                try {
-//                    final UInteger aic = UInteger.valueOf(record.get(0));
-//                    final String desc = record.get(1);
-//
-//                    insert.values(aic, desc);
-//                } catch (NumberFormatException ex) {
-//                    // Ignored
-//                }
-//            });
-//        } catch (IOException ex) {
-//            return Response.status(Response.Status.NOT_ACCEPTABLE).build();
-//        }
-//
-//        insert.execute();
-//        return Response.ok().build();
-//    }
 }
