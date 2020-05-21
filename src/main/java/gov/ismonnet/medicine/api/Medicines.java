@@ -1,45 +1,32 @@
 package gov.ismonnet.medicine.api;
 
-import gov.ismonnet.medicine.database.Tables;
-import gov.ismonnet.medicine.jaxb.ws.Medicina;
+import gov.ismonnet.medicine.aifa.MedicineService;
 import gov.ismonnet.medicine.jaxb.ws.MedicinesBean;
-import org.jooq.DSLContext;
-import org.jooq.Record2;
-import org.jooq.Result;
-import org.jooq.types.UInteger;
 
 import javax.inject.Inject;
 import javax.ws.rs.GET;
 import javax.ws.rs.Path;
+import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
 import javax.ws.rs.core.MediaType;
-import java.util.ArrayList;
-import java.util.List;
 
 @Path("farmaci")
 public class Medicines {
 
-    private final String TEXT_CSV = "text/csv";
-    private final MediaType TEXT_CSV_TYPE = new MediaType("text", "csv");
+//    private final String TEXT_CSV = "text/csv";
+//    private final MediaType TEXT_CSV_TYPE = new MediaType("text", "csv");
 
-    private final DSLContext ctx;
+    private final MedicineService medicineService;
 
-    @Inject Medicines(DSLContext ctx) {
-        this.ctx = ctx;
+    @Inject Medicines(final MedicineService medicineService) {
+        this.medicineService = medicineService;
     }
 
     @GET
+    @Path("{nome}")
     @Produces(MediaType.APPLICATION_XML)
-    public MedicinesBean getMedicines() {
-        Result<Record2<UInteger, String>> query = ctx
-                .select(Tables.FARMACI.COD_AIC, Tables.FARMACI.NOME)
-                .from(Tables.FARMACI)
-                .fetch();
-
-        List<Medicina> medicinaList = new ArrayList<>();
-        for(Record2<UInteger, String> medicina : query)
-            medicinaList.add(new Medicina(medicina.value2(), medicina.value1().toBigInteger()));
-        return new MedicinesBean(medicinaList);
+    public MedicinesBean getMedicines(@PathParam(value = "nome") String name) {
+        return new MedicinesBean(medicineService.findMedicinesByName(name));
     }
 
     // For the csv files

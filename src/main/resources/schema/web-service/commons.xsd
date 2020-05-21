@@ -36,6 +36,7 @@
             <xs:extension base="immutable_event_base">
                 <xs:sequence>
                     <xs:element name="id" type="id"/>
+                    <xs:element name="nome_farmaco" type="xs:string"/>
                     <xs:element name="finito" type="xs:boolean"/>
                 </xs:sequence>
             </xs:extension>
@@ -149,7 +150,10 @@
     </xs:simpleType>
 
     <xs:simpleType name="aic">
-        <xs:restriction base="xs:integer"/>
+        <xs:restriction base="xs:string">
+            <xs:pattern value="[0-9]"/>
+            <xs:length value="6"/>
+        </xs:restriction>
     </xs:simpleType>
 
     <xs:simpleType name="email">

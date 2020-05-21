@@ -53,7 +53,11 @@ dependencies {
 
     compile("io.jsonwebtoken:jjwt-api:0.11.1")
     runtime("io.jsonwebtoken:jjwt-impl:0.11.1")
-    runtime("io.jsonwebtoken:jjwt-jackson:0.11.1")
+    runtime("io.jsonwebtoken:jjwt-orgjson:0.11.1")
+
+    // JSON
+
+    compile("org.json:json:20190722")
 
     // Test
 

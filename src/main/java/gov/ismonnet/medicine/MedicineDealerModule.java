@@ -1,6 +1,7 @@
 package gov.ismonnet.medicine;
 
 import com.google.inject.AbstractModule;
+import gov.ismonnet.medicine.aifa.AifaModule;
 import gov.ismonnet.medicine.authentication.AuthenticationCookie;
 import gov.ismonnet.medicine.authentication.AuthenticationModule;
 import gov.ismonnet.medicine.authentication.AuthorizationSchema;
@@ -21,5 +22,6 @@ public class MedicineDealerModule extends AbstractModule implements Constants {
         install(new PersistenceModule());
         install(new MySqlModule());
         install(new AuthenticationModule());
+        install(new AifaModule());
     }
 }

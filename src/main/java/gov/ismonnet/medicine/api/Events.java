@@ -1,5 +1,6 @@
 package gov.ismonnet.medicine.api;
 
+import gov.ismonnet.medicine.aifa.MedicineService;
 import gov.ismonnet.medicine.authentication.Authenticated;
 import gov.ismonnet.medicine.database.Tables;
 import gov.ismonnet.medicine.database.enums.EventiCadenza;
@@ -9,6 +10,7 @@ import gov.ismonnet.medicine.database.tables.records.OrariRecord;
 import gov.ismonnet.medicine.jaxb.ws.*;
 import org.jooq.*;
 import org.jooq.impl.DSL;
+import org.jooq.impl.SQLDataType;
 import org.jooq.types.UByte;
 import org.jooq.types.UInteger;
 
@@ -34,9 +36,12 @@ import static gov.ismonnet.medicine.utils.EventUtils.*;
 public class Events {
 
     private final DSLContext ctx;
+    private final MedicineService medicineService;
 
-    @Inject Events(DSLContext ctx) {
+    @Inject Events(final DSLContext ctx,
+                   final MedicineService medicineService) {
         this.ctx = ctx;
+        this.medicineService = medicineService;
     }
 
     @GET
@@ -142,9 +147,18 @@ public class Events {
 
         return ctx.transactionResult(conf -> {
             final DSLContext ctx = conf.dsl();
+
+            final Medicina medicine = medicineService.getMedicineByAic(event.getAicFarmaco());
+            if(medicine == null)
+                throw new BadRequestException("Invalid medicine AIC");
+            ctx.insertInto(Tables.FARMACI)
+                    .set(Tables.FARMACI.COD_AIC, UInteger.valueOf(medicine.getAicFarmaco()))
+                    .set(Tables.FARMACI.NOME, medicine.getName())
+                    .execute();
+
             final InsertSetMoreStep<EventiRecord> insert = ctx.insertInto(Tables.EVENTI)
                     .set(Tables.EVENTI.ID_PORTA_MEDICINE, event.getIdPortaMedicine().intValue())
-                    .set(Tables.EVENTI.AIC_FARMACO, UInteger.valueOf(event.getAicFarmaco().longValueExact()))
+                    .set(Tables.EVENTI.AIC_FARMACO, UInteger.valueOf(event.getAicFarmaco()))
                     .set(Tables.EVENTI.DATA, Date.valueOf(event.getData()));
 
             final Cadenza cadenza = event.getCadenza();
@@ -213,7 +227,7 @@ public class Events {
                 throw new BadRequestException("Cannot edit past request");
 
             if(eventEdit.getAicFarmaco() != null)
-                record.set(Tables.EVENTI.AIC_FARMACO, UInteger.valueOf(eventEdit.getAicFarmaco().longValueExact()));
+                record.set(Tables.EVENTI.AIC_FARMACO, UInteger.valueOf(eventEdit.getAicFarmaco()));
             if(eventEdit.getData() != null)
                 record.set(Tables.EVENTI.DATA, Date.valueOf(eventEdit.getData()));
 
@@ -334,12 +348,13 @@ public class Events {
     }
 
     private List<EventWithAssunzioni> fetchEvent(final DSLContext ctx, final Condition condition) {
+        final Field<String> codAicRow = Tables.FARMACI.COD_AIC.cast(SQLDataType.CHAR(9));
         return ctx.select(
                 Tables.EVENTI.ID, Tables.EVENTI.ID_PORTA_MEDICINE, Tables.EVENTI.DATA, Tables.EVENTI.FINITO,
                 Tables.EVENTI.CADENZA, Tables.EVENTI.INTERVALLO, Tables.EVENTI.GIORNI_SETTIMANA,
                 Tables.EVENTI.DATA_FINE_INTERVALLO, Tables.EVENTI.OCCORRENZE_FINE_INTERVALLO,
                 Tables.ORARI.ORA,
-                Tables.FARMACI.COD_AIC, Tables.FARMACI.NOME,
+                codAicRow, Tables.FARMACI.NOME,
                 Tables.ASSUNZIONI.DATA, Tables.ASSUNZIONI.DATA_REALE, Tables.ASSUNZIONI.ORA_REALE
         )
                 .from(Tables.EVENTI)
@@ -371,7 +386,8 @@ public class Events {
                             return new EventWithAssunzioni()
                                     .withId(BigInteger.valueOf(r.get(Tables.EVENTI.ID)))
                                     .withIdPortaMedicine(BigInteger.valueOf(r.get(Tables.EVENTI.ID_PORTA_MEDICINE)))
-                                    .withAicFarmaco(r.get(Tables.FARMACI.COD_AIC).toBigInteger())
+                                    .withAicFarmaco(r.get(codAicRow))
+                                    .withNomeFarmaco(r.get(Tables.FARMACI.NOME))
                                     .withData(r.get(Tables.EVENTI.DATA).toLocalDate())
                                     .withFinito(r.get(Tables.EVENTI.FINITO) == 1)
                                     .withCadenza(cadenza == null ? null :
