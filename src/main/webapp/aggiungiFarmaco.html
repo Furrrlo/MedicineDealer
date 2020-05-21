@@ -21,9 +21,10 @@
 </section>
 
 <div class="columns is-centered">
+
     <form method="post" action="api/eventi" onsubmit="return newEvent(event)">
         <div class="section">
-            <div class="column is-one-half" id="description">
+            <div class="column is-one-half">
                 <div class="field">
                     <h1 class="SUBTITLE">AGGIUNGI UNA NUOVA MEDICINA AL CALENDARIO</h1>
                     <div class="field">
@@ -96,7 +97,7 @@
                     </div>
 
                     <div class="control">
-                        <input type="submit" class="button is-rounded is-fullwidth" value="AGGIUNGI FARMACO" onclick=" return newEvent(event); "/>
+                        <input type="submit" class="button is-rounded is-fullwidth" value="AGGIUNGI FARMACO"/>
                     </div>
 
 
@@ -107,134 +108,133 @@
                 </div>
             </div>
 
-                <div class="modal" id="modal_cadenza_giornaliera">
-                    <div class="modal-background"></div>
-                    <div class="modal-card">
-                        <header class="modal-card-head">
-                            <p class="modal-card-title">CADENZA GIORNALIERA</p>
-                            <button class="delete" aria-label="close" onclick="cancelCadenzaGiornaliera()"></button>
-                        </header>
-                        <section class="modal-card-body">
-                            <div class="field">
-                                <label class="label">Ogni quanti giorni devi prendere la medicina</label>
-                                <div class="control">
-                                    <input class="input is-primary is-rounded"
-                                           type="number"  placeholder="Ogni quanti giorni" id="cadenza_giornaliera_text"/>
-                                </div>
-                                <!--TODO: Error message-->
-                                <p class="help is-danger err"></p>
-                            </div>
-                        </section>
-                        <footer class="modal-card-foot">
-                            <button class="button is-success" onclick="saveCadenzaGiornaliera()">Save changes</button>
-                            <button class="button" onclick="cancelCadenzaGiornaliera()">Cancel</button>
-                        </footer>
-                    </div>
-                </div>
-
-                <div class="modal" id="modal_cadenza_settimanale">
-                    <div class="modal-background"></div>
-                    <div class="modal-card">
-                        <header class="modal-card-head">
-                            <p class="modal-card-title">CADENZA SETTIMANALE</p>
-                            <button class="delete" aria-label="close" onclick="cancelCadenzaSettimanale()"></button>
-                        </header>
-                        <section class="modal-card-body">
-                            <div class="field">
-                                <label class="label">Selezionare quali giorni della settimana va assunta la medicina</label>
-                                <div class="control">
-                                    <label class="checkbox">
-                                        <input type="checkbox" id="monday">
-                                        Lunedì
-                                        <br>
-                                        <input type="checkbox" id="tuesday">
-                                        Martedì
-                                        <br>
-                                        <input type="checkbox" id="wednesday">
-                                        Mercoledì
-                                        <br>
-                                        <input type="checkbox" id="thursday">
-                                        Giovedì
-                                        <br>
-                                        <input type="checkbox" id="friday">
-                                        Venerdì
-                                        <br>
-                                        <input type="checkbox" id="saturday">
-                                        Sabato
-                                        <br>
-                                        <input type="checkbox" id="sunday">
-                                        Domenica
-                                        <br>
-                                    </label>
-                                    <label class="label">Ogni quanto va ripetuto?</label>
-                                    <input class="input is-primary is-rounded"
-                                           type="number" placeholder="Ogni quanto va ripetuto?" id="cadenza_settimanale_text"/>
-
-                                </div>
-                            </div>
-                        </section>
-                        <footer class="modal-card-foot">
-                            <button class="button is-success" onclick="saveCadenzaSettimanale()">Salva cambiamenti</button>
-                            <button class="button" onclick="cancelCadenzaSettimanale()">Annulla</button>
-                        </footer>
-                    </div>
-                </div>
-
-                <div class="modal" id="modal_termine_date">
-                    <div class="modal-background"></div>
-                    <div class="modal-card">
-                        <header class="modal-card-head">
-                            <p class="modal-card-title">DATA DI FINE ASSUNZIONE</p>
-                            <button class="delete" aria-label="close" onclick="cancelEndDate()"></button>
-                        </header>
-                        <section class="modal-card-body">
-                            <div class="field">
-                                <label class="label">Selezionare la data dell'ultima acquisizione della medicina</label>
-                                <div class="control">
-                                    <input class="input is-primary is-rounded"
-                                           type="date" id="end_date"/>
-                                </div>
-                                <!--TODO: Error message-->
-                                <p class="help is-danger err"></p>
-                            </div>
-                        </section>
-                        <footer class="modal-card-foot">
-                            <button class="button is-success" onclick="saveEndDate()">Save changes</button>
-                            <button class="button" onclick="cancelEndDate()">Cancel</button>
-                        </footer>
-                    </div>
-                </div>
-
-                <div class="modal" id="modal_termine_ass">
-                    <div class="modal-background"></div>
-                    <div class="modal-card">
-                        <header class="modal-card-head">
-                            <p class="modal-card-title">TERMINA CON NUMERO DI ASSUNZIONI</p>
-                            <button class="delete" aria-label="close" onclick="cancelNumAss()"></button>
-                        </header>
-                        <section class="modal-card-body">
-                            <div class="field">
-                                <label class="label">Dopo quante assunzioni rimuovere il farmaco?</label>
-                                <div class="control">
-                                    <input class="input is-primary is-rounded"
-                                           type="number"  placeholder="Dopo quante assunzioni?" id="num_ass"/>
-                                </div>
-                                <!--TODO: Error message-->
-                                <p class="help is-danger err"></p>
-                            </div>
-                        </section>
-                        <footer class="modal-card-foot">
-                            <button class="button is-success" onclick="saveNumAss()">Save changes</button>
-                            <button class="button" onclick="cancelNumAss()">Cancel</button>
-                        </footer>
-                    </div>
-                </div>
-
         </div>
 
 
+        <div class="modal" id="modal_cadenza_giornaliera">
+            <div class="modal-background"></div>
+            <div class="modal-card">
+                <header class="modal-card-head">
+                    <p class="modal-card-title">CADENZA GIORNALIERA</p>
+                    <button class="delete" aria-label="close" onclick="cancelCadenzaGiornaliera()"></button>
+                </header>
+                <section class="modal-card-body">
+                    <div class="field">
+                        <label class="label">Ogni quanti giorni devi prendere la medicina</label>
+                        <div class="control">
+                            <input class="input is-primary is-rounded"
+                                   type="number"  placeholder="Ogni quanti giorni" id="cadenza_giornaliera_text" required/>
+                        </div>
+                        <!--TODO: Error message-->
+                        <p class="help is-danger err"></p>
+                    </div>
+                </section>
+                <footer class="modal-card-foot">
+                    <button class="button is-success" onclick="saveCadenzaGiornaliera()">Save changes</button>
+                    <button class="button" onclick="cancelCadenzaGiornaliera()">Cancel</button>
+                </footer>
+            </div>
+        </div>
 
+        <div class="modal" id="modal_cadenza_settimanale">
+            <div class="modal-background"></div>
+            <div class="modal-card">
+                <header class="modal-card-head">
+                    <p class="modal-card-title">CADENZA SETTIMANALE</p>
+                    <button class="delete" aria-label="close" onclick="cancelCadenzaSettimanale()"></button>
+                </header>
+                <section class="modal-card-body">
+                    <div class="field">
+                        <label class="label">Selezionare quali giorni della settimana va assunta la medicina</label>
+                        <div class="control">
+                            <label class="checkbox">
+                                <input type="checkbox" id="monday">
+                                Lunedì
+                                <br>
+                                <input type="checkbox" id="tuesday">
+                                Martedì
+                                <br>
+                                <input type="checkbox" id="wednesday">
+                                Mercoledì
+                                <br>
+                                <input type="checkbox" id="thursday">
+                                Giovedì
+                                <br>
+                                <input type="checkbox" id="friday">
+                                Venerdì
+                                <br>
+                                <input type="checkbox" id="saturday">
+                                Sabato
+                                <br>
+                                <input type="checkbox" id="sunday">
+                                Domenica
+                                <br>
+                            </label>
+                            <label class="label">Ogni quanto va ripetuto?</label>
+                            <input class="input is-primary is-rounded"
+                                   type="number" placeholder="Ogni quanto va ripetuto?" id="cadenza_settimanale_text" required/>
+
+                        </div>
+                    </div>
+                </section>
+                <footer class="modal-card-foot">
+                    <button class="button is-success" onclick="saveCadenzaSettimanale()">Salva cambiamenti</button>
+                    <button class="button" onclick="cancelCadenzaSettimanale()">Annulla</button>
+                </footer>
+            </div>
+        </div>
+
+        <div class="modal" id="modal_termine_date">
+            <div class="modal-background"></div>
+            <div class="modal-card">
+                <header class="modal-card-head">
+                    <p class="modal-card-title">DATA DI FINE ASSUNZIONE</p>
+                    <button class="delete" aria-label="close" onclick="cancelEndDate()"></button>
+                </header>
+                <section class="modal-card-body">
+                    <div class="field">
+                        <label class="label">Selezionare la data dell'ultima acquisizione della medicina</label>
+                        <div class="control">
+                            <input class="input is-primary is-rounded"
+                                   type="date" id="end_date" required/>
+                        </div>
+                        <!--TODO: Error message-->
+                        <p class="help is-danger err"></p>
+                    </div>
+                </section>
+                <footer class="modal-card-foot">
+                    <button class="button is-success" onclick="saveEndDate()">Save changes</button>
+                    <button class="button" onclick="cancelEndDate()">Cancel</button>
+                </footer>
+            </div>
+        </div>
+
+        <div class="modal" id="modal_termine_ass">
+            <div class="modal-background"></div>
+            <div class="modal-card">
+                <header class="modal-card-head">
+                    <p class="modal-card-title">TERMINA CON NUMERO DI ASSUNZIONI</p>
+                    <button class="delete" aria-label="close" onclick="cancelNumAss()"></button>
+                </header>
+                <section class="modal-card-body">
+                    <div class="field">
+                        <label class="label">Dopo quante assunzioni rimuovere il farmaco?</label>
+                        <div class="control">
+                            <input class="input is-primary is-rounded"
+                                   type="number"  placeholder="Dopo quante assunzioni?" id="num_ass" required/>
+                        </div>
+                        <!--TODO: Error message-->
+                        <p class="help is-danger err"></p>
+                    </div>
+                </section>
+                <footer class="modal-card-foot">
+                    <button class="button is-success" onclick="saveNumAss()">Save changes</button>
+                    <button class="button" onclick="cancelNumAss()">Cancel</button>
+                </footer>
+            </div>
+        </div>
     </form>
+
 
 </div>
 
@@ -248,27 +248,72 @@
         //TODO: NEW EVENT
         if(chkInput()){
             const form = event.target;
-
-            const queryString = window.location.search;
-            const urlParams = new URLSearchParams(queryString);
-            let id_porta = urlParams.get("id_porta");
-
-            // let newEvent = {
-            //     "addEvent": {
-            //         "id_porta_medicine":
-            //     }
-            // }
+            let newEvent = getNewEvent(form);
 
         }
 
         return false;
     }
 
+    function getNewEvent(form){
+        const queryString = window.location.search;
+        const urlParams = new URLSearchParams(queryString);
+        let id_porta = urlParams.get("id_porta");
+
+        let cadenza = null;
+
+        if(document.getElementById("cadenza_giornaliera_text").value != ""){
+            //Cadenza giornaliera selected
+            cadenza = {
+                "intervallo": document.getElementById("cadenza_giornaliera_text").value,
+                "giornaliera": {
+
+                }
+            }
+        }else if (document.getElementById("cadenza_settimanale_text").value != ""){
+            //Cadenza settimanale selected
+            cadenza = {
+                "intervallo": document.getElementById("cadenza_giornaliera_text").value,
+                "settimanale": {
+                    "lunedi": document.getElementById("monday").checked,
+                    "martedi": document.getElementById("tuesday").checked,
+                    "mercoledi": document.getElementById("wednesday").checked,
+                    "giovedi": document.getElementById("thursday").checked,
+                    "venerdi": document.getElementById("friday").checked,
+                    "sabato": document.getElementById("saturday").checked,
+                    "domenica": document.getElementById("sunday").checked
+                }
+            }
+        }else {
+            //Cadenza una assunzione selected
+
+        }
+
+        if(document.getElementById("num_ass").value != ""){
+            //Terime num assunzioni selected
+
+        }else if(document.getElementById("end_date").value != ""){
+            //Termine date selected
+
+        }
+
+        return {
+            "addEvent": {
+                "id_porta_medicine": id_porta,
+                "aic_farmaco": {
+                    "aic": document.getElementById("medicine").value
+                },
+                "data": document.getElementById("firstDate").value,
+                "cadenza": cadenza,
+
+            }
+        }
+    }
+
     function chkInput() {
         const cadenza = document.getElementById("cadenza").value;
-
         if(cadenza == "-"){
-
+            //TODO: No cadenza selected
             return false;
         }
 
@@ -294,22 +339,20 @@
     }
 
     function cadenzaChanged(){
-        //TODO: If you click twice on the same cadenza event do nothing,
         let selected = document.getElementById("cadenza").value;
 
         if(selected != "-"){
-
             if(selected != "no_rep"){
                 document.getElementById("termine").disabled = false;
 
                 if (selected == "Giornaliera"){
-
                     let element = document.getElementById("modal_cadenza_giornaliera");
                     element.style.display = 'block';
-                } else if(selected == "Settimanale"){
 
+                } else if(selected == "Settimanale"){
                     let element = document.getElementById("modal_cadenza_settimanale");
                     element.style.display = 'block';
+
                 }
             } else {
                 document.getElementById("termine").disabled = true;
@@ -317,26 +360,33 @@
 
                 cancelCadenzaGiornaliera();
                 cancelCadenzaSettimanale();
+
             }
 
-        }else { document.getElementById("termine").disabled = true; }
+        }else {
+            document.getElementById("termine").disabled = true;
+            document.getElementById("termine").selectedIndex = "0";
+
+            cancelCadenzaGiornaliera();
+            cancelCadenzaSettimanale();
+
+        }
 
     }
 
     function fineChanged(){
-        //TODO: If you click twice on the same termine event do nothing
         let selected = document.getElementById("termine").value;
 
         if(selected != "-"){
             if(selected != "mai"){
                 if (selected == "date"){
-
                     let element = document.getElementById("modal_termine_date");
                     element.style.display = 'block';
-                } else if(selected == "num_ass"){
 
+                } else if(selected == "num_ass"){
                     let element = document.getElementById("modal_termine_ass");
                     element.style.display = 'block';
+
                 }
             }else{
                 cancelEndDate();
@@ -355,7 +405,7 @@
         let cadenza = document.getElementById("cadenza_settimanale_text").value;
 
         if( cadenza == "" || cadenza <= 0 ) {
-
+            //TODO:Error invalid cadenza
         }
         else{
             modal.style.display = "none";
@@ -369,8 +419,7 @@
         let cadenza = document.getElementById("cadenza_giornaliera_text").value;
 
         if( cadenza == "" || cadenza <= 0 ) {
-
-
+            //TODO:Error invalid cadenza
         }
         else{
             modal.style.display = "none";
@@ -385,7 +434,7 @@
         let today = new Date();
 
         if( termine == "" || termine.getTime() <= today.getTime() ) {
-
+            //TODO:Error invalid end date
         }
         else{
             modal.style.display = "none";
@@ -399,7 +448,7 @@
         let termine = document.getElementById("num_ass").value;
 
         if( termine == "" || termine <= 0 ) {
-
+            //TODO:Error invalid number assunzioni
         }
         else{
             modal.style.display = "none";
@@ -443,7 +492,6 @@
 
         modal.style.display = "none";
     }
-
 
     function cancelCadenzaGiornaliera() {
         let modal = document.getElementById("modal_cadenza_giornaliera");
