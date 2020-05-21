@@ -249,6 +249,10 @@
         if(chkInput()){
             const form = event.target;
 
+            const queryString = window.location.search;
+            const urlParams = new URLSearchParams(queryString);
+            let id_porta = urlParams.get("id_porta");
+
             // let newEvent = {
             //     "addEvent": {
             //         "id_porta_medicine":

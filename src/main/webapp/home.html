@@ -97,6 +97,24 @@
 </div>
 
 <script>
+    let calendar = null;
+
+    document.getElementById("porta-medicine-container").addEventListener("change",function (event) {
+        let porta = document.getElementById("porta-medicine-container");
+        let id = porta.options[porta.selectedIndex].value;
+
+        removeEvents();
+
+        loadEvent(id).then(events => {
+            events.forEach(event => {
+                calendar.addEvent({
+                    title: event.title,
+                    start: event.start
+                });
+            })
+            calendar.render();
+        });
+    })
 
 
     window.addEventListener('load', function () {
@@ -137,17 +155,25 @@
                 loadDevices([ obj ]);
             }
 
-            addCal();
+            let porta = document.getElementById("porta-medicine-container");
+            let id = porta.options[porta.selectedIndex].value;
+
+            addCal(id);
         }).catch(ex => {
             console.error(ex);
         });
     });
 
-    function addCal(){
+    function removeEvents(){
+        let eventSources = calendar.getEvents();
+        eventSources.forEach(event => { event.remove(); })
+    }
+
+    function addCal(id_porta){
         let calendarEl = document.getElementById('calendar');
         let today = Date.now();
 
-        let calendar = new FullCalendar.Calendar(calendarEl, {
+        calendar = new FullCalendar.Calendar(calendarEl, {
             plugins: [ 'interaction', 'dayGrid', 'timeGrid' ],
             header: {
                 left: 'prev,next today',
@@ -162,7 +188,7 @@
             event: [ ]
         });
 
-        loadEvent().then(events => {
+        loadEvent(id_porta).then(events => {
             events.forEach(event => {
                 calendar.addEvent({
                     title: event.title,
@@ -173,10 +199,10 @@
         });
     }
 
-    function loadEvent(){
+    function loadEvent(id_porta){
         //TODO: How to get granularity
         let granularity = "MONTH"
-        let path = "api/eventi?granularita=" + granularity;
+        let path = "api/eventi?granularita=" + granularity + "&id_porta_medicine=" + id_porta;
 
 
         return fetch(path).then(async response => {
@@ -185,7 +211,16 @@
             return JXON.stringToJs(await response.text());
         }).then(events => {
             let obj = events.calendario.evento;
-            let splitEvents = getEvents( obj );
+            let splitEvents = [];
+
+            if(obj != null)
+                if(obj.forEach){
+                    splitEvents = getEvents( obj );
+                }else {
+                    splitEvents = getEvents( [ obj ] );
+                }
+            else alert("NON CI SONO MEDICINE DA PRENDERE QUESTO MESE");
+
             return splitEvents;
 
         }).catch(ex => {
@@ -199,6 +234,7 @@
         let event = null;
 
         console.log(events);
+        //TODO: check if undefined
 
         events.forEach(event=>{
             console.log(event)
@@ -223,7 +259,12 @@
         return eventList;
     }
 
-    function aggiungiFarmaco(){ location.href = "aggiungiFarmaco.html"; }
+    function aggiungiFarmaco(){
+        let id = document.getElementById("porta-medicine-container").selectedIndex.id;
+
+        location.href = "aggiungiFarmaco.html?id_porta=" + id;
+    }
+
     function rimuoviFarmaco() { location.href = "rimuoviFarmaco.html"; }
     function farmaciDelGiorno() {location.href = "farmaciDelGiorno.html"; }
 
