@@ -96,7 +96,7 @@
                     </div>
 
                     <div class="control">
-                        <input type="submit" class="button is-rounded is-fullwidth" value="AGGIUNGI FARMACO"/>
+                        <input type="submit" class="button is-rounded is-fullwidth" value="AGGIUNGI FARMACO" onclick=" return newEvent(event); "/>
                     </div>
 
 
@@ -247,6 +247,13 @@
     function newEvent(event){
         //TODO: NEW EVENT
         if(chkInput()){
+            const form = event.target;
+
+            // let newEvent = {
+            //     "addEvent": {
+            //         "id_porta_medicine":
+            //     }
+            // }
 
         }
 
@@ -255,10 +262,12 @@
 
     function chkInput() {
         const cadenza = document.getElementById("cadenza").value;
+
         if(cadenza == "-"){
-            //TODO: No cadenza selected
+
             return false;
         }
+
 
         const termine = document.getElementById("termine").value;
         if(cadenza != "no_rep" && termine == "-"){
@@ -300,6 +309,7 @@
                 }
             } else {
                 document.getElementById("termine").disabled = true;
+                document.getElementById("termine").selectedIndex = "0";
 
                 cancelCadenzaGiornaliera();
                 cancelCadenzaSettimanale();
@@ -328,6 +338,9 @@
                 cancelEndDate();
                 cancelNumAss();
             }
+        } else{
+            cancelEndDate();
+            cancelNumAss();
         }
     }
 
