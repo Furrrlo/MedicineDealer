@@ -61,7 +61,7 @@ public class JwtAuthenticationService implements AuthenticationService {
                 .setSubject(username)
                 .setIssuer(uriInfo.getAbsolutePath().toString())
                 .setIssuedAt(new java.util.Date())
-                .setExpiration(java.util.Date.from(ZonedDateTime.now().plusMinutes(15L).toInstant()))
+                .setExpiration(java.util.Date.from(ZonedDateTime.now().plusHours(1L).toInstant()))
                 .signWith(key, SignatureAlgorithm.HS512)
                 .compact();
     }
