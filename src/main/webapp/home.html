@@ -155,6 +155,8 @@
 
         function reloadEvents() {
             refreshButton.classList.add('is-loading');
+            refreshButton.disabled = true;
+
             // Remove events
             calendar.getEvents().forEach(event => { event.remove(); })
             // Load new ones
@@ -197,18 +199,16 @@
                 });
 
                 return eventList;
-            }).then(events => events.forEach(event => {
-                calendar.addEvent({
-                    title: event.title,
-                    start: event.start
-                });
+            }).then(events => {
+                calendar.addEventSource(events);
 
                 refreshButton.classList.remove('is-loading');
-
-            })).catch(ex => {
+                refreshButton.disabled = false;
+            }).catch(ex => {
                 console.error(ex);
 
                 refreshButton.classList.remove('is-loading');
+                refreshButton.disabled = false;
             });
         }
 
