@@ -2,5 +2,5 @@
 <xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema">
     <xs:include schemaLocation="commons.xsd"/>
 
-    <xs:element name="modifica_evento" type="mutable_event"/>
+    <xs:element name="modifica_evento" type="mutable_event_base"/>
 </xs:schema>

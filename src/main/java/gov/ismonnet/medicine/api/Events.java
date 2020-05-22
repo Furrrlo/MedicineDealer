@@ -209,7 +209,7 @@ public class Events {
     public void editEvent(@Authenticated int userId,
                           @PathParam(value = "id_evento") int oldEventId,
                           @NotNull EditEventBean eventBean) {
-        final MutableEvent eventEdit = eventBean.getValue();
+        final MutableEventBase eventEdit = eventBean.getValue();
         checkAuthorizedForEvent(userId, oldEventId);
 
         ctx.transaction(conf -> {

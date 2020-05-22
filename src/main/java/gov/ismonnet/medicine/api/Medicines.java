@@ -4,6 +4,7 @@ import gov.ismonnet.medicine.aifa.MedicineService;
 import gov.ismonnet.medicine.jaxb.ws.MedicinesBean;
 
 import javax.inject.Inject;
+import javax.validation.constraints.NotNull;
 import javax.ws.rs.GET;
 import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
@@ -25,7 +26,7 @@ public class Medicines {
     @GET
     @Path("{nome}")
     @Produces(MediaType.APPLICATION_XML)
-    public MedicinesBean getMedicines(@PathParam(value = "nome") String name) {
+    public MedicinesBean getMedicines(@NotNull @PathParam(value = "nome") String name) {
         return new MedicinesBean(medicineService.findMedicinesByName(name));
     }
 
