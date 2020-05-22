@@ -1,13 +1,19 @@
 {
   "name": "medicine_dealer",
   "version": "1.0.0-SNAPSHOT",
+  "scripts": {
+    "css-build": "node-sass --omit-source-map-url -o css sass/styles.sass"
+  },
   "dependencies": {
-    "bulma": "~0.8.2",
     "@fortawesome/fontawesome-free": "~5.3.1",
     "jxon": "~2.0.0-beta.5",
     "@fullcalendar/core": "~4.4.0",
     "@fullcalendar/daygrid": "~4.4.0",
     "@fullcalendar/list": "~4.4.0",
     "moment": "~2.26.0"
+  },
+  "devDependencies": {
+    "bulma": "~0.8.2",
+    "node-sass": "~4.9.2"
   }
 }
