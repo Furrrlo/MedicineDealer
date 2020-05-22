@@ -2,6 +2,9 @@ database.properties
 web_service.jceks
 src/generated
 
+/src/main/webapp/node_modules
+/src/main/webapp/yarn.lock
+
 # Created by https://www.gitignore.io/api/java,gradle,intellij,eclipse
 # Edit at https://www.gitignore.io/?templates=java,gradle,intellij,eclipse
 

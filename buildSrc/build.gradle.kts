@@ -14,8 +14,7 @@ tasks.withType<JavaCompile>().configureEach {
 }
 
 repositories {
-    mavenLocal()
-    jcenter()
+    gradlePluginPortal()
 }
 
 dependencies {
@@ -23,6 +22,8 @@ dependencies {
     implementation("org.flywaydb:flyway-gradle-plugin:6.3.3")
 
     implementation("com.intershop.gradle.jaxb:jaxb-gradle-plugin:3.0.4")
+
+    implementation("com.github.node-gradle:gradle-node-plugin:2.2.4")
 }
 
 kotlinDslPluginOptions {
