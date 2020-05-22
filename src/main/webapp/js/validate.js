@@ -4,6 +4,7 @@ document.addEventListener('DOMContentLoaded', () => {
     document.querySelectorAll('form').forEach(form => {
 
         const evtListeners = [];
+        const inputs = [];
         form.querySelectorAll('.field').forEach(field => {
 
             const input = field.querySelector('input') || field.querySelector('select');
@@ -67,27 +68,55 @@ document.addEventListener('DOMContentLoaded', () => {
                 return allValid;
             };
 
+            inputs.push(input);
+
             input.addEventListener('input', evtListener);
             evtListeners.push(evtListener);
         });
 
         // Disable browser validation
         form.noValidate = true;
-        // Add our own validation
-        form.addEventListener('submit', event => {
-            evtListeners.forEach(evtListener => {
-                if(!evtListener(event)) {
-                    event.preventDefault();
-                    event.stopImmediatePropagation();
-                }
-            });
-        });
         // Add method to add other errors
         const formError = form.querySelector(".form-err");
         form.setCustomError = function(errMsg) {
             if(formError)
                 formError.innerText = errMsg;
         };
+        // Add our own validation
+        form.addEventListener('submit', async event => {
+            try {
+                // Disable all submit buttons
+                document.querySelectorAll("input, button").forEach(btn => {
+                    if(btn.type !== 'submit')
+                        return;
+                    btn.disabled = true;
+                });
+                // Reset errors
+                form.setCustomError('');
+                inputs.forEach(input => input.setCustomError(''));
+                // Fire listeners
+                let stopped = false;
+                evtListeners.forEach(evtListener => {
+                    if(!evtListener(event)) {
+                        stopped = true;
+                        event.preventDefault();
+                        event.stopImmediatePropagation();
+                    }
+                });
+                // Submit method
+                if(!stopped && form.customSubmit) {
+                    event.preventDefault();
+                    await Promise.resolve(form.customSubmit(event));
+                }
+            } finally {
+                // Reenable all submit buttons
+                document.querySelectorAll("input, button").forEach(btn => {
+                    if(btn.type !== 'submit')
+                        return;
+                    btn.disabled = false;
+                });
+            }
+        });
         // The onsubmit is registered with the DOM, so remove it
         // and register it after our listener
         if(form.onsubmit) {

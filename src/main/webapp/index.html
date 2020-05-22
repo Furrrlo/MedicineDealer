@@ -10,36 +10,6 @@
 
     <script defer src="node_modules/jxon/jxon.min.js"></script>
     <script src="js/validate.js"></script>
-
-    <script>
-        function chkLogin(event) {
-            const form = event.target;
-
-            const ema = document.getElementById("email").value;
-            const psw = document.getElementById("psw").value;
-
-            fetch(form.action + "?email=" + ema + "&password=" + psw, {
-                method: form.method
-            }).then(async response => {
-                const code = response.status;
-
-                if(code === 200) {
-                    // logged
-                    location.href = 'home.html';
-                } else if(code === 401) {
-                    // password wrong or email not found
-                    form.setCustomError("Credenziali non valide");
-                } else if(!response.ok) {
-                    throw response.status + ": " + (await response.text());
-                }
-            }).catch(ex => {
-                form.setCustomError("Errore del server");
-                console.error(ex);
-            });
-
-            return false;
-        }
-    </script>
 </head>
 
 <body>
@@ -62,10 +32,9 @@
 
     <div class="column is-3 has-background-white-ter">
         <aside class="menu">
-
             <p class="menu-label">Login</p>
 
-            <form method="GET" action="api/pagina_iniziale" onsubmit="return chkLogin(event)">
+            <form method="GET" action="api/pagina_iniziale">
                 <div class="field">
                     <label class="label">Inserisci l'email</label>
                     <div class="control">
@@ -100,6 +69,35 @@
         </aside>
     </div>
 </section>
+
+
+<script>
+    document.querySelector('form').customSubmit = (event) => {
+        const form = event.target;
+
+        const ema = document.getElementById("email").value;
+        const psw = document.getElementById("psw").value;
+
+        return fetch(form.action + "?email=" + ema + "&password=" + psw, {
+            method: form.method
+        }).then(async response => {
+            const code = response.status;
+
+            if(code === 200) {
+                // logged
+                location.href = 'home.html';
+            } else if(code === 401) {
+                // password wrong or email not found
+                form.setCustomError("Credenziali non valide");
+            } else if(!response.ok) {
+                throw response.status + ": " + (await response.text());
+            }
+        }).catch(ex => {
+            form.setCustomError("Errore del server");
+            console.error(ex);
+        });
+    };
+</script>
 
 </body>
 </html>

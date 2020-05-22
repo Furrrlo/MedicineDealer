@@ -10,37 +10,6 @@
 
     <script defer src="node_modules/jxon/jxon.min.js"></script>
     <script src="js/validate.js"></script>
-
-    <script>
-        function chkLogin(event) {
-
-            const form = event.target;
-
-            const ema = document.getElementById("email").value;
-            const psw = document.getElementById("password").value;
-
-            fetch(form.action + "?email=" + ema + "&password=" + psw, {
-                method: form.method
-            }).then(async response => {
-                const code = response.status;
-
-                if (code === 200) {
-                    // logged
-                    location.href = 'home.html';
-                } else if(code === 401) {
-                    // email not found or password wrong
-                    form.setCustomError("Credenziali non valide");
-                } else if(!response.ok) {
-                    throw response.status + ": " + (await response.text());
-                }
-            }).catch(ex => {
-                form.setCustomError("Errore del server");
-                console.error(ex);
-            });
-
-            return false;
-        }
-    </script>
 </head>
 
 <body>
@@ -54,7 +23,7 @@
 </section>
 
 <div class="section">
-    <form method="GET" action="api/pagina_iniziale" onsubmit="return chkLogin(event);">
+    <form method="GET" action="api/pagina_iniziale">
         <div class="columns is-centered">
             <div class="column is-one-quarter ">
 
@@ -91,5 +60,35 @@
         </div>
     </form>
 </div>
+
+<script>
+    document.querySelector("form").customSubmit = (event) => {
+
+        const form = event.target;
+
+        const ema = document.getElementById("email").value;
+        const psw = document.getElementById("password").value;
+
+        return fetch(form.action + "?email=" + ema + "&password=" + psw, {
+            method: form.method
+        }).then(async response => {
+            const code = response.status;
+
+            if (code === 200) {
+                // logged
+                location.href = 'home.html';
+            } else if(code === 401) {
+                // email not found or password wrong
+                form.setCustomError("Credenziali non valide");
+            } else if(!response.ok) {
+                throw response.status + ": " + (await response.text());
+            }
+        }).catch(ex => {
+            form.setCustomError("Errore del server");
+            console.error(ex);
+        });
+    };
+</script>
+
 </body>
 </html>
