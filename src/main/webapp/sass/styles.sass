@@ -1,2 +1,13 @@
 @charset "utf-8"
 @import "../node_modules/bulma/bulma.sass"
+
+.columns
+  &.is-fullheight
+    min-height: calc(100vh - ( #{$navbar-height} - .75rem ) )
+    max-height: calc(100vh - ( #{$navbar-height} - .75rem ) )
+    height: calc(100vh - ( #{$navbar-height} - .75rem ) )
+    display: flex
+    flex-direction: row
+    justify-content: stretch
+    .column
+      overflow-y: auto

@@ -29,58 +29,58 @@
     </div>
 </section>
 
-<section class="section">
-    <div class="columns is-fullheight">
-        <div class="column">
+<section class="section columns is-fullheight">
+    <div class="column">
+        <div>
             <div class="calendar" id='calendar'></div>
         </div>
+    </div>
 
-        <div class="column is-3 has-background-white-ter">
-            <aside class="menu">
+    <div class="column is-3 has-background-white-ter">
+        <aside class="menu">
 
-                <p class="menu-label">Porta Medicine di:</p>
+            <p class="menu-label">Porta Medicine di:</p>
 
-                <div class="field">
-                    <div class="control">
-                        <div class="select is-rounded is-fullwidth">
-                            <!-- Template -->
-                            <select class="is-hidden">
-                                <option class="porta-medicine-template"></option>
-                            </select>
-                            <!-- Container -->
-                            <select id="porta-medicine-container"></select>
-                        </div>
+            <div class="field">
+                <div class="control">
+                    <div class="select is-rounded is-fullwidth">
+                        <!-- Template -->
+                        <select class="is-hidden">
+                            <option class="porta-medicine-template"></option>
+                        </select>
+                        <!-- Container -->
+                        <select id="porta-medicine-container"></select>
                     </div>
                 </div>
+            </div>
 
-                <!--    <div class="section">-->
-                <!--        <div class="column is-one-half has-background-white-ter">-->
-                <!--            <div class="field has-text-centered">-->
-                <!--                <h1 class="subtitle">VUOI AGGIUNGERE UN FARMACO ALL'ELENCO?</h1>-->
-                <!--                    <div class="control has-text-centered">-->
-                <!--                        <input type="submit" class="button is-rounded" value="AGGIUNGI UN FARMACO" onclick="aggiungiFarmaco()"/>-->
-                <!--                    </div>-->
-                <!--                </div>-->
-                <!--            <br>-->
+            <!--    <div class="section">-->
+            <!--        <div class="column is-one-half has-background-white-ter">-->
+            <!--            <div class="field has-text-centered">-->
+            <!--                <h1 class="subtitle">VUOI AGGIUNGERE UN FARMACO ALL'ELENCO?</h1>-->
+            <!--                    <div class="control has-text-centered">-->
+            <!--                        <input type="submit" class="button is-rounded" value="AGGIUNGI UN FARMACO" onclick="aggiungiFarmaco()"/>-->
+            <!--                    </div>-->
+            <!--                </div>-->
+            <!--            <br>-->
 
-                <!--            <div class="field has-text-centered">-->
-                <!--                <h1 class="subtitle">VUOI RIMUOVERE UN FARMACO DALL'ELENCO?</h1>-->
-                <!--                <div class="control has-text-centered">-->
-                <!--                    <input type="submit" class="button is-rounded" value="RIMUOVI UN FARMACO" onclick="rimuoviFarmaco()"/>-->
-                <!--                </div>-->
-                <!--            </div>-->
+            <!--            <div class="field has-text-centered">-->
+            <!--                <h1 class="subtitle">VUOI RIMUOVERE UN FARMACO DALL'ELENCO?</h1>-->
+            <!--                <div class="control has-text-centered">-->
+            <!--                    <input type="submit" class="button is-rounded" value="RIMUOVI UN FARMACO" onclick="rimuoviFarmaco()"/>-->
+            <!--                </div>-->
+            <!--            </div>-->
 
-                <!--            <div class="field has-text-centered">-->
-                <!--                <h1 class="subtitle">SE CLICCHI SU UN GIORNO DEL CALENDARIO DOVREBBE USCIRE L'ELENCO DELLE MEDICINE RELATIVE A QUEL GIORNO</h1>-->
-                <!--                <div class="control has-text-centered">-->
-                <!--                    <input type="submit" class="button is-rounded" value="TIPO COSI" onclick="farmaciDelGiorno()"/>-->
-                <!--                </div>-->
-                <!--            </div>-->
-                <!--            <br>-->
-                <!--        </div>-->
-                <!--    </div>-->
-            </aside>
-        </div>
+            <!--            <div class="field has-text-centered">-->
+            <!--                <h1 class="subtitle">SE CLICCHI SU UN GIORNO DEL CALENDARIO DOVREBBE USCIRE L'ELENCO DELLE MEDICINE RELATIVE A QUEL GIORNO</h1>-->
+            <!--                <div class="control has-text-centered">-->
+            <!--                    <input type="submit" class="button is-rounded" value="TIPO COSI" onclick="farmaciDelGiorno()"/>-->
+            <!--                </div>-->
+            <!--            </div>-->
+            <!--            <br>-->
+            <!--        </div>-->
+            <!--    </div>-->
+        </aside>
     </div>
 </section>
 
@@ -89,7 +89,7 @@
         'use strict';
 
         const calendar = new FullCalendar.Calendar(document.getElementById('calendar'), {
-            // height: "parent",
+            height: "parent",
             plugins: [ 'interaction', 'dayGrid', 'timeGrid' ],
             header: {
                 left: 'prev,next today',
