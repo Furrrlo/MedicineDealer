@@ -154,6 +154,7 @@ public class Events {
             ctx.insertInto(Tables.FARMACI)
                     .set(Tables.FARMACI.COD_AIC, UInteger.valueOf(medicine.getAicFarmaco()))
                     .set(Tables.FARMACI.NOME, medicine.getName())
+                    .onDuplicateKeyIgnore()
                     .execute();
 
             final InsertSetMoreStep<EventiRecord> insert = ctx.insertInto(Tables.EVENTI)
