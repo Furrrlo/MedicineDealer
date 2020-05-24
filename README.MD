@@ -1,17 +1,5 @@
-## Debugging
-Make sure to have a `mysql` instance running on port `3306`.
+L'implementazione degli endpoint si trova in [src/main/java/gov/ismonnet/medicine/api](src/main/java/gov/ismonnet/medicine/api).
 
-Specify the database user and password in the file `database.properties` placed in the project root, 
-following this format:
-```properties
-user=user
-password=password
-``` 
+La documentazione in PDF aggiornata si trova in [docs](docs).
 
-The user needs to have the appropriate perms both to create and manage a schema.
-
-Run the gradle task `appRun`:
-```
-./gradlew appRun 
-```
-The schema will be automatically created.
+Lo schema del database si trova in [src/main/resources/db/migration/](src/main/resources/db/migration/V1__init_database.sql).
