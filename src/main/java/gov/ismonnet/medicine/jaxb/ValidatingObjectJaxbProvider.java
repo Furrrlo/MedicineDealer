@@ -12,11 +12,9 @@ import javax.ws.rs.core.MultivaluedMap;
 import javax.ws.rs.core.NoContentException;
 import javax.ws.rs.ext.MessageBodyReader;
 import javax.ws.rs.ext.MessageBodyWriter;
-import javax.xml.bind.JAXBException;
-import javax.xml.bind.Marshaller;
-import javax.xml.bind.UnmarshalException;
-import javax.xml.bind.Unmarshaller;
+import javax.xml.bind.*;
 import javax.xml.bind.annotation.XmlRootElement;
+import javax.xml.namespace.QName;
 import javax.xml.validation.Schema;
 import java.io.IOException;
 import java.io.InputStream;
@@ -118,14 +116,36 @@ public class ValidatingObjectJaxbProvider implements MessageBodyReader<Object>, 
     }
 
     protected Schema getSchema(Class<?> type) throws SAXException {
+
         final XmlRootElement rootElement = type.getAnnotation(XmlRootElement.class);
-        if(rootElement == null)
+        final boolean isJaxbElement = JAXBElement.class.isAssignableFrom(type);
+
+        if(rootElement == null && !isJaxbElement)
             return null;
+
+        final String name;
+        final String namespace;
+        if(rootElement != null) {
+            name = rootElement.name();
+            namespace = rootElement.namespace();
+        } else /*if(isJaxbElement)*/ {
+            try {
+                // Try to instantiate the object using the no-args constructor
+                // and get the QNAME
+                //noinspection rawtypes
+                final QName qname = ((JAXBElement) type.newInstance()).getName();
+                name = qname.getLocalPart();
+                namespace = qname.getNamespaceURI();
+            } catch (Exception ex) {
+                // Doesn't have a no-args constructor
+                return null;
+            }
+        }
 
         try {
             return schemas.computeIfAbsent(type, t -> {
                 try {
-                    return schemaResolver.resolve(rootElement.namespace(), rootElement.name());
+                    return schemaResolver.resolve(namespace, name);
                 } catch (SAXException ex) {
                     throw new RuntimeException(ex);
                 }
