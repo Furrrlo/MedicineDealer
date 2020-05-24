@@ -17,8 +17,8 @@ import javax.ws.rs.core.*;
 import java.sql.Date;
 import java.util.Optional;
 
-@Path("pagina_iniziale")
-public class StartPage {
+@Path("utenti")
+public class Users {
 
     private final DSLContext ctx;
     private final PasswordEncoder passwordEncoder;
@@ -27,11 +27,11 @@ public class StartPage {
     public final String authorizationHeaderSchema;
     public final String authenticationCookieName;
 
-    @Inject StartPage(DSLContext ctx,
-                      PasswordEncoder passwordEncoder,
-                      AuthenticationService authenticationService,
-                      @AuthorizationSchema String authorizationHeaderSchema,
-                      @AuthenticationCookie String authenticationCookieName) {
+    @Inject Users(DSLContext ctx,
+                  PasswordEncoder passwordEncoder,
+                  AuthenticationService authenticationService,
+                  @AuthorizationSchema String authorizationHeaderSchema,
+                  @AuthenticationCookie String authenticationCookieName) {
         this.ctx = ctx;
         this.passwordEncoder = passwordEncoder;
         this.authenticationService = authenticationService;
