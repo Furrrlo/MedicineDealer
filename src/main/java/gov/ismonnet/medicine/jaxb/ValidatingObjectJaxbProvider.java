@@ -165,8 +165,11 @@ public class ValidatingObjectJaxbProvider implements MessageBodyReader<Object>, 
         try {
             return marshallers.computeIfAbsent(schema, t -> {
                 try {
-                    final Marshaller marshaller = new ConcurrentMarshaller(marshallerFactory);
-                    marshaller.setSchema(schema);
+                    final Marshaller marshaller = new ConcurrentMarshaller(() -> {
+                        final Marshaller marshaller0 = marshallerFactory.get();
+                        marshaller0.setSchema(schema);
+                        return marshaller0;
+                    });
                     return marshaller;
                 } catch (JAXBException ex) {
                     throw new RuntimeException(ex);
@@ -187,8 +190,11 @@ public class ValidatingObjectJaxbProvider implements MessageBodyReader<Object>, 
         try {
             return unmarshallers.computeIfAbsent(schema, t -> {
                 try {
-                    final Unmarshaller unmarshaller = new ConcurrentUnmarshaller(unmarshallerFactory);
-                    unmarshaller.setSchema(schema);
+                    final Unmarshaller unmarshaller = new ConcurrentUnmarshaller(() -> {
+                        final Unmarshaller unmarshaller0 = unmarshallerFactory.get();
+                        unmarshaller0.setSchema(schema);
+                        return unmarshaller0;
+                    });
                     return unmarshaller;
                 } catch (JAXBException ex) {
                     throw new RuntimeException(ex);
