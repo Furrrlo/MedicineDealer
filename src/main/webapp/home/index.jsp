@@ -140,8 +140,7 @@
             cell5.appendChild(btn);
         })
 
-
-        modal.style.display = "block";
+        modal.classList.add('is-active');
     }
     window.onclick = function (event){
         if(event.target.className == 'modal-background')
@@ -316,7 +315,7 @@
 
         for(let n = table.rows.length - 1;n > 0;n--) table.deleteRow(n);
 
-        modal.style.display = "none";
+        modal.classList.remove('is-active');
     }
 
     function aggiungiFarmaco(){
