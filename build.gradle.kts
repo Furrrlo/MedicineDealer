@@ -67,6 +67,7 @@ dependencies {
 
 gretty {
     servletContainer = "tomcat85"
+    contextPath = ""
     loggingLevel = "INFO"
     fileLogEnabled = false
 }

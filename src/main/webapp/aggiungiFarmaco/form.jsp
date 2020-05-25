@@ -1,6 +1,6 @@
 <%@ page contentType="text/html; charset=UTF-8" %>
 
-<form method="post" action="../api/eventi" >
+<form method="post" action="${pageContext.request.contextPath}/api/eventi" >
     <div class="field">
         <h1 class="SUBTITLE">AGGIUNGI UNA NUOVA MEDICINA AL CALENDARIO</h1>
 

@@ -5,11 +5,11 @@
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <title>Benvenuto in MEDICINE DEALER</title>
 
-    <link rel="stylesheet" href="css/styles.css">
-    <script defer src="node_modules/@fortawesome/fontawesome-free/js/all.min.js"></script>
+    <link rel="stylesheet" href="${pageContext.request.contextPath}/css/styles.css">
+    <script defer src="${pageContext.request.contextPath}/node_modules/@fortawesome/fontawesome-free/js/all.min.js"></script>
 
-    <script defer src="node_modules/jxon/jxon.min.js"></script>
-    <script src="js/validate.js"></script>
+    <script defer src="${pageContext.request.contextPath}/node_modules/jxon/jxon.min.js"></script>
+    <script src="${pageContext.request.contextPath}/js/validate.js"></script>
 </head>
 
 <body>
@@ -22,20 +22,24 @@
     </div>
 </section>
 
-<div class="section">
-    <form method="GET" action="api/utenti">
-        <div class="columns is-centered">
-            <div class="column is-one-quarter ">
+<section class="section columns is-fullheight">
+    <div class="column">
+        <div class="field">
+            <h1 class="title">COME FUNZIONA MEDICINE DEALER</h1>
+            <p class="paragraph"></p>
+        </div>
+    </div>
 
-                <div class="field">
-                    <h1 class="subtitle">ACCEDI PER GESTIRE I PORTAMEDICINE</h1>
-                </div>
+    <div class="column is-3 has-background-white-ter">
+        <aside class="menu">
+            <p class="menu-label">Login</p>
 
+            <form method="GET" action="${pageContext.request.contextPath}/api/utenti">
                 <div class="field">
-                    <label class="label">Inserisci l'e-mail</label>
+                    <label class="label">Inserisci l'email</label>
                     <div class="control">
                         <input class="input is-primary is-rounded"
-                               type="email" placeholder="E-mail" id="email" required/>
+                               type="email"  placeholder="Email" id="email" required/>
                     </div>
                     <p class="help is-danger err"></p>
                 </div>
@@ -44,41 +48,46 @@
                     <label class="label">Inserisci la password</label>
                     <div class="control">
                         <input class="input is-primary is-rounded"
-                               type="password"  placeholder="Password" id="password" required/>
+                               type="password"  placeholder="Password" id="psw"required/>
                     </div>
                     <p class="help is-danger err"></p>
                 </div>
 
                 <div class="field">
                     <p class="help has-text-centered is-danger form-err"></p>
-                    <br>
-                    <div class="control">
-                        <button class="button is-rounded is-fullwidth">ACCEDI</button>
+
+                    <div class="control has-text-centered">
+                        <input type="submit" class="button is-rounded" value="ACCEDI"/>
                     </div>
+
+                    <p class="help has-text-centered">
+                        Se non sei ancora regitrato clicca
+                        <a href="registrazione.html">QUI</a>
+                    </p>
                 </div>
-            </div>
-        </div>
-    </form>
-</div>
+            </form>
+        </aside>
+    </div>
+</section>
+
 
 <script>
-    document.querySelector("form").customSubmit = (event) => {
-
+    document.querySelector('form').customSubmit = (event) => {
         const form = event.target;
 
         const ema = document.getElementById("email").value;
-        const psw = document.getElementById("password").value;
+        const psw = document.getElementById("psw").value;
 
         return fetch(form.action + "?email=" + ema + "&password=" + psw, {
             method: form.method
         }).then(async response => {
             const code = response.status;
 
-            if (code === 200) {
+            if(code === 200) {
                 // logged
                 location.href = 'home.html';
             } else if(code === 401) {
-                // email not found or password wrong
+                // password wrong or email not found
                 form.setCustomError("Credenziali non valide");
             } else if(!response.ok) {
                 throw response.status + ": " + (await response.text());

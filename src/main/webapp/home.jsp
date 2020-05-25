@@ -5,20 +5,20 @@
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <title>home</title>
 
-    <link rel="stylesheet" href="css/styles.css">
-    <script defer src="node_modules/@fortawesome/fontawesome-free/js/all.min.js"></script>
+    <link rel="stylesheet" href="${pageContext.request.contextPath}/css/styles.css">
+    <script defer src="${pageContext.request.contextPath}/node_modules/@fortawesome/fontawesome-free/js/all.min.js"></script>
 
-    <script defer src="node_modules/jxon/jxon.min.js"></script>
-    <script defer src="js/moment/moment.js"></script>
+    <script defer src="${pageContext.request.contextPath}/node_modules/jxon/jxon.min.js"></script>
+    <script defer src="${pageContext.request.contextPath}/js/moment/moment.js"></script>
 
-    <link href='node_modules/@fullcalendar/core/main.min.css' rel='stylesheet' />
-    <script src='node_modules/@fullcalendar/core/main.min.js'></script>
-    <link href='node_modules/@fullcalendar/daygrid/main.min.css' rel='stylesheet' />
-    <script src='node_modules/@fullcalendar/daygrid/main.min.js'></script>
-    <link href='node_modules/@fullcalendar/list/main.min.css' rel='stylesheet' />
-    <script src='node_modules/@fullcalendar/list/main.min.js'></script>
-    <link href='node_modules/@fullcalendar/interaction/main.min.css' rel='stylesheet' />
-    <script src='node_modules/@fullcalendar/interaction/main.min.js'></script>
+    <link href='${pageContext.request.contextPath}/node_modules/@fullcalendar/core/main.min.css' rel='stylesheet' />
+    <script src='${pageContext.request.contextPath}/node_modules/@fullcalendar/core/main.min.js'></script>
+    <link href='${pageContext.request.contextPath}/node_modules/@fullcalendar/daygrid/main.min.css' rel='stylesheet' />
+    <script src='${pageContext.request.contextPath}/node_modules/@fullcalendar/daygrid/main.min.js'></script>
+    <link href='${pageContext.request.contextPath}/node_modules/@fullcalendar/list/main.min.css' rel='stylesheet' />
+    <script src='${pageContext.request.contextPath}/node_modules/@fullcalendar/list/main.min.js'></script>
+    <link href='${pageContext.request.contextPath}/node_modules/@fullcalendar/interaction/main.min.css' rel='stylesheet' />
+    <script src='${pageContext.request.contextPath}/node_modules/@fullcalendar/interaction/main.min.js'></script>
 
 
 </head>
@@ -129,7 +129,7 @@
             const template = document.querySelector('.' + templateClass);
 
             return () => {
-                return fetch('api/porta_medicine').then(async response => {
+                return fetch('${pageContext.request.contextPath}/api/porta_medicine').then(async response => {
                     if(!response.ok)
                         throw response.status + ": " + (await response.text());
                     return JXON.stringToJs(await response.text());

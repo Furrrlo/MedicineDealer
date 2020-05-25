@@ -5,11 +5,11 @@
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <title>Benvenuto in MEDICINE DEALER</title>
 
-    <link rel="stylesheet" href="css/styles.css">
-    <script defer src="node_modules/@fortawesome/fontawesome-free/js/all.min.js"></script>
+    <link rel="stylesheet" href="${pageContext.request.contextPath}/css/styles.css">
+    <script defer src="${pageContext.request.contextPath}/node_modules/@fortawesome/fontawesome-free/js/all.min.js"></script>
 
-    <script defer src="node_modules/jxon/jxon.min.js"></script>
-    <script src="js/validate.js"></script>
+    <script defer src="${pageContext.request.contextPath}/node_modules/jxon/jxon.min.js"></script>
+    <script src="${pageContext.request.contextPath}/js/validate.js"></script>
 
     <script>
         function home(){ location.href = "home.html";}
