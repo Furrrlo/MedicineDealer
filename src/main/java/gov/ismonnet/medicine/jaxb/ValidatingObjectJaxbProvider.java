@@ -4,7 +4,6 @@ import org.glassfish.jersey.internal.LocalizationMessages;
 import org.glassfish.jersey.message.internal.EntityInputStream;
 import org.xml.sax.SAXException;
 
-import javax.ws.rs.BadRequestException;
 import javax.ws.rs.InternalServerErrorException;
 import javax.ws.rs.WebApplicationException;
 import javax.ws.rs.core.MediaType;
@@ -71,7 +70,7 @@ public class ValidatingObjectJaxbProvider implements MessageBodyReader<Object>, 
             return unmarshaller.unmarshal(entityStream);
 
         } catch (UnmarshalException ex) {
-            throw new BadRequestException(ex.getMessage(), ex);
+            throw new UncheckedUnmarshalException(ex);
         } catch (JAXBException | SAXException ex) {
             throw new RuntimeException("Couldn't unmarshal entity", ex);
         }
