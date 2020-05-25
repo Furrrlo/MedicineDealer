@@ -13,13 +13,13 @@ import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import java.sql.Date;
 
-@Path("pagina_iniziale")
-public class StartPage {
+@Path("utenti")
+public class Users {
 
     private final DSLContext ctx;
     private final PasswordEncoder passwordEncoder;
 
-    @Inject StartPage(DSLContext ctx, PasswordEncoder passwordEncoder) {
+    @Inject Users(DSLContext ctx, PasswordEncoder passwordEncoder) {
         this.ctx = ctx;
         this.passwordEncoder = passwordEncoder;
     }
