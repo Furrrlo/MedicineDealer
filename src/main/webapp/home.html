@@ -97,13 +97,10 @@
                     <th>Nome Medicina</th>
                     <th>Ora Acquisione</th>
                     <th>Assunta</th>
+                    <th>Slot</th>
                     <th>Clicca per rimuovere solo per oggi</th>
                 </table>
             </section>
-            <footer class="modal-card-foot">
-                <button class="button is-success">Salva</button>
-                <button class="button" onclick="discardModal()">Annulla</button>
-            </footer>
         </div>
     </div>
 
@@ -120,7 +117,6 @@
         let i = 1;
         events.forEach(event => {
             let row = table.insertRow(i);
-            console.log(event);
 
             let cell1 = row.insertCell(0);
             cell1.innerHTML = event.title;
@@ -128,11 +124,29 @@
             let cell2 = row.insertCell(1);
             cell2.innerHTML = event.start.getHours() + ":" + event.start.getMinutes();
             // let cell3
-            // let cell4
+
+            let cell3 = row.insertCell(2);
+            //TODO Assunta yes or no
+            let cell4 = row.insertCell(3);
+            //TODO Slot in which the medicine is
+
+            let cell5 = row.insertCell(4);
+            let btn = document.createElement("BUTTON");
+            btn.innerHTML = "ELIMINA";
+            btn.onclick = function (){
+
+            };
+            cell5.appendChild(btn);
         })
 
 
         modal.style.display = "block";
+    }
+    window.onclick = function (event){
+        let modal = document.getElementById("day_click_modal");
+
+        if(event.target.className == 'modal-background')
+            modal.style.display = "none";
     }
 
     window.addEventListener('load', function () {
@@ -297,6 +311,10 @@
 
     function discardModal(){
         let modal = document.getElementById("day_click_modal");
+        let table = document.getElementById("medicine_table");
+
+        for(let n = table.rows.length - 1;n > 0;n--) table.deleteRow(n);
+
         modal.style.display = "none";
     }
 
