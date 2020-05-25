@@ -151,7 +151,7 @@
 
     <xs:simpleType name="aic">
         <xs:restriction base="xs:string">
-            <xs:pattern value="[0-9]"/>
+            <xs:pattern value="[0-9]*"/>
             <xs:length value="6"/>
         </xs:restriction>
     </xs:simpleType>
