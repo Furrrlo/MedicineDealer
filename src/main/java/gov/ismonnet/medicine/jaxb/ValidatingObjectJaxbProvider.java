@@ -67,13 +67,13 @@ public class ValidatingObjectJaxbProvider implements MessageBodyReader<Object>, 
 
             final Unmarshaller unmarshaller = getUnmarshaller(type);
             if(unmarshaller == null)
-                throw new InternalServerErrorException("Couldn't find unmarshaller");
+                throw new RuntimeException("Couldn't find unmarshaller");
             return unmarshaller.unmarshal(entityStream);
 
         } catch (UnmarshalException ex) {
-            throw new BadRequestException(ex);
+            throw new BadRequestException(ex.getMessage(), ex);
         } catch (JAXBException | SAXException ex) {
-            throw new InternalServerErrorException(ex);
+            throw new RuntimeException("Couldn't unmarshal entity", ex);
         }
     }
 
@@ -107,7 +107,7 @@ public class ValidatingObjectJaxbProvider implements MessageBodyReader<Object>, 
             marshaller.marshal(o, entityStream);
 
         } catch (JAXBException | SAXException ex) {
-            throw new InternalServerErrorException(ex);
+            throw new RuntimeException("Couldn't marshal entity", ex);
         }
     }
 
