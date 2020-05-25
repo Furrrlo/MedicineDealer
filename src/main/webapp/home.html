@@ -17,6 +17,10 @@
     <script src='node_modules/@fullcalendar/daygrid/main.min.js'></script>
     <link href='node_modules/@fullcalendar/list/main.min.css' rel='stylesheet' />
     <script src='node_modules/@fullcalendar/list/main.min.js'></script>
+    <link href='node_modules/@fullcalendar/interaction/main.min.css' rel='stylesheet' />
+    <script src='node_modules/@fullcalendar/interaction/main.min.js'></script>
+
+
 </head>
 
 <body>
@@ -103,11 +107,16 @@
                 }
             },
             defaultDate: Date.now(),
-            navLinks: true, // can click day/week names to navigate views
             selectable: true,
             selectMirror: true,
             editable: true,
-            event: []
+            event: [],
+            dateClick: function (info) {
+                console.log(info.dateStr);
+
+                farmaciDelGiorno(info.date,getEventsByDate(info.date,calendar));
+            }
+
         });
         calendar.render();
 
@@ -218,14 +227,32 @@
         reloadDevices().then(reloadEvents);
     });
 
+    function getEventsByDate(date,calendar){
+        let events = [];
+
+        events = calendar.getEvents();
+        events.forEach(event => {
+            if(event.start != date) event.remove();
+        })
+
+        return events;
+    }
+
     function aggiungiFarmaco(){
+
         let id = document.getElementById("porta-medicine-container").selectedIndex.id;
 
         location.href = "aggiungiFarmaco.html?id_porta=" + id;
     }
 
     function rimuoviFarmaco() { location.href = "rimuoviFarmaco.html"; }
-    function farmaciDelGiorno() {location.href = "farmaciDelGiorno.html"; }
+
+    function farmaciDelGiorno(date,events) {
+
+        let eventStr = encodeURIComponent(JSON.stringify(events));
+
+        //location.href = "farmaciDelGiorno.html?data=" + date +"&events=" + eventStr;
+    }
 
 </script>
 
