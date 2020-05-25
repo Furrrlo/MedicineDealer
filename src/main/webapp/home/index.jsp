@@ -17,7 +17,6 @@
     <script src='${pageContext.request.contextPath}/node_modules/@fullcalendar/daygrid/main.min.js'></script>
     <link href='${pageContext.request.contextPath}/node_modules/@fullcalendar/list/main.min.css' rel='stylesheet' />
     <script src='${pageContext.request.contextPath}/node_modules/@fullcalendar/list/main.min.js'></script>
-    <link href='${pageContext.request.contextPath}/node_modules/@fullcalendar/interaction/main.min.css' rel='stylesheet' />
     <script src='${pageContext.request.contextPath}/node_modules/@fullcalendar/interaction/main.min.js'></script>
 </head>
 
