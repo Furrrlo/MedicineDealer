@@ -236,7 +236,9 @@
             let id_porta_medicine = portaMedicineSelect.options[portaMedicineSelect.selectedIndex].value;
             //TODO: How to get granularity
             let granularity = "MONTH"
-            let path = "api/eventi?granularita=" + granularity + "&id_porta_medicine=" + id_porta_medicine;
+            let path = "${pageContext.request.contextPath}/api/eventi?" +
+                "granularita=" + granularity + "&" +
+                "id_porta_medicine=" + id_porta_medicine;
 
             return fetch(path).then(async response => {
                 if(!response.ok)
@@ -319,10 +321,10 @@
 
     function aggiungiFarmaco(){
         let id = document.getElementById("porta-medicine-container").selectedIndex.id;
-        location.href = "aggiungiFarmaco.html?id_porta=" + id;
+        location.href = "${pageContext.request.contextPath}/aggiungiFarmaco?id_porta=" + id;
     }
 
-    function rimuoviFarmaco() { location.href = "rimuoviFarmaco.html"; }
+    function rimuoviFarmaco() { location.href = "${pageContext.request.contextPath}/rimuoviFarmaco"; }
 
 
 </script>

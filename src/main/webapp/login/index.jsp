@@ -76,7 +76,7 @@
 
             if (code === 200) {
                 // logged
-                location.href = 'home.html';
+                location.href = '${pageContext.request.contextPath}/home';
             } else if(code === 401) {
                 // email not found or password wrong
                 form.setCustomError("Credenziali non valide");

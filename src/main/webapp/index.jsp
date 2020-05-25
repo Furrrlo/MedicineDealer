@@ -62,7 +62,7 @@
 
                     <p class="help has-text-centered">
                         Se non sei ancora regitrato clicca
-                        <a href="registrazione.html">QUI</a>
+                        <a href="${pageContext.request.contextPath}/registrazione">QUI</a>
                     </p>
                 </div>
             </form>
@@ -85,7 +85,7 @@
 
             if(code === 200) {
                 // logged
-                location.href = 'home.html';
+                location.href = '${pageContext.request.contextPath}/home';
             } else if(code === 401) {
                 // password wrong or email not found
                 form.setCustomError("Credenziali non valide");

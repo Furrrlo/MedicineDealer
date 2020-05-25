@@ -12,7 +12,7 @@
     <script src="${pageContext.request.contextPath}/js/validate.js"></script>
 
     <script>
-        function home(){ location.href = "home.html";}
+        function home(){ location.href = "${pageContext.request.contextPath}/home";}
     </script>
 </head>
 

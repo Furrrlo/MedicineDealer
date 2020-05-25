@@ -86,7 +86,7 @@
 
                     if(!response.ok)
                         throw response.status + ": " + (await response.text());
-                    location.href = "home.html";
+                    location.href = "${pageContext.request.contextPath}/home";
                 }).catch(ex => {
                     form.setCustomError("Errore del server");
                     console.error(ex);
