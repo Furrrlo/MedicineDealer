@@ -143,10 +143,8 @@
         modal.style.display = "block";
     }
     window.onclick = function (event){
-        let modal = document.getElementById("day_click_modal");
-
         if(event.target.className == 'modal-background')
-            modal.style.display = "none";
+            discardModal();
     }
 
     window.addEventListener('load', function () {
