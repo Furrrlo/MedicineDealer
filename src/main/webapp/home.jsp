@@ -21,9 +21,6 @@
     <script src='${pageContext.request.contextPath}/node_modules/@fullcalendar/interaction/main.min.js'></script>
 </head>
 
-
-</head>
-
 <body>
 <section class="hero is-primary">
     <div class="hero-body">
@@ -87,9 +84,70 @@
             <!--    </div>-->
         </aside>
     </div>
+
+    <div class="modal" id="day_click_modal">
+        <div class="modal-background"></div>
+        <div class="modal-card">
+            <header class="modal-card-head">
+                <p class="modal-card-title" id="modal_title"></p>
+                <button class="delete" aria-label="close" onclick="discardModal()"></button>
+            </header>
+            <section class="modal-card-body">
+
+                <table class="table is-bordered is-striped is-narrow is-hoverable is-fullwidth" id="medicine_table">
+                    <th>Nome Medicina</th>
+                    <th>Ora Acquisione</th>
+                    <th>Assunta</th>
+                    <th>Slot</th>
+                    <th>Clicca per rimuovere solo per oggi</th>
+                </table>
+            </section>
+        </div>
+    </div>
+
 </section>
 
 <script>
+
+    function farmaciDelGiorno(date,events) {
+        let modal = document.getElementById("day_click_modal");
+        let table = document.getElementById("medicine_table");
+
+        document.getElementById("modal_title").innerHTML = date;
+
+        let i = 1;
+        events.forEach(event => {
+            let row = table.insertRow(i);
+
+            let cell1 = row.insertCell(0);
+            cell1.innerHTML = event.title;
+
+            let cell2 = row.insertCell(1);
+            cell2.innerHTML = event.start.getHours() + ":" + event.start.getMinutes();
+            // let cell3
+
+            let cell3 = row.insertCell(2);
+            //TODO Assunta yes or no
+            let cell4 = row.insertCell(3);
+            //TODO Slot in which the medicine is
+
+            let cell5 = row.insertCell(4);
+            let btn = document.createElement("BUTTON");
+            btn.innerHTML = "ELIMINA";
+            btn.onclick = function (){
+
+            };
+            cell5.appendChild(btn);
+        })
+
+
+        modal.style.display = "block";
+    }
+    window.onclick = function (event){
+        if(event.target.className == 'modal-background')
+            discardModal();
+    }
+
     window.addEventListener('load', function () {
         'use strict';
 
@@ -113,9 +171,14 @@
             editable: true,
             event: [],
             dateClick: function (info) {
-                console.log(info.dateStr);
+                let events = [];
+                let dateClicked = italianTimeFormat(info.date);
 
-                farmaciDelGiorno(info.date,getEventsByDate(info.date,calendar));
+                calendar.getEvents().forEach(event => {
+                    if(italianTimeFormat(event.start) == dateClicked) events.push(event);
+                })
+
+                farmaciDelGiorno(dateClicked,events);
             }
 
         });
@@ -228,32 +291,39 @@
         reloadDevices().then(reloadEvents);
     });
 
-    function getEventsByDate(date,calendar){
-        let events = [];
+    function italianTimeFormat (dateUTC) {
 
-        events = calendar.getEvents();
-        events.forEach(event => {
-            if(event.start != date) event.remove();
-        })
+        //TODO: print something like "Lun 25 Mar 2020"
+        if (dateUTC) {
+            let jsDateFormat = new Date(dateUTC)
+            let fullStringTime = {
+                day: Number(jsDateFormat.getDate() < 10) ? '0' + jsDateFormat.getDate() : jsDateFormat.getDate(),
+                month: Number((jsDateFormat.getMonth() + 1)) < 10 ? '0' + (jsDateFormat.getMonth() + 1) : (jsDateFormat.getMonth() + 1),
+                year: jsDateFormat.getFullYear(),
+                hours: Number(jsDateFormat.getHours()) < 10 ? '0' + jsDateFormat.getHours() : jsDateFormat.getHours(),
+                minutes: Number(jsDateFormat.getMinutes()) < 10 ? '0' + jsDateFormat.getMinutes() : jsDateFormat.getMinutes()
+            }
+            return fullStringTime.day + '/' + fullStringTime.month + '/' + fullStringTime.year + ' ';
+        }
+        return null
+    }
 
-        return events;
+    function discardModal(){
+        let modal = document.getElementById("day_click_modal");
+        let table = document.getElementById("medicine_table");
+
+        for(let n = table.rows.length - 1;n > 0;n--) table.deleteRow(n);
+
+        modal.style.display = "none";
     }
 
     function aggiungiFarmaco(){
-
         let id = document.getElementById("porta-medicine-container").selectedIndex.id;
-
         location.href = "aggiungiFarmaco.html?id_porta=" + id;
     }
 
     function rimuoviFarmaco() { location.href = "rimuoviFarmaco.html"; }
 
-    function farmaciDelGiorno(date,events) {
-
-        let eventStr = encodeURIComponent(JSON.stringify(events));
-
-        //location.href = "farmaciDelGiorno.html?data=" + date +"&events=" + eventStr;
-    }
 
 </script>
 
