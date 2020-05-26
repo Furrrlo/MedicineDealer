@@ -9,6 +9,7 @@
 
         function Calendar() {}
 
+        let firstStart = true;
         Calendar.calendar = new FullCalendar.Calendar(document.getElementById('calendar'), {
             height: "parent",
             plugins: [ 'interaction', 'dayGrid', 'timeGrid', 'bulma' ],
@@ -21,28 +22,45 @@
             customButtons: {
                 refresh: {
                     text: 'Ricarica',
-                    click: () => Calendar.reloadEvents("MONTH", null)
-                },
-                prev: {
-                    click: function () {
-                        Calendar.calendar.prev();
-                        let date = Calendar.calendar.getDate();
-                        Calendar.reloadEvents("MONTH", date);
-                    }
-                },
-                next: {
-                    click: function () {
-                        Calendar.calendar.next();
-                        let date = Calendar.calendar.getDate();
-                        Calendar.reloadEvents("MONTH", date);
-                    }
+                    click: () => Calendar.reloadEvents()
                 }
             },
             defaultDate: Date.now(),
             selectable: true,
             selectMirror: true,
             editable: true,
-            event: [],
+            events: (info, successCallback, failureCallback) => {
+
+                if(firstStart) {
+                    firstStart = false;
+                    successCallback([]);
+                    return;
+                }
+
+                const refreshButton = Calendar.calendar.el.querySelector('.fc-refresh-button');
+                if(refreshButton) {
+                    refreshButton.classList.add('is-loading');
+                    refreshButton.disabled = true;
+                }
+
+                // TODO: temp, change API to make it work properly
+                fetchEvents("YEAR", info.start).then(events => {
+                    successCallback(parseEvents(events));
+
+                    if(refreshButton) {
+                        refreshButton.classList.remove('is-loading');
+                        refreshButton.disabled = false;
+                    }
+                }).catch(ex => {
+                    console.error(ex);
+                    failureCallback(ex);
+
+                    if(refreshButton) {
+                        refreshButton.classList.remove('is-loading');
+                        refreshButton.disabled = false;
+                    }
+                });
+            },
             dateClick: function (info) {
                 let events = [];
                 let dateClicked = italianTimeFormat(info.date);
@@ -56,28 +74,8 @@
         });
         Calendar.calendar.render();
 
-        Calendar.reloadEvents = (granularity, date) => {
-            const refreshButton = Calendar.calendar.el.querySelector('.fc-refresh-button');
-            
-            refreshButton.classList.add('is-loading');
-            refreshButton.disabled = true;
-
-            return fetchEvents(granularity, date).then(events => {
-                // Remove events
-                Calendar.calendar.getEvents().forEach(event => { event.remove(); })
-                // Load new ones
-                Calendar.calendar.addEventSource(parseEvents(events));
-                // Reset height
-                Calendar.calendar.setOption('height', "parent");
-
-                refreshButton.classList.remove('is-loading');
-                refreshButton.disabled = false;
-            }).catch(ex => {
-                console.error(ex);
-
-                refreshButton.classList.remove('is-loading');
-                refreshButton.disabled = false;
-            });
+        Calendar.reloadEvents = () => {
+            Calendar.calendar.refetchEvents();
         };
 
         function fetchEvents(granularity, date) {
@@ -86,14 +84,13 @@
 
             let path;
             if(date != null) {
-                //TODO: slow to load
-                date.setHours(4);
-                let ISODate = date.toISOString();
-                let myDate = ISODate.split("T");
+                const utcDate = new Date(Date.UTC(date.getFullYear(), date.getMonth(), date.getDate()));
+                const dateStr = utcDate.toISOString().split("T")[0];
+
                 path = "${pageContext.request.contextPath}/api/eventi?" +
                     "granularita=" + granularity + "&" +
                     "id_porta_medicine=" + id_porta_medicine + "&" +
-                    "data=" + myDate[0];
+                    "data=" + dateStr;
             } else {
                 path = "${pageContext.request.contextPath}/api/eventi?" +
                     "granularita=" + granularity + "&" +
@@ -112,9 +109,11 @@
                 return JXON.stringToJs(await response.text());
             }).then(events => {
                 let obj = events.calendario.evento;
-                if(!obj || obj.forEach)
-                    return obj;
-                return [ obj ];
+                if(!obj)
+                    return [];
+                if(!obj.forEach)
+                    return [ obj ];
+                return obj;
             })
         }
 

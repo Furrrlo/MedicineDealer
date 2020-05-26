@@ -77,7 +77,7 @@
 
         // Add listeners
         const portaMedicineSelect = document.getElementById('porta-medicine-container');
-        portaMedicineSelect.addEventListener('change', () => Calendar.reloadEvents("MONTH", null));
+        portaMedicineSelect.addEventListener('change', () => Calendar.reloadEvents());
 
         const addMedicineBtn = document.getElementById('add-medicine-btn');
         addMedicineBtn.addEventListener('click', () => {
@@ -85,7 +85,7 @@
             location.href = "${pageContext.request.contextPath}/aggiungiFarmaco?id_porta=" + id;
         });
         // First load
-        Devices.reloadDevices().then(() => Calendar.reloadEvents("MONTH", null));
+        Devices.reloadDevices().then(() => Calendar.reloadEvents());
     });
 
     function rimuoviFarmaco() { location.href = "${pageContext.request.contextPath}/rimuoviFarmaco"; }
