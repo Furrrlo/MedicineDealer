@@ -9,7 +9,7 @@
     <script defer src="${pageContext.request.contextPath}/node_modules/@fortawesome/fontawesome-free/js/all.min.js"></script>
 
     <script defer src="${pageContext.request.contextPath}/node_modules/jxon/jxon.min.js"></script>
-    <script defer src="${pageContext.request.contextPath}/js/moment/moment.js"></script>
+    <script defer src="${pageContext.request.contextPath}/node_modules/moment/min/moment.min.js"></script>
 
     <link href='${pageContext.request.contextPath}/node_modules/@fullcalendar/core/main.min.css' rel='stylesheet' />
     <script src='${pageContext.request.contextPath}/node_modules/@fullcalendar/core/main.min.js'></script>
