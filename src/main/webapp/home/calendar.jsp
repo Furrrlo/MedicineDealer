@@ -1,7 +1,10 @@
 <%@ page contentType="text/html;charset=UTF-8" %>
 
-<div>
-    <div class="calendar" id='calendar'></div>
+<%-- All these styles are to fix the padding issue --%>
+<div class="column" style="display: flex; flex-direction: row; justify-content: stretch;">
+    <div class="column" style="padding: 0">
+        <div class="calendar" id='calendar'></div>
+    </div>
 </div>
 
 <script>

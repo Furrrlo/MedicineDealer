@@ -17,6 +17,8 @@
     <script src='${pageContext.request.contextPath}/node_modules/@fullcalendar/core/main.min.js'></script>
     <link href='${pageContext.request.contextPath}/node_modules/@fullcalendar/daygrid/main.min.css' rel='stylesheet' />
     <script src='${pageContext.request.contextPath}/node_modules/@fullcalendar/daygrid/main.min.js'></script>
+    <link href='${pageContext.request.contextPath}/node_modules/@fullcalendar/timegrid/main.min.css' rel='stylesheet' />
+    <script src='${pageContext.request.contextPath}/node_modules/@fullcalendar/timegrid/main.min.js'></script>
     <link href='${pageContext.request.contextPath}/node_modules/@fullcalendar/list/main.min.css' rel='stylesheet' />
     <script src='${pageContext.request.contextPath}/node_modules/@fullcalendar/list/main.min.js'></script>
     <script src='${pageContext.request.contextPath}/node_modules/@fullcalendar/interaction/main.min.js'></script>
@@ -32,9 +34,7 @@
 <%@ include file="day_click_modal.jsp"%>
 
 <section class="section columns is-fullheight">
-    <div class="column">
-        <%@ include file="calendar.jsp"%>
-    </div>
+    <%@ include file="calendar.jsp"%>
 
     <div class="column is-3 has-background-white-ter">
         <aside class="menu">
