@@ -30,6 +30,12 @@
 
         function fetchDevices() {
             return fetch('${pageContext.request.contextPath}/api/porta_medicine').then(async response => {
+
+                if(response.status === 401) {
+                    LoginModal.open();
+                    throw response.status + ": " + (await response.text());
+                }
+
                 if(!response.ok)
                     throw response.status + ": " + (await response.text());
                 return JXON.stringToJs(await response.text());
