@@ -36,7 +36,7 @@
 <section class="section columns is-fullheight">
     <%@ include file="calendar.jsp"%>
 
-    <div class="column is-3 has-background-white-ter">
+    <div class="column is-hidden-mobile is-3 has-background-white-ter">
         <aside class="menu">
 
             <p class="menu-label">Porta Medicine di:</p>

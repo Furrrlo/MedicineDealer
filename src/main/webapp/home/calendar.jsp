@@ -15,13 +15,13 @@
         let firstStart = true;
         Calendar.calendar = new FullCalendar.Calendar(document.getElementById('calendar'), {
             height: "parent",
-            plugins: [ 'interaction', 'dayGrid', 'timeGrid', 'bulma' ],
+            plugins: [ 'interaction', 'dayGrid', 'timeGrid', 'list', 'bulma' ],
             themeSystem: 'bulma',
             locale: 'it',
             header: {
                 left: 'prev,next today',
                 center: 'title',
-                right: 'refresh'
+                right: 'refresh dayGridMonth,timeGridWeek,timeGridDay,listYear'
             },
             customButtons: {
                 refresh: {
@@ -30,7 +30,7 @@
                 }
             },
             defaultDate: Date.now(),
-            selectable: true,
+            selectable: false,
             selectMirror: true,
             editable: true,
             events: (info, successCallback, failureCallback) => {
@@ -66,6 +66,10 @@
                 });
             },
             dateClick: function (info) {
+
+                if(Calendar.calendar.view.type !== 'dayGridMonth')
+                    return;
+
                 let events = [];
                 let dateClicked = italianTimeFormat(info.date);
 
