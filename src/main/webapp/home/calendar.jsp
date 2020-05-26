@@ -21,7 +21,21 @@
             customButtons: {
                 refresh: {
                     text: 'Ricarica',
-                    click: () => Calendar.reloadEvents()
+                    click: () => Calendar.reloadEvents("MONTH", null)
+                },
+                prev: {
+                    click: function () {
+                        exports.calendar.prev();
+                        let date = exports.calendar.getDate();
+                    }
+                },
+                next: {
+                    click: function () {
+                        exports.calendar.next();
+                        let date = exports.calendar.getDate();
+                        exports.reloadEvents("MONTH",date);
+
+                    }
                 }
             },
             defaultDate: Date.now(),
@@ -44,11 +58,11 @@
 
         const refreshButton = Calendar.calendar.el.querySelector('.fc-refresh-button');
 
-        Calendar.reloadEvents = () => {
+        Calendar.reloadEvents = (granularity, date) => {
             refreshButton.classList.add('is-loading');
             refreshButton.disabled = true;
 
-            return fetchEvents().then(events => {
+            return fetchEvents(granularity, date).then(events => {
                 // Remove events
                 Calendar.calendar.getEvents().forEach(event => { event.remove(); })
                 // Load new ones
@@ -64,14 +78,25 @@
             });
         };
 
-        function fetchEvents() {
+        function fetchEvents(granularity, date) {
             const portaMedicineSelect = document.querySelector('#porta-medicine-container');
             let id_porta_medicine = portaMedicineSelect.options[portaMedicineSelect.selectedIndex].value;
-            //TODO: How to get granularity
-            let granularity = "MONTH"
-            let path = "${pageContext.request.contextPath}/api/eventi?" +
-                "granularita=" + granularity + "&" +
-                "id_porta_medicine=" + id_porta_medicine;
+
+            let path;
+            if(date != null) {
+                //TODO: slow to load
+                date.setHours(4);
+                let ISODate = date.toISOString();
+                let myDate = ISODate.split("T");
+                path = "${pageContext.request.contextPath}/api/eventi?" +
+                    "granularita=" + granularity + "&" +
+                    "id_porta_medicine=" + id_porta_medicine + "&" +
+                    "data=" + myDate[0];
+            } else {
+                path = "${pageContext.request.contextPath}/api/eventi?" +
+                    "granularita=" + granularity + "&" +
+                    "id_porta_medicine=" + id_porta_medicine;
+            }
 
             return fetch(path).then(async response => {
 
@@ -137,4 +162,13 @@
 
         return Calendar;
     })();
+
+
+    function prevButton() {
+
+    }
+    
+    function nextButton() {
+
+    }
 </script>
