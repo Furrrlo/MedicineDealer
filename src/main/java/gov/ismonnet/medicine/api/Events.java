@@ -2,6 +2,8 @@ package gov.ismonnet.medicine.api;
 
 import gov.ismonnet.medicine.aifa.MedicineService;
 import gov.ismonnet.medicine.authentication.Authenticated;
+import gov.ismonnet.medicine.authentication.Authenticator;
+import gov.ismonnet.medicine.authentication.AuthorizedEvent;
 import gov.ismonnet.medicine.database.Tables;
 import gov.ismonnet.medicine.database.enums.EventiCadenza;
 import gov.ismonnet.medicine.database.tables.records.AssunzioniRecord;
@@ -36,11 +38,14 @@ import static gov.ismonnet.medicine.utils.EventUtils.*;
 public class Events {
 
     private final DSLContext ctx;
+    private final Authenticator authenticator;
     private final MedicineService medicineService;
 
     @Inject Events(final DSLContext ctx,
+                   final Authenticator authenticator,
                    final MedicineService medicineService) {
         this.ctx = ctx;
+        this.authenticator = authenticator;
         this.medicineService = medicineService;
     }
 
@@ -53,7 +58,7 @@ public class Events {
         if(date == null)
             date = LocalDate.now();
         if(deviceId != null)
-            checkAuthorizedForDevice(userId, deviceId);
+            authenticator.checkAuthorizedForDevice(userId, deviceId);
 
         final LocalDate startDate;
         final LocalDate endDate;
@@ -143,7 +148,7 @@ public class Events {
     public String addEvent(@Authenticated int userId,
                            @NotNull NewEventBean eventBean) {
         final ImmutableEventBase event = eventBean.getValue();
-        checkAuthorizedForDevice(userId, event.getIdPortaMedicine().intValue());
+        authenticator.checkAuthorizedForDevice(userId, event.getIdPortaMedicine().intValue());
 
         return ctx.transactionResult(conf -> {
             final DSLContext ctx = conf.dsl();
@@ -208,11 +213,9 @@ public class Events {
     @Produces(MediaType.APPLICATION_XML)
     @Path("{id_evento}")
     public void editEvent(@Authenticated int userId,
-                          @PathParam(value = "id_evento") int oldEventId,
+                          @AuthorizedEvent @PathParam(value = "id_evento") int oldEventId,
                           @NotNull EditEventBean eventBean) {
         final MutableEventBase eventEdit = eventBean.getValue();
-        checkAuthorizedForEvent(userId, oldEventId);
-
         ctx.transaction(conf -> {
             final DSLContext ctx = conf.dsl();
 
@@ -307,45 +310,6 @@ public class Events {
                 eventEdit.getOrari().forEach(hour -> insertHours.values(oldEventId, Time.valueOf(hour)));
             insertHours.execute();
         });
-    }
-
-    private void checkAuthorizedForDevice(int userId, int deviceId) {
-        // Check if the device exists
-        if(!ctx.select()
-                .from(Tables.PORTA_MEDICINE)
-                .where(Tables.PORTA_MEDICINE.ID.eq(deviceId))
-                .fetchOptional()
-                .isPresent())
-            throw new NotFoundException();
-        // Check if the existing device is associated to the user
-        if(!ctx.select()
-                .from(Tables.ASSOCIATI)
-                .where(Tables.ASSOCIATI.ID_PORTA_MEDICINE.eq(deviceId))
-                .and(Tables.ASSOCIATI.ID_UTENTE.eq(userId))
-                .fetchOptional()
-                .isPresent())
-            throw new ForbiddenException();
-    }
-
-    private void checkAuthorizedForEvent(int userId, int eventId) {
-        // Check if the event exists
-        if(!ctx.select()
-                .from(Tables.EVENTI)
-                .where(Tables.EVENTI.ID.eq(eventId))
-                .fetchOptional()
-                .isPresent())
-            throw new NotFoundException();
-        // Check if the existing event device is associated to the user
-        if(!ctx.select()
-                .from(Tables.EVENTI)
-                .join(Tables.ASSOCIATI)
-                .on(Tables.EVENTI.ID_PORTA_MEDICINE.eq(Tables.ASSOCIATI.ID_PORTA_MEDICINE))
-                .where(Tables.EVENTI.ID.eq(eventId))
-                .and(Tables.ASSOCIATI.ID_UTENTE.eq(userId))
-                .and(Tables.ASSOCIATI.ID_UTENTE.eq(userId))
-                .fetchOptional()
-                .isPresent())
-            throw new ForbiddenException();
     }
 
     private List<EventWithAssunzioni> fetchEvent(final DSLContext ctx, final Condition condition) {

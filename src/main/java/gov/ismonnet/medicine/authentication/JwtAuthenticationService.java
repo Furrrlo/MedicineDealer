@@ -2,10 +2,7 @@ package gov.ismonnet.medicine.authentication;
 
 import com.google.common.annotations.VisibleForTesting;
 import gov.ismonnet.medicine.persistence.KeyStoreService;
-import io.jsonwebtoken.JwtException;
-import io.jsonwebtoken.JwtParser;
-import io.jsonwebtoken.Jwts;
-import io.jsonwebtoken.SignatureAlgorithm;
+import io.jsonwebtoken.*;
 import io.jsonwebtoken.security.Keys;
 
 import javax.inject.Inject;
@@ -15,6 +12,9 @@ import java.security.KeyStoreException;
 import java.security.UnrecoverableKeyException;
 import java.security.cert.CertificateException;
 import java.time.ZonedDateTime;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.Map;
 
 public class JwtAuthenticationService implements AuthenticationService {
 
@@ -45,19 +45,24 @@ public class JwtAuthenticationService implements AuthenticationService {
     }
 
     @Override
-    public String authenticate(String token) {
+    public Map<String, Object> authenticate(String token) {
         try {
-            return jwtParser.parseClaimsJws(token)
-                    .getBody()
-                    .getSubject();
+            final Map<String, Object> map = new HashMap<>();
+
+            final Claims claims = jwtParser.parseClaimsJws(token).getBody();
+            map.put("id", claims.get("id", Integer.class));
+            map.put("email", claims.getSubject());
+
+            return Collections.unmodifiableMap(map);
         } catch (JwtException ex) {
             throw new AuthenticationException(ex);
         }
     }
 
     @Override
-    public String generateToken(String username, UriInfo uriInfo) {
+    public String generateToken(int id, String username, UriInfo uriInfo) {
         return Jwts.builder()
+                .claim("id", id)
                 .setSubject(username)
                 .setIssuer(uriInfo.getAbsolutePath().toString())
                 .setIssuedAt(new java.util.Date())

@@ -1,10 +1,11 @@
 package gov.ismonnet.medicine.authentication;
 
 import javax.ws.rs.core.UriInfo;
+import java.util.Map;
 
 public interface AuthenticationService {
 
-    String authenticate(String token) throws AuthenticationException;
+    Map<String, Object> authenticate(String token) throws AuthenticationException;
 
-    String generateToken(String username, UriInfo uriInfo);
+    String generateToken(int id, String username, UriInfo uriInfo);
 }

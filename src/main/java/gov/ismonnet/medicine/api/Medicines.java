@@ -2,18 +2,18 @@ package gov.ismonnet.medicine.api;
 
 import gov.ismonnet.medicine.aifa.MedicineService;
 import gov.ismonnet.medicine.authentication.Authenticated;
+import gov.ismonnet.medicine.authentication.AuthorizedDevice;
 import gov.ismonnet.medicine.database.Tables;
 import gov.ismonnet.medicine.jaxb.ws.Medicina;
 import gov.ismonnet.medicine.jaxb.ws.MedicinesBean;
 import org.jooq.DSLContext;
-import org.jooq.Table;
-import org.jooq.types.UInteger;
+import org.jooq.Field;
+import org.jooq.impl.SQLDataType;
 
 import javax.inject.Inject;
 import javax.validation.constraints.NotNull;
 import javax.ws.rs.*;
 import javax.ws.rs.core.MediaType;
-import java.math.BigInteger;
 import java.util.stream.Collectors;
 
 @Path("farmaci")
@@ -25,9 +25,8 @@ public class Medicines {
     private final MedicineService medicineService;
     private final DSLContext ctx;
 
-    @Inject Medicines(
-            final DSLContext ctx,
-            final MedicineService medicineService) {
+    @Inject Medicines(final DSLContext ctx,
+                      final MedicineService medicineService) {
         this.ctx = ctx;
         this.medicineService = medicineService;
     }
@@ -40,11 +39,11 @@ public class Medicines {
     }
 
     @GET
-    @Path("{id_porta_medicine}")
     @Produces(MediaType.APPLICATION_XML)
     public MedicinesBean getMedicines(@Authenticated int userId,
-                                      @NotNull @PathParam(value = "id_porta_medicine") Integer deviceId){
-        return new MedicinesBean(ctx.select(Tables.FARMACI.NOME)
+                                      @AuthorizedDevice @QueryParam(value = "id_porta_medicine") int deviceId) {
+        final Field<String> codAicRow = Tables.FARMACI.COD_AIC.cast(SQLDataType.CHAR(9));
+        return new MedicinesBean(ctx.select(Tables.FARMACI.NOME, codAicRow)
                 .from(Tables.PORTA_MEDICINE)
                 .join(Tables.EVENTI)
                 .on(Tables.EVENTI.ID_PORTA_MEDICINE.eq(Tables.PORTA_MEDICINE.ID))
@@ -55,7 +54,7 @@ public class Medicines {
                 .stream()
                 .map(r -> new Medicina(
                     r.get(Tables.FARMACI.NOME),
-                    String.valueOf(r.get(Tables.FARMACI.COD_AIC))
+                    String.valueOf(r.get(codAicRow))
                 ))
                 .collect(Collectors.toList()));
     }

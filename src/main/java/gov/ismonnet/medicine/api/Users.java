@@ -6,6 +6,7 @@ import gov.ismonnet.medicine.authentication.AuthorizationSchema;
 import gov.ismonnet.medicine.database.Tables;
 import gov.ismonnet.medicine.jaxb.ws.RegistrationBean;
 import org.jooq.DSLContext;
+import org.jooq.Record3;
 import org.jooq.exception.DataAccessException;
 import org.jooq.exception.SQLStateClass;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -45,15 +46,19 @@ public class Users {
     public Response register(@Context UriInfo uriInfo,
                              @NotNull RegistrationBean registrationBean) {
 
+        final Integer id;
         try {
             // email has unique constraint
-            ctx.insertInto(Tables.UTENTI)
+            id = ctx.insertInto(Tables.UTENTI)
                     .set(Tables.UTENTI.NOME, registrationBean.getNome())
                     .set(Tables.UTENTI.COGNOME, registrationBean.getCognome())
                     .set(Tables.UTENTI.EMAIL, registrationBean.getEmail())
                     .set(Tables.UTENTI.DATA_NASCITA, Date.valueOf(registrationBean.getDataNascita()))
                     .set(Tables.UTENTI.PASSWORD, passwordEncoder.encode(registrationBean.getPassword()))
-                    .execute();
+                    .returningResult(Tables.UTENTI.fields())
+                    .fetchOptional()
+                    .map(r -> r.get(Tables.UTENTI.ID))
+                    .orElse(null);
         } catch (DataAccessException ex) {
             if(ex.sqlStateClass() == SQLStateClass.C23_INTEGRITY_CONSTRAINT_VIOLATION)
                 // violated unique constraint
@@ -61,7 +66,10 @@ public class Users {
             throw ex;
         }
 
-        final String token = authenticationService.generateToken(registrationBean.getEmail(), uriInfo);
+        if(id == null)
+            throw new InternalServerErrorException("Generated id is null");
+
+        final String token = authenticationService.generateToken(id, registrationBean.getEmail(), uriInfo);
         return Response.ok()
                 .header(HttpHeaders.AUTHORIZATION, authorizationHeaderSchema + " " + token)
                 .cookie(makeAuthCookie(token))
@@ -77,22 +85,24 @@ public class Users {
         // 200: logged
         // 401: wrong credentials
 
-        Optional<String> actualEmail = ctx
-                .select(Tables.UTENTI.EMAIL, Tables.UTENTI.PASSWORD)
+        final Optional<Record3<Integer, String, String>> record = ctx
+                .select(Tables.UTENTI.ID, Tables.UTENTI.EMAIL, Tables.UTENTI.PASSWORD)
                 .from(Tables.UTENTI)
                 .where(Tables.UTENTI.EMAIL.equal(email))
                 .fetch()
                 .stream()
                 .filter(r -> passwordEncoder.matches(password, r.get(Tables.UTENTI.PASSWORD)))
-                .map(r -> r.get(Tables.UTENTI.EMAIL))
                 .findFirst();
 
-        if(!actualEmail.isPresent())
+        if(!record.isPresent())
             return Response
                     .status(Response.Status.UNAUTHORIZED)
                     .build();
 
-        final String token = authenticationService.generateToken(actualEmail.get(), uriInfo);
+        final int id = record.get().get(Tables.UTENTI.ID);
+        final String actualEmail = record.get().get(Tables.UTENTI.EMAIL);
+
+        final String token = authenticationService.generateToken(id, actualEmail, uriInfo);
         return Response.ok()
                 .header(HttpHeaders.AUTHORIZATION, authorizationHeaderSchema + " " + token)
                 .cookie(makeAuthCookie(token))
