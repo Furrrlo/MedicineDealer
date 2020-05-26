@@ -56,9 +56,9 @@
         });
         Calendar.calendar.render();
 
-        const refreshButton = Calendar.calendar.el.querySelector('.fc-refresh-button');
-
         Calendar.reloadEvents = (granularity, date) => {
+            const refreshButton = Calendar.calendar.el.querySelector('.fc-refresh-button');
+            
             refreshButton.classList.add('is-loading');
             refreshButton.disabled = true;
 
