@@ -1,0 +1,76 @@
+
+/* Adapt button group to make it work without control divs */
+
+.fc-bulma-button-group {
+    display: inline-flex;
+    justify-content: flex-start;
+}
+
+.fc-bulma-button-group .control:not(:last-child) {
+    margin-right: -1px;
+}
+
+.fc-bulma-button-group .button:not(:first-child):not(:last-child),
+.fc-bulma-button-group .input:not(:first-child):not(:last-child),
+.fc-bulma-button-group .select:not(:first-child):not(:last-child) select {
+    border-radius: 0;
+}
+
+.fc-bulma-button-group .button:first-child:not(:only-child),
+.fc-bulma-button-group .input:first-child:not(:only-child),
+.fc-bulma-button-group .select:first-child:not(:only-child) select {
+    border-bottom-right-radius: 0;
+    border-top-right-radius: 0;
+}
+
+.fc-bulma-button-group .button:last-child:not(:only-child),
+.fc-bulma-button-group .input:last-child:not(:only-child),
+.fc-bulma-button-group .select:last-child:not(:only-child) select {
+    border-bottom-left-radius: 0;
+    border-top-left-radius: 0;
+}
+
+.fc-bulma-button-group .button:not([disabled]):hover, .fc-bulma-button-group .button:not([disabled]).is-hovered,
+.fc-bulma-button-group .input:not([disabled]):hover,
+.fc-bulma-button-group .input:not([disabled]).is-hovered,
+.fc-bulma-button-group .select select:not([disabled]):hover,
+.fc-bulma-button-group .select select:not([disabled]).is-hovered {
+    z-index: 2;
+}
+
+.fc-bulma-button-group .button:not([disabled]):focus, .fc-bulma-button-group .button:not([disabled]).is-focused, .fc-bulma-button-group .button:not([disabled]):active, .fc-bulma-button-group .button:not([disabled]).is-active,
+.fc-bulma-button-group .input:not([disabled]):focus,
+.fc-bulma-button-group .input:not([disabled]).is-focused,
+.fc-bulma-button-group .input:not([disabled]):active,
+.fc-bulma-button-group .input:not([disabled]).is-active,
+.fc-bulma-button-group .select select:not([disabled]):focus,
+.fc-bulma-button-group .select select:not([disabled]).is-focused,
+.fc-bulma-button-group .select select:not([disabled]):active,
+.fc-bulma-button-group .select select:not([disabled]).is-active {
+    z-index: 3;
+}
+
+.fc-bulma-button-group .button:not([disabled]):focus:hover, .fc-bulma-button-group .button:not([disabled]).is-focused:hover, .fc-bulma-button-group .button:not([disabled]):active:hover, .fc-bulma-button-group .button:not([disabled]).is-active:hover,
+.fc-bulma-button-group .input:not([disabled]):focus:hover,
+.fc-bulma-button-group .input:not([disabled]).is-focused:hover,
+.fc-bulma-button-group .input:not([disabled]):active:hover,
+.fc-bulma-button-group .input:not([disabled]).is-active:hover,
+.fc-bulma-button-group .select select:not([disabled]):focus:hover,
+.fc-bulma-button-group .select select:not([disabled]).is-focused:hover,
+.fc-bulma-button-group .select select:not([disabled]):active:hover,
+.fc-bulma-button-group .select select:not([disabled]).is-active:hover {
+    z-index: 4;
+}
+
+.fc-bulma-button-group.has-addons-centered {
+    justify-content: center;
+}
+
+.fc-bulma-button-group.has-addons-right {
+    justify-content: flex-end;
+}
+
+.fc-bulma-button-group.has-addons-fullwidth .button {
+    flex-grow: 1;
+    flex-shrink: 0;
+}

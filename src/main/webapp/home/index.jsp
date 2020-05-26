@@ -18,6 +18,9 @@
     <link href='${pageContext.request.contextPath}/node_modules/@fullcalendar/list/main.min.css' rel='stylesheet' />
     <script src='${pageContext.request.contextPath}/node_modules/@fullcalendar/list/main.min.js'></script>
     <script src='${pageContext.request.contextPath}/node_modules/@fullcalendar/interaction/main.min.js'></script>
+
+    <script src='${pageContext.request.contextPath}/js/BulmaCalendarTheme.js'></script>
+    <link href='${pageContext.request.contextPath}/css/bulma-calendar-theme.css' rel='stylesheet' />
 </head>
 
 <body>

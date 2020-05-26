@@ -11,7 +11,8 @@
 
         Calendar.calendar = new FullCalendar.Calendar(document.getElementById('calendar'), {
             height: "parent",
-            plugins: [ 'interaction', 'dayGrid', 'timeGrid' ],
+            plugins: [ 'interaction', 'dayGrid', 'timeGrid', 'bulma' ],
+            themeSystem: 'bulma',
             header: {
                 left: 'prev,next today',
                 center: 'title',
