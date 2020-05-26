@@ -30,7 +30,7 @@
 
         function DayClickModal() {}
 
-        DayClickModal.prototype.open = (date, events) => {
+        DayClickModal.open = (date, events) => {
             title.innerHTML = date;
 
             let i = 1;
@@ -61,7 +61,7 @@
             modal.classList.add('is-active');
         };
 
-        DayClickModal.prototype.close = () => {
+        DayClickModal.close = () => {
             for(let n = table.rows.length - 1;n > 0;n--)
                 table.deleteRow(n);
             modal.classList.remove('is-active');
