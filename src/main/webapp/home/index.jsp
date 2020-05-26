@@ -42,15 +42,14 @@
             <p class="menu-label">Porta Medicine di:</p>
             <%@ include file="devices.jsp"%>
 
+            <div class="field">
+                <div class="control">
+                    <button id="add-medicine-btn" class="button is-primary is-rounded is-fullwidth">AGGIUNGI UN FARMACO</button>
+                </div>
+            </div>
+
             <!--    <div class="section">-->
             <!--        <div class="column is-one-half has-background-white-ter">-->
-            <!--            <div class="field has-text-centered">-->
-            <!--                <h1 class="subtitle">VUOI AGGIUNGERE UN FARMACO ALL'ELENCO?</h1>-->
-            <!--                    <div class="control has-text-centered">-->
-            <!--                        <input type="submit" class="button is-rounded" value="AGGIUNGI UN FARMACO" onclick="aggiungiFarmaco()"/>-->
-            <!--                    </div>-->
-            <!--                </div>-->
-            <!--            <br>-->
 
             <!--            <div class="field has-text-centered">-->
             <!--                <h1 class="subtitle">VUOI RIMUOVERE UN FARMACO DALL'ELENCO?</h1>-->
@@ -77,16 +76,17 @@
         'use strict';
 
         // Add listeners
-        const portaMedicineSelect = document.querySelector('#porta-medicine-container');
-        portaMedicineSelect.addEventListener("change", () => Calendar.reloadEvents());
+        const portaMedicineSelect = document.getElementById('porta-medicine-container');
+        portaMedicineSelect.addEventListener('change', () => Calendar.reloadEvents());
+
+        const addMedicineBtn = document.getElementById('add-medicine-btn');
+        addMedicineBtn.addEventListener('click', () => {
+            const id = portaMedicineSelect.options[portaMedicineSelect.selectedIndex].value;
+            location.href = "${pageContext.request.contextPath}/aggiungiFarmaco?id_porta=" + id;
+        });
         // First load
         Devices.reloadDevices().then(() => Calendar.reloadEvents());
     });
-
-    function aggiungiFarmaco(){
-        let id = document.getElementById("porta-medicine-container").selectedIndex.id;
-        location.href = "${pageContext.request.contextPath}/aggiungiFarmaco?id_porta=" + id;
-    }
 
     function rimuoviFarmaco() { location.href = "${pageContext.request.contextPath}/rimuoviFarmaco"; }
 </script>
