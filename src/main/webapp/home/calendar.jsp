@@ -18,7 +18,21 @@
             customButtons: {
                 refresh: {
                     text: 'Ricarica',
-                    click: () => exports.reloadEvents()
+                    click: () => exports.reloadEvents("MONTH",null)
+                },
+                prev: {
+                    click: function () {
+                        exports.calendar.prev();
+                        let date = exports.calendar.getDate();
+                    }
+                },
+                next: {
+                    click: function () {
+                        exports.calendar.next();
+                        let date = exports.calendar.getDate();
+                        exports.reloadEvents("MONTH",date);
+
+                    }
                 }
             },
             defaultDate: Date.now(),
@@ -41,11 +55,11 @@
 
         const refreshButton = exports.calendar.el.querySelector('.fc-refresh-button');
 
-        exports.reloadEvents = () => {
+        exports.reloadEvents = (granularity,date) => {
             refreshButton.classList.add('is-loading');
             refreshButton.disabled = true;
 
-            return fetchEvents().then(events => {
+            return fetchEvents(granularity,date).then(events => {
                 // Remove events
                 exports.calendar.getEvents().forEach(event => { event.remove(); })
                 // Load new ones
@@ -61,14 +75,25 @@
             });
         };
 
-        function fetchEvents() {
+        function fetchEvents(granularity,date) {
             const portaMedicineSelect = document.querySelector('#porta-medicine-container');
             let id_porta_medicine = portaMedicineSelect.options[portaMedicineSelect.selectedIndex].value;
-            //TODO: How to get granularity
-            let granularity = "MONTH"
-            let path = "${pageContext.request.contextPath}/api/eventi?" +
-                "granularita=" + granularity + "&" +
-                "id_porta_medicine=" + id_porta_medicine;
+            let path = null;
+
+            if(date != null){
+                //TODO: slow to load
+                date.setHours(4);
+                let ISODate = date.toISOString();
+                let myDate = ISODate.split("T");
+                path = "${pageContext.request.contextPath}/api/eventi?" +
+                    "granularita=" + granularity + "&" +
+                    "id_porta_medicine=" + id_porta_medicine + "&" +
+                    "data=" + myDate[0];
+            } else{
+                path = "${pageContext.request.contextPath}/api/eventi?" +
+                    "granularita=" + granularity + "&" +
+                    "id_porta_medicine=" + id_porta_medicine;
+            }
 
             return fetch(path).then(async response => {
 
@@ -134,4 +159,14 @@
 
         return exports;
     })({});
+
+
+    function prevButton() {
+
+    }
+    
+    function nextButton() {
+
+    }
+
 </script>

@@ -72,9 +72,10 @@
 
         // Add listeners
         const portaMedicineSelect = document.querySelector('#porta-medicine-container');
-        portaMedicineSelect.addEventListener("change", () => Calendar.reloadEvents());
+        portaMedicineSelect.addEventListener("change", () => Calendar.reloadEvents("MONTH",null));
+        //TODO: gotoDate current month when device selected change
         // First load
-        Devices.reloadDevices().then(() => Calendar.reloadEvents());
+        Devices.reloadDevices().then(() => Calendar.reloadEvents("MONTH", null));
     });
 
     function aggiungiFarmaco(){
