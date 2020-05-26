@@ -23,6 +23,7 @@
 <body>
 <%@ include file="/navbar.jsp"%>
 
+<%@ include file="/login_modal.jsp"%>
 <%@ include file="day_click_modal.jsp"%>
 
 <section class="section columns is-fullheight">

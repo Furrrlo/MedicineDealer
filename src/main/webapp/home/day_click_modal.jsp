@@ -21,14 +21,16 @@
 </div>
 
 <script>
-    const DayClickModal = ((exports) => {
+    const DayClickModal = (() => {
         const modal = document.getElementById("day_click_modal");
         const closeButton = modal.querySelector(".delete");
 
         const table = document.getElementById("medicine_table");
         const title = document.getElementById("modal_title");
 
-        exports.open = (date, events) => {
+        function DayClickModal() {}
+
+        DayClickModal.prototype.open = (date, events) => {
             title.innerHTML = date;
 
             let i = 1;
@@ -59,7 +61,7 @@
             modal.classList.add('is-active');
         };
 
-        exports.close = () => {
+        DayClickModal.prototype.close = () => {
             for(let n = table.rows.length - 1;n > 0;n--)
                 table.deleteRow(n);
             modal.classList.remove('is-active');
@@ -76,7 +78,7 @@
                 DayClickModal.close();
         });
 
-        return exports;
-    })({});
+        return DayClickModal;
+    })();
 
 </script>

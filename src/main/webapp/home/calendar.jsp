@@ -5,9 +5,11 @@
 </div>
 
 <script>
-    const Calendar = ((exports) => {
+    const Calendar = (() => {
 
-        exports.calendar = new FullCalendar.Calendar(document.getElementById('calendar'), {
+        function Calendar() {}
+
+        Calendar.calendar = new FullCalendar.Calendar(document.getElementById('calendar'), {
             height: "parent",
             plugins: [ 'interaction', 'dayGrid', 'timeGrid' ],
             header: {
@@ -18,7 +20,7 @@
             customButtons: {
                 refresh: {
                     text: 'Ricarica',
-                    click: () => exports.reloadEvents()
+                    click: () => Calendar.reloadEvents()
                 }
             },
             defaultDate: Date.now(),
@@ -30,26 +32,26 @@
                 let events = [];
                 let dateClicked = italianTimeFormat(info.date);
 
-                exports.calendar.getEvents().forEach(event => {
+                Calendar.calendar.getEvents().forEach(event => {
                     if(italianTimeFormat(event.start) === dateClicked) events.push(event);
                 })
 
                 DayClickModal.open(dateClicked, events);
             }
         });
-        exports.calendar.render();
+        Calendar.calendar.render();
 
-        const refreshButton = exports.calendar.el.querySelector('.fc-refresh-button');
+        const refreshButton = Calendar.calendar.el.querySelector('.fc-refresh-button');
 
-        exports.reloadEvents = () => {
+        Calendar.reloadEvents = () => {
             refreshButton.classList.add('is-loading');
             refreshButton.disabled = true;
 
             return fetchEvents().then(events => {
                 // Remove events
-                exports.calendar.getEvents().forEach(event => { event.remove(); })
+                Calendar.calendar.getEvents().forEach(event => { event.remove(); })
                 // Load new ones
-                exports.calendar.addEventSource(parseEvents(events));
+                Calendar.calendar.addEventSource(parseEvents(events));
 
                 refreshButton.classList.remove('is-loading');
                 refreshButton.disabled = false;
@@ -132,6 +134,6 @@
             return fullStringTime.day + '/' + fullStringTime.month + '/' + fullStringTime.year + ' ';
         }
 
-        return exports;
-    })({});
+        return Calendar;
+    })();
 </script>

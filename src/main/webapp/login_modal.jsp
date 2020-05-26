@@ -20,19 +20,21 @@
 </div>
 
 <script>
-    const LoginModal = ((exports) => {
+    const LoginModal = (() => {
 
         const modal = document.getElementById('login-modal');
         const loginButton = modal.querySelector('button.button');
 
-        exports.open = () => {
+        function LoginModal() {}
+
+        LoginModal.open = () => {
             modal.classList.add('is-active');
         };
+
         loginButton.addEventListener('click', () => {
             location.href = "${pageContext.request.contextPath}/login";
         });
 
-        return exports;
-    })({});
-
+        return LoginModal;
+    })();
 </script>

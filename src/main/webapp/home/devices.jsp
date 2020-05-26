@@ -14,12 +14,14 @@
 </div>
 
 <script>
-    const Devices = ((exports) => {
+    const Devices = (() => {
         const container = document.querySelector('#porta-medicine-container');
         const templateClass = 'porta-medicine-template';
         const template = document.querySelector('.' + templateClass);
 
-        exports.reloadDevices = () => {
+        function Devices() {}
+
+        Devices.reloadDevices = () => {
             return fetchDevices().then(devices => {
                 cleanDevices();
                 loadDevices(devices);
@@ -68,6 +70,6 @@
             });
         }
 
-        return exports;
-    })({});
+        return Devices;
+    })();
 </script>
