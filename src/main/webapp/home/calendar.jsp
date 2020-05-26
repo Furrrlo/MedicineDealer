@@ -25,16 +25,16 @@
                 },
                 prev: {
                     click: function () {
-                        exports.calendar.prev();
-                        let date = exports.calendar.getDate();
+                        Calendar.calendar.prev();
+                        let date = Calendar.calendar.getDate();
+                        Calendar.reloadEvents("MONTH", date);
                     }
                 },
                 next: {
                     click: function () {
-                        exports.calendar.next();
-                        let date = exports.calendar.getDate();
-                        exports.reloadEvents("MONTH",date);
-
+                        Calendar.calendar.next();
+                        let date = Calendar.calendar.getDate();
+                        Calendar.reloadEvents("MONTH", date);
                     }
                 }
             },
@@ -67,6 +67,8 @@
                 Calendar.calendar.getEvents().forEach(event => { event.remove(); })
                 // Load new ones
                 Calendar.calendar.addEventSource(parseEvents(events));
+                // Reset height
+                Calendar.calendar.setOption('height', "parent");
 
                 refreshButton.classList.remove('is-loading');
                 refreshButton.disabled = false;
