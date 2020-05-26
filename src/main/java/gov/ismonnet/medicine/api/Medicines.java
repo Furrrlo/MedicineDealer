@@ -1,15 +1,20 @@
 package gov.ismonnet.medicine.api;
 
 import gov.ismonnet.medicine.aifa.MedicineService;
+import gov.ismonnet.medicine.authentication.Authenticated;
+import gov.ismonnet.medicine.database.Tables;
+import gov.ismonnet.medicine.jaxb.ws.Medicina;
 import gov.ismonnet.medicine.jaxb.ws.MedicinesBean;
+import org.jooq.DSLContext;
+import org.jooq.Table;
+import org.jooq.types.UInteger;
 
 import javax.inject.Inject;
 import javax.validation.constraints.NotNull;
-import javax.ws.rs.GET;
-import javax.ws.rs.Path;
-import javax.ws.rs.PathParam;
-import javax.ws.rs.Produces;
+import javax.ws.rs.*;
 import javax.ws.rs.core.MediaType;
+import java.math.BigInteger;
+import java.util.stream.Collectors;
 
 @Path("farmaci")
 public class Medicines {
@@ -18,8 +23,12 @@ public class Medicines {
 //    private final MediaType TEXT_CSV_TYPE = new MediaType("text", "csv");
 
     private final MedicineService medicineService;
+    private final DSLContext ctx;
 
-    @Inject Medicines(final MedicineService medicineService) {
+    @Inject Medicines(
+            final DSLContext ctx,
+            final MedicineService medicineService) {
+        this.ctx = ctx;
         this.medicineService = medicineService;
     }
 
@@ -28,6 +37,27 @@ public class Medicines {
     @Produces(MediaType.APPLICATION_XML)
     public MedicinesBean getMedicines(@NotNull @PathParam(value = "nome") String name) {
         return new MedicinesBean(medicineService.findMedicinesByName(name));
+    }
+
+    @GET
+    @Path("{id_porta_medicine}")
+    @Produces(MediaType.APPLICATION_XML)
+    public MedicinesBean getMedicines(@Authenticated int userId,
+                                      @NotNull @PathParam(value = "id_porta_medicine") Integer deviceId){
+        return new MedicinesBean(ctx.select(Tables.FARMACI.NOME)
+                .from(Tables.PORTA_MEDICINE)
+                .join(Tables.EVENTI)
+                .on(Tables.EVENTI.ID_PORTA_MEDICINE.eq(Tables.PORTA_MEDICINE.ID))
+                .join(Tables.FARMACI)
+                .on(Tables.FARMACI.COD_AIC.eq(Tables.EVENTI.AIC_FARMACO))
+                .where(Tables.EVENTI.ID_PORTA_MEDICINE.equal(deviceId))
+                .fetch()
+                .stream()
+                .map(r -> new Medicina(
+                    r.get(Tables.FARMACI.NOME),
+                    String.valueOf(r.get(Tables.FARMACI.COD_AIC))
+                ))
+                .collect(Collectors.toList()));
     }
 
     // For the csv files

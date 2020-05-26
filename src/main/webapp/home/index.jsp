@@ -48,6 +48,12 @@
                 </div>
             </div>
 
+            <div class="field">
+                <div class="control">
+                    <button id="remove-medicine-btn" class="button is-primary is-rounded is-fullwidth">RIMUOVI MEDICINE</button>
+                </div>
+            </div>
+
             <!--    <div class="section">-->
             <!--        <div class="column is-one-half has-background-white-ter">-->
 
@@ -87,6 +93,12 @@
         addMedicineBtn.addEventListener('click', () => {
             const id = portaMedicineSelect.options[portaMedicineSelect.selectedIndex].value;
             location.href = "${pageContext.request.contextPath}/aggiungiFarmaco?id_porta=" + id;
+        });
+
+        const removeMedicineBtn = document.getElementById('remove-medicine-btn');
+        removeMedicineBtn.addEventListener('click', () => {
+            const id = portaMedicineSelect.options[portaMedicineSelect.selectedIndex].value;
+            location.href = "${pageContext.request.contextPath}/rimuoviFarmaco?id_porta=" + id;
         });
         // First load
         Devices.reloadDevices().then(() => Calendar.reloadEvents());

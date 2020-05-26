@@ -63,5 +63,24 @@
     </div>
 
 </div>
+
+<script>
+    window.addEventListener('load',function () {
+        const queryString = window.location.search;
+        const urlParams = new URLSearchParams(queryString);
+        let deviceID = urlParams.get("id_porta_medicine");
+
+        fetch('${pageContext.request.contextPath}/api/farmaci&id_porta_medicine='
+            + deviceID).then(async response =>{
+            if(!response.ok)
+                throw response.status + ":" + (await response.text());
+        }).then(medicines => {
+            console.log(medicines);
+        }).catch(ex => {
+            console.error(ex);
+        })
+    })
+</script>
+
 </body>
 </html>
