@@ -1,4 +1,4 @@
-<%@ page contentType="text/html; charset=UTF-8" %>
+<%@ page contentType="text/html;charset=UTF-8" %>
 
 <div class="field">
     <label class="label">A che ore devi prenderla?</label>

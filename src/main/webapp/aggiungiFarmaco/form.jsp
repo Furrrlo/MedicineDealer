@@ -1,4 +1,4 @@
-<%@ page contentType="text/html; charset=UTF-8" %>
+<%@ page contentType="text/html;charset=UTF-8" %>
 
 <form method="post" action="${pageContext.request.contextPath}/api/eventi" >
     <div class="field">
