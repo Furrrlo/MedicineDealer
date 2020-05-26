@@ -14,6 +14,7 @@
             height: "parent",
             plugins: [ 'interaction', 'dayGrid', 'timeGrid', 'bulma' ],
             themeSystem: 'bulma',
+            locale: 'it',
             header: {
                 left: 'prev,next today',
                 center: 'title',

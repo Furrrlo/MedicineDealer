@@ -77,7 +77,11 @@
 
         // Add listeners
         const portaMedicineSelect = document.getElementById('porta-medicine-container');
-        portaMedicineSelect.addEventListener('change', () => Calendar.reloadEvents());
+        portaMedicineSelect.addEventListener('change', () => {
+            let date = new Date();
+            Calendar.calendar.gotoDate(date);
+            Calendar.reloadEvents();
+        });
 
         const addMedicineBtn = document.getElementById('add-medicine-btn');
         addMedicineBtn.addEventListener('click', () => {
