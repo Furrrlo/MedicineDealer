@@ -5,8 +5,22 @@
     <xs:element name="calendario">
         <xs:complexType>
             <xs:sequence>
-                <xs:element name="evento" type="event_with_assunzioni" minOccurs="0" maxOccurs="unbounded"/>
+                <xs:element name="assunzione" type="assunzione_estesa" minOccurs="0" maxOccurs="unbounded"/>
             </xs:sequence>
         </xs:complexType>
     </xs:element>
+
+    <xs:complexType name="assunzione_estesa">
+        <xs:complexContent>
+            <xs:extension base="assunzione">
+                <xs:sequence>
+                    <xs:element name="id_evento" type="id"/>
+                    <xs:element name="id_porta_medicine" type="id"/>
+                    <xs:element name="nome_farmaco" type="xs:string"/>
+                    <xs:element name="aic_farmaco" type="aic"/>
+                    <xs:element name="cancellato" type="xs:boolean"/>
+                </xs:sequence>
+            </xs:extension>
+        </xs:complexContent>
+    </xs:complexType>
 </xs:schema>

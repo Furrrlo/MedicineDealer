@@ -132,12 +132,12 @@
     </xs:complexType>
 
     <xs:complexType name="assunzione">
-        <xs:all>
+        <xs:sequence>
             <xs:element name="data" type="xs:date"/>
             <xs:element name="ora" type="xs:time"/>
             <xs:element name="data_reale" type="xs:date" minOccurs="0"/>
             <xs:element name="ora_reale" type="xs:time" minOccurs="0"/>
-        </xs:all>
+        </xs:sequence>
     </xs:complexType>
 
     <!-- For empty elements otherwise jaxb does weird stuff -->

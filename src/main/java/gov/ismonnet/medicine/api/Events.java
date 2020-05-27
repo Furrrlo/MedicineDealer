@@ -11,7 +11,6 @@ import gov.ismonnet.medicine.database.tables.records.EventiRecord;
 import gov.ismonnet.medicine.database.tables.records.OrariRecord;
 import gov.ismonnet.medicine.jaxb.ws.*;
 import org.jooq.*;
-import org.jooq.impl.DSL;
 import org.jooq.impl.SQLDataType;
 import org.jooq.types.UByte;
 import org.jooq.types.UInteger;
@@ -23,12 +22,8 @@ import javax.ws.rs.core.MediaType;
 import java.math.BigInteger;
 import java.sql.Date;
 import java.sql.Time;
-import java.time.DayOfWeek;
 import java.time.LocalDate;
 import java.time.LocalTime;
-import java.time.temporal.TemporalAdjusters;
-import java.time.temporal.WeekFields;
-import java.util.Comparator;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -50,96 +45,10 @@ public class Events {
     }
 
     @GET
+    @Path("{id_evento}")
     @Produces(MediaType.APPLICATION_XML)
-    public CalendarBean getEvents(@Authenticated int userId,
-                                  @QueryParam(value = "id_porta_medicine") Integer deviceId,
-                                  @QueryParam(value = "data") LocalDate date,
-                                  @NotNull @QueryParam(value = "granularita") Granularity granularity) {
-        if(date == null)
-            date = LocalDate.now();
-        if(deviceId != null)
-            authenticator.checkAuthorizedForDevice(userId, deviceId);
-
-        final LocalDate startDate;
-        final LocalDate endDate;
-
-        switch (granularity) {
-            case DAY:
-                startDate = endDate = date;
-                break;
-            case WEEK:
-                final DayOfWeek firstDayOfWeek = WeekFields.ISO.getFirstDayOfWeek();
-                final DayOfWeek lastDayOfWeek = DayOfWeek.of(((firstDayOfWeek.getValue() + 5) % DayOfWeek.values().length) + 1);
-
-                startDate = date.with(TemporalAdjusters.previousOrSame(firstDayOfWeek));
-                endDate = date.with(TemporalAdjusters.nextOrSame(lastDayOfWeek));
-                break;
-            case MONTH:
-                startDate = date.with(TemporalAdjusters.firstDayOfMonth());
-                endDate = date.with(TemporalAdjusters.lastDayOfMonth());
-                break;
-            case YEAR:
-                startDate = date.with(TemporalAdjusters.firstDayOfYear());
-                endDate = date.with(TemporalAdjusters.lastDayOfYear());
-                break;
-            case ALL:
-                startDate = endDate = null;
-                break;
-            default:
-                throw new AssertionError("Unimplemented value: " + granularity);
-        }
-
-        final List<EventWithAssunzioni> events = fetchEvent(ctx, Tables.ASSOCIATI.ID_UTENTE.eq(userId)
-                .and(deviceId == null ?
-                        DSL.noCondition() :
-                        Tables.ASSOCIATI.ID_PORTA_MEDICINE.eq(deviceId))
-                .and(granularity == Granularity.ALL ?
-                        DSL.noCondition() :
-                        // If the event is not repeated, check if the date is between the two
-                        // otherwise it's handled further down
-                        Tables.EVENTI.CADENZA.isNotNull().or(Tables.EVENTI.DATA.between(Date.valueOf(startDate), Date.valueOf(endDate))))
-        );
-        // Generate missing assumptions
-        final LocalDate today = LocalDate.now();
-        final LocalTime now = LocalTime.now();
-
-        if(granularity != Granularity.ALL)
-            events.forEach(event -> {
-                // If it already happened and it's all done, no need to generate anything
-                if(event.isFinito())
-                    return;
-                // Already sorted out in the query
-                if(event.getCadenza() == null)
-                    return;
-
-                final Map<Map.Entry<LocalDate, LocalTime>, Assunzione> assumptions = new HashMap<>();
-                // Populate already existing ones
-                if(event.getAssunzioni() != null)
-                    event.getAssunzioni().stream()
-                            .filter(a -> !a.getData().isBefore(startDate))
-                            .filter(a -> !a.getData().isAfter(endDate))
-                            .forEach(assumption -> assumptions.put(
-                                    new AbstractMap.SimpleEntry<>(assumption.getData(), assumption.getOra()),
-                                    assumption));
-                // For all the absent ones (which are supposed to be new), create new ones
-                getAllDates(event, today, endDate).forEach(d -> event.getOrari().stream()
-                        .filter(o -> d.isAfter(today) || o.isAfter(now))
-                        .forEach(o -> assumptions.computeIfAbsent(
-                                new AbstractMap.SimpleEntry<>(d, o),
-                                e -> new Assunzione()
-                                        .withData(e.getKey())
-                                        .withOra(e.getValue()))));
-
-                final List<Assunzione> newAssumptions = new ArrayList<>(assumptions.values());
-                newAssumptions.sort(Comparator
-                        .comparing(Assunzione::getData)
-                        .thenComparing(Assunzione::getOra));
-                event.setAssunzioni(newAssumptions);
-            });
-
-        events.removeIf(e -> e.getAssunzioni().isEmpty());
-        events.sort(Comparator.comparing(EventWithAssunzioni::getData));
-        return new CalendarBean(events);
+    public ImmutableEvent getEvent(@AuthorizedEvent @PathParam(value = "id_evento") int eventId) {
+        return fetchEvents(ctx, Tables.EVENTI.ID.eq(eventId)).get(0);
     }
 
     @POST
@@ -209,9 +118,9 @@ public class Events {
     }
 
     @PUT
+    @Path("{id_evento}")
     @Consumes(MediaType.APPLICATION_XML)
     @Produces(MediaType.APPLICATION_XML)
-    @Path("{id_evento}")
     public void editEvent(@Authenticated int userId,
                           @AuthorizedEvent @PathParam(value = "id_evento") int oldEventId,
                           @NotNull EditEventBean eventBean) {
@@ -224,7 +133,7 @@ public class Events {
                     .where(Tables.EVENTI.ID.eq(oldEventId))
                     .forShare()
                     .fetchOne();
-            final EventWithAssunzioni oldEvent = fetchEvent(ctx, Tables.EVENTI.ID.eq(oldEventId)).get(0);
+            final ImmutableEventBase oldEvent = fetchEvents(ctx, Tables.EVENTI.ID.eq(oldEventId)).get(0);
 
             // If it's a non repeating event it can only be edited if it did not happen yet
             if(record.get(Tables.EVENTI.FINITO) == 1)
@@ -312,15 +221,14 @@ public class Events {
         });
     }
 
-    private List<EventWithAssunzioni> fetchEvent(final DSLContext ctx, final Condition condition) {
+    private List<ImmutableEvent> fetchEvents(final DSLContext ctx, final Condition condition) {
         final Field<String> codAicRow = Tables.FARMACI.COD_AIC.cast(SQLDataType.CHAR(9));
         return ctx.select(
                 Tables.EVENTI.ID, Tables.EVENTI.ID_PORTA_MEDICINE, Tables.EVENTI.DATA, Tables.EVENTI.FINITO,
                 Tables.EVENTI.CADENZA, Tables.EVENTI.INTERVALLO, Tables.EVENTI.GIORNI_SETTIMANA,
                 Tables.EVENTI.DATA_FINE_INTERVALLO, Tables.EVENTI.OCCORRENZE_FINE_INTERVALLO,
                 Tables.ORARI.ORA,
-                codAicRow, Tables.FARMACI.NOME,
-                Tables.ASSUNZIONI.DATA, Tables.ASSUNZIONI.DATA_REALE, Tables.ASSUNZIONI.ORA_REALE
+                codAicRow, Tables.FARMACI.NOME
         )
                 .from(Tables.EVENTI)
 
@@ -332,9 +240,6 @@ public class Events {
 
                 .join(Tables.ORARI)
                 .on(Tables.EVENTI.ID.eq(Tables.ORARI.ID_EVENTO))
-
-                .leftJoin(Tables.ASSUNZIONI)
-                .on(Tables.EVENTI.ID.eq(Tables.ASSUNZIONI.ID_EVENTO))
 
                 .where(condition)
 
@@ -348,7 +253,8 @@ public class Events {
                             final Date endIntervalDate = r.get(Tables.EVENTI.DATA_FINE_INTERVALLO);
                             final Integer endOccurrences = r.get(Tables.EVENTI.OCCORRENZE_FINE_INTERVALLO);
 
-                            return new EventWithAssunzioni()
+                            //noinspection DuplicatedCode
+                            return new ImmutableEvent()
                                     .withId(BigInteger.valueOf(r.get(Tables.EVENTI.ID)))
                                     .withIdPortaMedicine(BigInteger.valueOf(r.get(Tables.EVENTI.ID_PORTA_MEDICINE)))
                                     .withAicFarmaco(r.get(codAicRow))
@@ -373,35 +279,10 @@ public class Events {
                 ))
                 .entrySet()
                 .stream()
-                .map(e -> e.getKey()
-                        .withOrari(e.getValue().stream()
-                                .map(r -> r.get(Tables.ORARI.ORA).toLocalTime())
-                                .collect(Collectors.toList()))
-                        .withAssunzioni(e.getValue().stream()
-                                .filter(r -> r.get(Tables.ASSUNZIONI.DATA) != null)
-                                .map(r -> {
-                                    final Date assumptionRealDate = r.get(Tables.ASSUNZIONI.DATA_REALE);
-                                    final Time assumptionRealTime = r.get(Tables.ASSUNZIONI.ORA_REALE);
-                                    return new Assunzione()
-                                            .withData(r.get(Tables.ASSUNZIONI.DATA).toLocalDate())
-                                            .withOra(r.get(Tables.ORARI.ORA).toLocalTime())
-                                            .withDataReale(assumptionRealDate != null ? assumptionRealDate.toLocalDate() : null)
-                                            .withOraReale(assumptionRealTime != null ? assumptionRealTime.toLocalTime() : null);
-                                })
-                                .collect(Collectors.toList()))
+                .map(e -> e.getKey().withOrari(e.getValue().stream()
+                        .map(r -> r.get(Tables.ORARI.ORA).toLocalTime())
+                        .collect(Collectors.toList()))
                 )
                 .collect(Collectors.toList());
-    }
-
-    public enum Granularity {
-        DAY, WEEK, MONTH, YEAR, ALL;
-
-        public static Granularity fromString(String param) {
-            try {
-                return valueOf(param.toUpperCase());
-            } catch (Exception e) {
-                return null;
-            }
-        }
     }
 }

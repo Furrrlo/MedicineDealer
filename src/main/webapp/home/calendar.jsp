@@ -47,9 +47,8 @@
                     refreshButton.disabled = true;
                 }
 
-                // TODO: temp, change API to make it work properly
-                fetchEvents("YEAR", info.start).then(events => {
-                    successCallback(parseEvents(events));
+                fetchAssumptions({ startDate: info.start, endDate: info.end }).then(assumptions => {
+                    successCallback(parseAssumptions(assumptions));
 
                     if(refreshButton) {
                         refreshButton.classList.remove('is-loading');
@@ -86,24 +85,21 @@
             Calendar.calendar.refetchEvents();
         };
 
-        function fetchEvents(granularity, date) {
+        function fetchAssumptions({ granularity, date, startDate, endDate }) {
             const portaMedicineSelect = document.querySelector('#porta-medicine-container');
-            let id_porta_medicine = portaMedicineSelect.options[portaMedicineSelect.selectedIndex].value;
+            const id_porta_medicine = portaMedicineSelect.options[portaMedicineSelect.selectedIndex].value;
 
-            let path;
-            if(date != null) {
-                const utcDate = new Date(Date.UTC(date.getFullYear(), date.getMonth(), date.getDate()));
-                const dateStr = utcDate.toISOString().split("T")[0];
-
-                path = "${pageContext.request.contextPath}/api/eventi?" +
-                    "granularita=" + granularity + "&" +
-                    "id_porta_medicine=" + id_porta_medicine + "&" +
-                    "data=" + dateStr;
-            } else {
-                path = "${pageContext.request.contextPath}/api/eventi?" +
-                    "granularita=" + granularity + "&" +
-                    "id_porta_medicine=" + id_porta_medicine;
-            }
+            let path = "${pageContext.request.contextPath}/api/assunzioni?";
+            path += "id_porta_medicine=" + id_porta_medicine + "&";
+            if(granularity != null)
+                path += "granularita=" + granularity + "&";
+            if(date != null)
+                path += "data=" + getDateOnly(date) + "&";
+            if(startDate != null)
+                path += "data_inizio=" + getDateOnly(startDate) + "&";
+            if(endDate != null)
+                path += "data_fine=" + getDateOnly(endDate) + "&";
+            path = path.substring(0, path.length - 1);
 
             return fetch(path).then(async response => {
 
@@ -115,8 +111,8 @@
                 if(!response.ok)
                     throw response.status + ": " + (await response.text());
                 return JXON.stringToJs(await response.text());
-            }).then(events => {
-                let obj = events.calendario.evento;
+            }).then(assumptions => {
+                let obj = assumptions.calendario.assunzione;
                 if(!obj)
                     return [];
                 if(!obj.forEach)
@@ -125,32 +121,30 @@
             })
         }
 
-        function parseEvents(events) {
-            if(!events) {
+        function parseAssumptions(assumptions) {
+            if(!assumptions) {
                 alert("NON CI SONO MEDICINE DA PRENDERE QUESTO MESE");
                 return [];
             }
 
-            let eventList = [];
-            events.forEach(event => {
-                let assunzioni = event.assunzioni.assunzione;
-                if(assunzioni && !assunzioni.forEach)
-                    assunzioni = [assunzioni];
-                if(!assunzioni)
-                    return;
+            let assumptionList = [];
+            assumptions.forEach(assumption => {
+                let dateToProcess = assumption.data + " " + assumption.ora;
+                let myDateTime = moment(dateToProcess, 'YYYY-MM-DD HH:mm').format();
 
-                assunzioni.forEach(assunzione => {
-                    let dateToProcess = assunzione.data + " " + assunzione.ora;
-                    let myDateTime = moment(dateToProcess, 'YYYY-MM-DD HH:mm').format();
-
-                    eventList.push({
-                        title: event.nome_farmaco,
-                        start: myDateTime
-                    });
+                assumptionList.push({
+                    title: assumption.nome_farmaco,
+                    start: myDateTime,
+                    assumption: assumption
                 });
             });
 
-            return eventList;
+            return assumptionList;
+        }
+
+        function getDateOnly(date) {
+            const utcDate = new Date(Date.UTC(date.getFullYear(), date.getMonth(), date.getDate()));
+            return utcDate.toISOString().split("T")[0];
         }
 
         function italianTimeFormat(dateUTC) {
