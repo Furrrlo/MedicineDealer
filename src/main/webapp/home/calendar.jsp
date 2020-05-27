@@ -46,8 +46,9 @@
                     refreshButton.classList.add('is-loading');
                     refreshButton.disabled = true;
                 }
-
-                fetchAssumptions({ startDate: info.start, endDate: info.end }).then(assumptions => {
+                // 1 day less cause the calendar requests 1 more
+                let endDate = moment(info.end).subtract(1, 'd').toDate();
+                fetchAssumptions({ startDate: info.start, endDate: endDate }).then(assumptions => {
                     successCallback(parseAssumptions(assumptions));
 
                     if(refreshButton) {
