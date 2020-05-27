@@ -34,6 +34,7 @@
                 timeGridWeek: 'Settimana',
                 timeGridDay: 'Giorno',
                 listYear: 'Anno',
+                today:'Torna alla data di oggi'
             },
             defaultDate: Date.now(),
             selectable: false,
