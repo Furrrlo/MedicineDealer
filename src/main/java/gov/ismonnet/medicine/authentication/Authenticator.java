@@ -19,6 +19,7 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.function.Function;
+import java.util.function.IntSupplier;
 import java.util.stream.Collectors;
 
 public class Authenticator {
@@ -44,9 +45,6 @@ public class Authenticator {
     @Priority(Priorities.AUTHENTICATION)
     public static class Filter extends Authenticator implements ContainerRequestFilter {
 
-        @Context
-        private ResourceInfo resourceInfo;
-
         @Inject Filter(AuthenticationService authenticationService,
                        DSLContext ctx,
                        @AuthorizationSchema String authorizationHeaderSchema,
@@ -57,8 +55,31 @@ public class Authenticator {
         @Override
         public void filter(ContainerRequestContext requestContext) {
             doAuth(requestContext);
+        }
+    }
 
-            final int userId = ((AuthenticatedPrincipal) requestContext.getSecurityContext().getUserPrincipal()).getId();
+    @Provider
+    @Priority(Priorities.AUTHENTICATION)
+    public static class ParameterFilter extends Authenticator implements ContainerRequestFilter {
+
+        @Context
+        private ResourceInfo resourceInfo;
+
+        @Inject ParameterFilter(AuthenticationService authenticationService,
+                                DSLContext ctx,
+                                @AuthorizationSchema String authorizationHeaderSchema,
+                                @AuthenticationCookie String authenticationCookieName) {
+            super(authenticationService, ctx, authorizationHeaderSchema, authenticationCookieName);
+        }
+
+        @Override
+        public void filter(ContainerRequestContext requestContext) {
+            // Get it lazily if needed
+            final IntSupplier userId = () -> {
+                if(requestContext.getSecurityContext().getUserPrincipal() == null)
+                    doAuth(requestContext);
+                return ((AuthenticatedPrincipal) requestContext.getSecurityContext().getUserPrincipal()).getId();
+            };
             final Map<String, Parameter> paramToAnnotations = Arrays.stream(resourceInfo.getResourceMethod().getParameters())
                     .filter(param -> Arrays.stream(param.getAnnotations())
                             .anyMatch(a -> a instanceof QueryParam || a instanceof PathParam))
@@ -84,13 +105,13 @@ public class Authenticator {
                             final boolean isInteger = param.getType().equals(Integer.TYPE) || param.getType().equals(Integer.class);
                             if(annotation instanceof AuthorizedDevice && isInteger) {
                                 try {
-                                    checkAuthorizedForDevice(userId, Integer.parseInt(v.get(0)));
+                                    checkAuthorizedForDevice(userId.getAsInt(), Integer.parseInt(v.get(0)));
                                 } catch (NumberFormatException | IndexOutOfBoundsException ex) {
                                     throw new BadRequestException("Invalid porta_medicine id");
                                 }
                             } else if(annotation instanceof AuthorizedEvent && isInteger) {
                                 try {
-                                    checkAuthorizedForEvent(userId, Integer.parseInt(v.get(0)));
+                                    checkAuthorizedForEvent(userId.getAsInt(), Integer.parseInt(v.get(0)));
                                 } catch (NumberFormatException | IndexOutOfBoundsException ex) {
                                     throw new BadRequestException("Invalid event id");
                                 }
