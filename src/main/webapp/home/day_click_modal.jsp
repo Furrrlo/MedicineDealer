@@ -17,6 +17,7 @@
                 <th>Clicca per rimuovere solo per oggi</th>
             </table>
         </section>
+        <footer class="modal-card-foot"></footer>
     </div>
 </div>
 
