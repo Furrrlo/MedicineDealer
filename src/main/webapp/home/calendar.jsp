@@ -29,6 +29,12 @@
                     click: () => Calendar.reloadEvents()
                 }
             },
+            buttonText: {
+                dayGridMonth: 'Mese',
+                timeGridWeek: 'Settimana',
+                timeGridDay: 'Giorno',
+                listYear: 'Anno',
+            },
             defaultDate: Date.now(),
             selectable: false,
             selectMirror: true,
@@ -166,13 +172,4 @@
 
         return Calendar;
     })();
-
-
-    function prevButton() {
-
-    }
-    
-    function nextButton() {
-
-    }
 </script>
