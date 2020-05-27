@@ -23,9 +23,8 @@
 <script>
     window.addEventListener('load', function() {
 
-        const queryString = window.location.search;
-        const urlParams = new URLSearchParams(queryString);
-        let idPortaMedicine = urlParams.get("id_porta_medicine");
+        const urlParams = new URLSearchParams(window.location.search);
+        const idPortaMedicine = urlParams.get("id_porta_medicine");
 
         document.querySelector('form').customSubmit = (event) => {
             const form = event.target;

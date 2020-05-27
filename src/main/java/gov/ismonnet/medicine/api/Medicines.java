@@ -9,7 +9,6 @@ import gov.ismonnet.medicine.jaxb.ws.MedicinesBean;
 import org.jooq.DSLContext;
 import org.jooq.Field;
 import org.jooq.impl.SQLDataType;
-import org.jooq.types.UInteger;
 
 import javax.inject.Inject;
 import javax.validation.constraints.NotNull;
@@ -50,7 +49,8 @@ public class Medicines {
                 .on(Tables.EVENTI.ID_PORTA_MEDICINE.eq(Tables.PORTA_MEDICINE.ID))
                 .join(Tables.FARMACI)
                 .on(Tables.FARMACI.COD_AIC.eq(Tables.EVENTI.AIC_FARMACO))
-                .where(Tables.EVENTI.ID_PORTA_MEDICINE.equal(deviceId))
+                .where(Tables.EVENTI.ID_PORTA_MEDICINE.equal(deviceId)
+                        .and(Tables.EVENTI.FINITO.notEqual((byte) 1)))
                 .fetch()
                 .stream()
                 .map(r -> new Medicina(
@@ -58,14 +58,6 @@ public class Medicines {
                         String.valueOf(r.get(codAicRow))
                 ))
                 .collect(Collectors.toList()));
-    }
-
-    @DELETE
-    @Consumes(MediaType.APPLICATION_XML)
-    public void deleteMedicine(@Authenticated int userId,
-                               @NotNull @AuthorizedDevice @QueryParam(value = "aic") int medicineAic){
-        ctx.deleteFrom(Tables.FARMACI)
-                .where(Tables.FARMACI.COD_AIC.eq(UInteger.valueOf(medicineAic)));
     }
 
     // For the csv files

@@ -12,15 +12,11 @@
 
     <script defer src="${pageContext.request.contextPath}/node_modules/jxon/jxon.min.js"></script>
     <script src="${pageContext.request.contextPath}/js/validate.js"></script>
-
-    <script>
-        function home(){ location.href = "${pageContext.request.contextPath}/home/?id_porta=" + deviceID;}
-    </script>
 </head>
 
 <body>
 <%@ include file="/navbar.jsp"%>
-
+<%@ include file="/login_modal.jsp"%>
 <br>
 
 <div class="container">
@@ -29,14 +25,31 @@
             <div class="column">
                 <h1 class="subtitle">Questi sono tutti i farmaci legati al portamedicine</h1>
 
+                <%-- Row template --%>
+                <table class="is-hidden">
+                    <tr class="medicine-row-template">
+                        <td class="medicine-name"></td>
+                        <td class="has-text-centered">
+                            <button class="delete-button button">ELIMINA</button>
+                        </td>
+                    </tr>
+                </table>
+                <%-- Container--%>
                 <table class="table is-bordered is-striped is-narrow is-hoverable is-fullwidth" id="medicine_table">
-                    <th>Nome Medicina</th>
-                    <th>Clicca per rimuovere</th>
+                    <thead>
+                    <tr>
+                        <th>Nome Medicina</th>
+                        <th>Clicca per rimuovere</th>
+                    </tr>
+                    </thead>
+                    <tbody id="medicine-table-body">
+
+                    </tbody>
                 </table>
             </div>
 
             <div class="control">
-                <button class="button is-rounded is-fullwidth" onclick="home()">TORNA ALLA HOME</button>
+                <button id="home-btn" class="button is-rounded is-fullwidth">TORNA ALLA HOME</button>
             </div>
         </div>
     </div>
@@ -44,64 +57,70 @@
 </div>
 
 <script>
-    let deviceID = null;
-
     window.addEventListener('load',function () {
         const queryString = window.location.search;
         const urlParams = new URLSearchParams(queryString);
-        deviceID = urlParams.get("id_porta");
+        const deviceID = urlParams.get("id_porta_medicine");
 
-        const path = '${pageContext.request.contextPath}/api/farmaci/?id_porta_medicine='
-            + deviceID;
+        document.getElementById('home-btn').addEventListener('click', () => {
+            location.href = "${pageContext.request.contextPath}/home/?id_porta_medicine=" + deviceID;
+        });
 
+        const path = '${pageContext.request.contextPath}/api/farmaci/?id_porta_medicine=' + deviceID;
         fetch(path).then(async response =>{
             if(!response.ok)
                 throw response.status + ":" + (await response.text());
             return JXON.stringToJs(await response.text());
         }).then(medicines => {
-            let medicine = medicines.medicine.medicina;
-            if(medicine.forEach){
-                printMedicines(medicine)
-            }else{
-                printMedicines([medicine]);
-            }
-            console.log(medicines);
+            const medicine = medicines.medicine.medicina;
+            if(!medicine)
+                return [];
+            if(!medicine.forEach)
+                return [medicine];
+            return medicine;
+        }).then(medicines => {
+            printMedicines(medicines)
         }).catch(ex => {
             console.error(ex);
-        })
-    })
+        });
 
-    function printMedicines(medicines) {
-        const table = document.getElementById("medicine_table");
-        let i = 1;
+        function printMedicines(medicines) {
+            const container = document.getElementById('medicine-table-body');
+            const templateClass = 'medicine-row-template';
+            const template = document.querySelector('.' + templateClass);
 
-        medicines.forEach(medicine => {
-            let row = table.insertRow(i);
+            medicines.forEach(medicine => {
+                const row = template.cloneNode(true);
+                row.classList.remove(templateClass);
 
-            let cell1 = row.insertCell(0);
-            cell1.innerHTML = medicine.name;
+                container.appendChild(row);
 
-            let cell2 = row.insertCell(1);
-            let btn = document.createElement("BUTTON");
-            btn.innerHTML = "ELIMINA";
-            btn.id = medicine.aic_farmaco;
-            cell2.appendChild(btn);
-            btn.onclick = function (){
-                let aic = btn.id;
-                const path = '${pageContext.request.contextPath}/api/farmaci/?aic='
-                    + aic;
-                fetch(path,{
-                    method: 'DELETE'
-                }).then(async response => {
-                    if(!response.ok)
-                        throw response.status + ":" + (await response.text());
-                }).catch(ex => {
-                    console.error(ex);
-                })
+                row.querySelector('.medicine-name').innerHTML = medicine.name;
+                row.querySelector('.delete-button').addEventListener('click', () => {
 
-            }
-        })
-    }
+                    const path = '${pageContext.request.contextPath}/api/eventi/?'
+                        + 'id_porta_medicine=' + deviceID + '&'
+                        + 'aic_farmaco=' + medicine.aic_farmaco;
+                    fetch(path, {
+                        method: 'DELETE'
+                    }).then(async response => {
+
+                        if(response.status === 401) {
+                            LoginModal.open();
+                            throw response.status + ": " + (await response.text());
+                        }
+
+                        if(!response.ok)
+                            throw response.status + ":" + (await response.text());
+                        container.removeChild(row);
+
+                    }).catch(ex => {
+                        console.error(ex);
+                    });
+                });
+            });
+        }
+    });
 </script>
 
 </body>

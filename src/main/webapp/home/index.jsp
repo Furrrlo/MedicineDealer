@@ -78,13 +78,8 @@
 </section>
 
 <script>
-    let deviceID = null;
-
     window.addEventListener('load', function () {
         'use strict';
-        const queryString = window.location.search;
-        const urlParams = new URLSearchParams(queryString);
-        deviceID = urlParams.get("id_porta");
 
         // Add listeners
         const portaMedicineSelect = document.getElementById('porta-medicine-container');
@@ -97,28 +92,32 @@
         const addMedicineBtn = document.getElementById('add-medicine-btn');
         addMedicineBtn.addEventListener('click', () => {
             const id = portaMedicineSelect.options[portaMedicineSelect.selectedIndex].value;
-            location.href = "${pageContext.request.contextPath}/aggiungiFarmaco?id_porta=" + id;
+            location.href = "${pageContext.request.contextPath}/aggiungiFarmaco?id_porta_medicine=" + id;
         });
 
         const removeMedicineBtn = document.getElementById('remove-medicine-btn');
         removeMedicineBtn.addEventListener('click', () => {
             const id = portaMedicineSelect.options[portaMedicineSelect.selectedIndex].value;
-            location.href = "${pageContext.request.contextPath}/rimuoviFarmaco?id_porta=" + id;
+            location.href = "${pageContext.request.contextPath}/rimuoviFarmaco?id_porta_medicine=" + id;
         });
         // First load
-        Devices.reloadDevices().then(() => Calendar.reloadEvents());
+        Devices.reloadDevices().then(() => {
+            const urlParams = new URLSearchParams(window.location.search);
+            const deviceID = urlParams.get("id_porta_medicine");
 
-        //TODO: Where should I put this? 
-        if(deviceID != null) {
-            //If you came back from another page load the device events selected before
-            let length = portaMedicineSelect.length;
-            for(let i = 0;i < length; i++){
-                portaMedicineSelect.selectedIndex = i;
-                if(portaMedicineSelect.options[portaMedicineSelect.selectedIndex].value == deviceID)
+            if(deviceID != null)
+                return;
+            // If you came back from another page load the device events selected before
+            for(let i = 0, len = portaMedicineSelect.length; i < len; i++) {
+                const select = portaMedicineSelect.options[portaMedicineSelect.selectedIndex];
+                if(select.value === deviceID) {
+                    portaMedicineSelect.selectedIndex = i;
                     break;
+                }
             }
-        }
-
+        }).then(() => {
+            Calendar.reloadEvents();
+        });
     });
 
     function rimuoviFarmaco() { location.href = "${pageContext.request.contextPath}/rimuoviFarmaco"; }

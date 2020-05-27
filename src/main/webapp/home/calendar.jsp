@@ -21,7 +21,7 @@
             header: {
                 left: 'prev,next today',
                 center: 'title',
-                right: 'refresh dayGridMonth,timeGridWeek,timeGridDay,listYear'
+                right: 'refresh listYear,dayGridMonth,timeGridWeek,timeGridDay'
             },
             customButtons: {
                 refresh: {

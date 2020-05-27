@@ -3,6 +3,7 @@ package gov.ismonnet.medicine.api;
 import gov.ismonnet.medicine.aifa.MedicineService;
 import gov.ismonnet.medicine.authentication.Authenticated;
 import gov.ismonnet.medicine.authentication.Authenticator;
+import gov.ismonnet.medicine.authentication.AuthorizedDevice;
 import gov.ismonnet.medicine.authentication.AuthorizedEvent;
 import gov.ismonnet.medicine.database.Tables;
 import gov.ismonnet.medicine.database.enums.EventiCadenza;
@@ -24,7 +25,7 @@ import java.sql.Date;
 import java.sql.Time;
 import java.time.LocalDate;
 import java.time.LocalTime;
-import java.util.*;
+import java.util.List;
 import java.util.stream.Collectors;
 
 import static gov.ismonnet.medicine.utils.EventUtils.*;
@@ -133,7 +134,6 @@ public class Events {
                     .where(Tables.EVENTI.ID.eq(oldEventId))
                     .forShare()
                     .fetchOne();
-            final ImmutableEventBase oldEvent = fetchEvents(ctx, Tables.EVENTI.ID.eq(oldEventId)).get(0);
 
             // If it's a non repeating event it can only be edited if it did not happen yet
             if(record.get(Tables.EVENTI.FINITO) == 1)
@@ -181,25 +181,8 @@ public class Events {
                 }
             }
 
-            // Set the old record as finished
-            ctx.update(Tables.EVENTI)
-                    .set(Tables.EVENTI.FINITO, (byte) 1)
-                    .where(Tables.EVENTI.ID.eq(oldEventId))
-                    .execute();
-            // Insert all the missing assumptions on the old one
-            final InsertValuesStep3<AssunzioniRecord, Integer, Date, Time> insertAssumptions = ctx
-                    .insertInto(Tables.ASSUNZIONI)
-                    .columns(Tables.ASSUNZIONI.ID_EVENTO, Tables.ASSUNZIONI.DATA, Tables.ASSUNZIONI.ORA);
-
-            final LocalDate today = LocalDate.now();
-            final LocalTime now = LocalTime.now();
-            getAllDates(oldEvent, today, today).forEach(d -> oldEvent.getOrari().stream()
-                    .filter(o -> !d.isAfter(today) && o.isBefore(now))
-                    .forEach(o -> insertAssumptions.values(oldEventId, Date.valueOf(d), Time.valueOf(o))));
-
-            insertAssumptions // The unique constraint will prevent stuff from being duped
-                    .onDuplicateKeyIgnore()
-                    .execute();
+            // Delete the old one
+            deleteEvents(Tables.EVENTI.ID.eq(oldEventId));
             // Insert a new record with the edits
             record.changed(true);
             record.changed(Tables.EVENTI.ID, false); // Do not insert the old ID
@@ -213,12 +196,58 @@ public class Events {
             final InsertValuesStep2<OrariRecord, Integer, Time> insertHours = ctx
                     .insertInto(Tables.ORARI)
                     .columns(Tables.ORARI.ID_EVENTO, Tables.ORARI.ORA);
-            if(eventEdit.getOrari() == null) // Clone the old ones
+            if(eventEdit.getOrari() == null) { // Clone the old ones
+                final ImmutableEvent oldEvent = fetchEvents(ctx, Tables.EVENTI.ID.eq(oldEventId)).get(0);
                 oldEvent.getOrari().forEach(hour -> insertHours.values(newEventId, Time.valueOf(hour)));
-            else // Put in the new ones
+            } else { // Put in the new ones
                 eventEdit.getOrari().forEach(hour -> insertHours.values(oldEventId, Time.valueOf(hour)));
+            }
             insertHours.execute();
         });
+    }
+
+    @DELETE
+    @Path("{id_evento}")
+    public void deleteById(@Authenticated int userId,
+                           @AuthorizedEvent @QueryParam(value = "id_evento") int eventId) {
+        deleteEvents(Tables.EVENTI.ID.eq(eventId));
+    }
+
+    @DELETE
+    public void delete(@Authenticated int userId,
+                       @AuthorizedDevice @QueryParam(value = "id_porta_medicine") int deviceId,
+                       @NotNull @QueryParam(value = "aic_farmaco") int medicineAic) {
+        deleteEvents(Tables.EVENTI.ID_PORTA_MEDICINE.eq(deviceId)
+                .and(Tables.EVENTI.AIC_FARMACO.eq(UInteger.valueOf(medicineAic))));
+    }
+
+    private void deleteEvents(Condition condition) {
+        final List<ImmutableEvent> events = fetchEvents(ctx, condition);
+        // Set the old record as finished
+        ctx.update(Tables.EVENTI)
+                .set(Tables.EVENTI.FINITO, (byte) 1)
+                .where(Tables.EVENTI.ID.in(events.stream()
+                        .map(ImmutableEvent::getId)
+                        .collect(Collectors.toList())))
+                .execute();
+        // Insert all the missing assumptions on the old one
+        final InsertValuesStep3<AssunzioniRecord, Integer, Date, Time> insertAssumptions = ctx
+                .insertInto(Tables.ASSUNZIONI)
+                .columns(Tables.ASSUNZIONI.ID_EVENTO, Tables.ASSUNZIONI.DATA, Tables.ASSUNZIONI.ORA);
+
+        final LocalDate today = LocalDate.now();
+        final LocalTime now = LocalTime.now();
+        events.forEach(oldEvent ->
+                getAllDates(oldEvent, today, today).forEach(d -> oldEvent.getOrari().stream()
+                        .filter(o -> !d.isAfter(today) && o.isBefore(now))
+                        .forEach(o -> insertAssumptions.values(
+                                oldEvent.getId().intValue(),
+                                Date.valueOf(d),
+                                Time.valueOf(o)))));
+
+        insertAssumptions // The unique constraint will prevent stuff from being duped
+                .onDuplicateKeyIgnore()
+                .execute();
     }
 
     private List<ImmutableEvent> fetchEvents(final DSLContext ctx, final Condition condition) {
