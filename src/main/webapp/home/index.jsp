@@ -78,8 +78,13 @@
 </section>
 
 <script>
+    let deviceID = null;
+
     window.addEventListener('load', function () {
         'use strict';
+        const queryString = window.location.search;
+        const urlParams = new URLSearchParams(queryString);
+        deviceID = urlParams.get("id_porta");
 
         // Add listeners
         const portaMedicineSelect = document.getElementById('porta-medicine-container');
@@ -102,6 +107,18 @@
         });
         // First load
         Devices.reloadDevices().then(() => Calendar.reloadEvents());
+
+        //TODO: Where should I put this? 
+        if(deviceID != null) {
+            //If you came back from another page load the device events selected before
+            let length = portaMedicineSelect.length;
+            for(let i = 0;i < length; i++){
+                portaMedicineSelect.selectedIndex = i;
+                if(portaMedicineSelect.options[portaMedicineSelect.selectedIndex].value == deviceID)
+                    break;
+            }
+        }
+
     });
 
     function rimuoviFarmaco() { location.href = "${pageContext.request.contextPath}/rimuoviFarmaco"; }
