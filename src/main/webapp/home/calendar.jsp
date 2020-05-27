@@ -32,7 +32,7 @@
             defaultDate: Date.now(),
             selectable: false,
             selectMirror: true,
-            editable: true,
+            editable: false,
             events: (info, successCallback, failureCallback) => {
 
                 if(firstStart) {
