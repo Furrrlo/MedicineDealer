@@ -14,7 +14,7 @@
     <script src="${pageContext.request.contextPath}/js/validate.js"></script>
 
     <script>
-        function home(){ location.href = "${pageContext.request.contextPath}/home";}
+        function home(){ location.href = "${pageContext.request.contextPath}/home/?id_porta=" + deviceID;}
     </script>
 </head>
 
@@ -29,30 +29,9 @@
             <div class="column">
                 <h1 class="subtitle">Questi sono tutti i farmaci legati al portamedicine</h1>
 
-                <table class="table is-bordered is-striped is-narrow is-hoverable is-fullwidth">
+                <table class="table is-bordered is-striped is-narrow is-hoverable is-fullwidth" id="medicine_table">
                     <th>Nome Medicina</th>
                     <th>Clicca per rimuovere</th>
-
-                    <tr>
-                        <td>Banana</td>
-                        <td><div class="control">
-                            <button class="buttonis-fullwidth">X</button>
-                        </div></td>
-                    </tr>
-
-                    <tr>
-                        <td>Mela</td>
-                        <td><div class="control">
-                            <button class="buttonis-fullwidth">X</button>
-                        </div></td>
-                    </tr>
-
-                    <tr>
-                        <td>kiwi</td>
-                        <td><div class="control">
-                            <button class="buttonis-fullwidth">X</button>
-                        </div></td>
-                    </tr>
                 </table>
             </div>
 
@@ -65,21 +44,64 @@
 </div>
 
 <script>
+    let deviceID = null;
+
     window.addEventListener('load',function () {
         const queryString = window.location.search;
         const urlParams = new URLSearchParams(queryString);
-        let deviceID = urlParams.get("id_porta_medicine");
+        deviceID = urlParams.get("id_porta");
 
-        fetch('${pageContext.request.contextPath}/api/farmaci&id_porta_medicine='
-            + deviceID).then(async response =>{
+        const path = '${pageContext.request.contextPath}/api/farmaci/?id_porta_medicine='
+            + deviceID;
+
+        fetch(path).then(async response =>{
             if(!response.ok)
                 throw response.status + ":" + (await response.text());
+            return JXON.stringToJs(await response.text());
         }).then(medicines => {
+            let medicine = medicines.medicine.medicina;
+            if(medicine.forEach){
+                printMedicines(medicine)
+            }else{
+                printMedicines([medicine]);
+            }
             console.log(medicines);
         }).catch(ex => {
             console.error(ex);
         })
     })
+
+    function printMedicines(medicines) {
+        const table = document.getElementById("medicine_table");
+        let i = 1;
+
+        medicines.forEach(medicine => {
+            let row = table.insertRow(i);
+
+            let cell1 = row.insertCell(0);
+            cell1.innerHTML = medicine.name;
+
+            let cell2 = row.insertCell(1);
+            let btn = document.createElement("BUTTON");
+            btn.innerHTML = "ELIMINA";
+            btn.id = medicine.aic_farmaco;
+            cell2.appendChild(btn);
+            btn.onclick = function (){
+                let aic = btn.id;
+                const path = '${pageContext.request.contextPath}/api/farmaci/?aic='
+                    + aic;
+                fetch(path,{
+                    method: 'DELETE'
+                }).then(async response => {
+                    if(!response.ok)
+                        throw response.status + ":" + (await response.text());
+                }).catch(ex => {
+                    console.error(ex);
+                })
+
+            }
+        })
+    }
 </script>
 
 </body>
