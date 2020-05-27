@@ -105,11 +105,11 @@
             const urlParams = new URLSearchParams(window.location.search);
             const deviceID = urlParams.get("id_porta_medicine");
 
-            if(deviceID != null)
+            if(!deviceID)
                 return;
             // If you came back from another page load the device events selected before
             for(let i = 0, len = portaMedicineSelect.length; i < len; i++) {
-                const select = portaMedicineSelect.options[portaMedicineSelect.selectedIndex];
+                const select = portaMedicineSelect.options[i];
                 if(select.value === deviceID) {
                     portaMedicineSelect.selectedIndex = i;
                     break;
