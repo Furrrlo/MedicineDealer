@@ -46,8 +46,8 @@ public class Events {
     @GET
     @Path("{id_evento}")
     @Produces(MediaType.APPLICATION_XML)
-    public ImmutableEvent getEvent(@AuthorizedEvent @PathParam(value = "id_evento") int eventId) {
-        return fetchEvents(ctx, Tables.EVENTI.ID.eq(eventId)).get(0);
+    public EventBean getEvent(@AuthorizedEvent @PathParam(value = "id_evento") int eventId) {
+        return new EventBean(fetchEvents(ctx, Tables.EVENTI.ID.eq(eventId)).get(0));
     }
 
     @POST

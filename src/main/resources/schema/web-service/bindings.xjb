@@ -30,6 +30,11 @@
         <jxb:class name="CalendarBean"/>
     </jxb:bindings>
 
+    <jxb:bindings schemaLocation="evento.xsd"
+                  node="//xs:element[@name='evento']">
+        <jxb:class name="EventBean"/>
+    </jxb:bindings>
+
     <jxb:bindings schemaLocation="nuovo_evento.xsd"
                   node="//xs:element[@name='nuovo_evento']">
         <jxb:class name="NewEventBean"/>
