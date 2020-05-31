@@ -135,16 +135,25 @@
                 return [];
             }
 
+            let now = moment();
+
             let assumptionList = [];
             assumptions.forEach(assumption => {
-                let dateToProcess = assumption.data + " " + assumption.ora;
-                let myDateTime = moment(dateToProcess, 'YYYY-MM-DD HH:mm').format();
+                const dateToProcess = assumption.data + " " + assumption.ora;
+                const eventDateTime = moment(dateToProcess, 'YYYY-MM-DD HH:mm');
 
-                assumptionList.push({
+                const event = {
                     title: assumption.nome_farmaco,
-                    start: myDateTime,
+                    start: eventDateTime.format(),
                     assumption: assumption
-                });
+                };
+
+                if((!assumption.data_reale || !assumption.ora_reale) && eventDateTime < now) {
+                    event.color = 'red';
+                    event.missed = true;
+                }
+                
+                assumptionList.push(event);
             });
 
             return assumptionList;
