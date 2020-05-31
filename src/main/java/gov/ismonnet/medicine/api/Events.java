@@ -236,8 +236,12 @@ public class Events {
         final LocalDate today = LocalDate.now();
         final LocalTime now = LocalTime.now();
         events.forEach(oldEvent ->
-                getAllDates(oldEvent, today, today).forEach(d -> oldEvent.getOrari().stream()
-                        .filter(o -> !d.isAfter(today) && o.isBefore(now))
+                // TODO: get dates from today (..., today, today)
+                //       rn there is no portamedicine actually working, so assumptions
+                //       are not populated, causing issues
+                getAllDates(oldEvent).forEach(d -> oldEvent.getOrari().stream()
+//                        .filter(o -> !d.isAfter(today) && o.isBefore(now))
+                        .filter(o -> d.isBefore(today) || o.isBefore(now))
                         .forEach(o -> insertAssumptions.values(oldEvent.getId().intValue(), d, o))));
 
         insertAssumptions // The unique constraint will prevent stuff from being duped

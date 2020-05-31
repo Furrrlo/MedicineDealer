@@ -108,7 +108,6 @@ public class Assumptions {
                 .and(Tables.EVENTI.CADENZA.isNotNull().or(Tables.EVENTI.DATA.between(startDate, endDate)))
         );
         // Generate missing assumptions
-        final LocalDate today = LocalDate.now();
         final LocalTime now = LocalTime.now();
 
         events.forEach(event -> {
@@ -129,8 +128,12 @@ public class Assumptions {
                                 new AbstractMap.SimpleEntry<>(assumption.getData(), assumption.getOra()),
                                 assumption));
             // For all the absent ones (which are supposed to be new), create new ones
-            getAllDates(event, today, endDate).forEach(d -> event.getOrari().stream()
-                    .filter(o -> d.isAfter(today) || o.isAfter(now))
+            // TODO: use today instead of startDate
+            //       rn there is no portamedicine actually working, so assumptions
+            //       are not populated, causing issues
+            getAllDates(event, startDate, endDate).forEach(d -> event.getOrari().stream()
+//                    .filter(o -> d.isAfter(today) || o.isAfter(now))
+                    .filter(o -> d.isAfter(startDate) || o.isAfter(now))
                     .forEach(o -> assumptions.computeIfAbsent(
                             new AbstractMap.SimpleEntry<>(d, o),
                             e -> new Assunzione()
