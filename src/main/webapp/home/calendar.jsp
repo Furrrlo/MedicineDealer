@@ -41,7 +41,7 @@
             selectMirror: true,
             editable: false,
             eventRender: (info) => {
-                if (info.event.extendedProps.deleted)
+                if (info.event.extendedProps.assumption.deleted)
                     info.el.classList.add("past");
             },
             events: (info, successCallback, failureCallback) => {
@@ -75,6 +75,9 @@
                         refreshButton.disabled = false;
                     }
                 });
+            },
+            eventClick: (info) => {
+                AssumptionClickModal.open(info.event.extendedProps.assumption);
             },
             dateClick: function (info) {
 
@@ -139,26 +142,34 @@
                 return [];
             }
 
-            let now = moment();
 
             let assumptionList = [];
             assumptions.forEach(assumption => {
+
                 const dateToProcess = assumption.data + " " + assumption.ora;
-                const eventDateTime = moment(dateToProcess, 'YYYY-MM-DD HH:mm');
+                assumption.moment = moment(dateToProcess, 'YYYY-MM-DD HH:mm');
+
+                if(assumption.data_reale && assumption.ora_reale) {
+                    const realDateToProcess = assumption.data_reale + " " + assumption.ora_reale;
+                    assumption.realMoment = moment(realDateToProcess, 'YYYY-MM-DD HH:mm');
+                }
+
+                let now = moment();
+                assumption.passed = assumption.moment < now;
+                assumption.missed = (!assumption.data_reale || !assumption.ora_reale);
+                assumption.deleted = assumption.cancellato === "true";
 
                 const event = {
                     title: assumption.nome_farmaco,
-                    start: eventDateTime.format(),
+                    start: assumption.moment.format(),
                     assumption: assumption
                 };
 
-                if(assumption.cancellato === "true") {
-                    event.deleted = true;
-                } else if((!assumption.data_reale || !assumption.ora_reale) && eventDateTime < now) {
-                    event.color = 'red';
-                    event.missed = true;
-                }
-                
+                if(assumption.deleted)
+                    event.color = 'gray';
+                else if(assumption.passed)
+                    event.color = assumption.missed ? 'red' : 'green';
+
                 assumptionList.push(event);
             });
 
