@@ -40,6 +40,10 @@
             selectable: false,
             selectMirror: true,
             editable: false,
+            eventRender: (info) => {
+                if (info.event.extendedProps.deleted)
+                    info.el.classList.add("past");
+            },
             events: (info, successCallback, failureCallback) => {
 
                 if(firstStart) {
@@ -148,7 +152,9 @@
                     assumption: assumption
                 };
 
-                if((!assumption.data_reale || !assumption.ora_reale) && eventDateTime < now) {
+                if(assumption.cancellato === "true") {
+                    event.deleted = true;
+                } else if((!assumption.data_reale || !assumption.ora_reale) && eventDateTime < now) {
                     event.color = 'red';
                     event.missed = true;
                 }

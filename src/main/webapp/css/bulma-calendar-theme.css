@@ -1,4 +1,8 @@
 
+.past .fc-time, .past .fc-title {
+    text-decoration: line-through;
+}
+
 /* Adapt button group to make it work without control divs */
 
 .fc-bulma-button-group {
