@@ -172,7 +172,7 @@ public class Assumptions {
                 Tables.EVENTI.DATA_FINE_INTERVALLO, Tables.EVENTI.OCCORRENZE_FINE_INTERVALLO,
                 Tables.ORARI.ORA,
                 codAicRow, Tables.FARMACI.NOME,
-                Tables.ASSUNZIONI.DATA, Tables.ASSUNZIONI.DATA_REALE, Tables.ASSUNZIONI.ORA_REALE
+                Tables.ASSUNZIONI.DATA, Tables.ASSUNZIONI.ORA, Tables.ASSUNZIONI.DATA_REALE, Tables.ASSUNZIONI.ORA_REALE
         )
                 .from(Tables.EVENTI)
 
@@ -188,7 +188,9 @@ public class Assumptions {
                 .leftJoin(Tables.ASSUNZIONI)
                 .on(Tables.EVENTI.ID.eq(Tables.ASSUNZIONI.ID_EVENTO))
 
-                .where(condition)
+                .where(Tables.ASSUNZIONI.ORA.isNull()
+                        .or(Tables.ASSUNZIONI.ORA.eq(Tables.ORARI.ORA))
+                        .and(condition))
 
                 .fetch()
                 .stream()
@@ -232,9 +234,10 @@ public class Assumptions {
                                 .collect(Collectors.toList()))
                         .withAssunzioni(e.getValue().stream()
                                 .filter(r -> r.get(Tables.ASSUNZIONI.DATA) != null)
+                                .filter(r -> r.get(Tables.ASSUNZIONI.ORA) != null)
                                 .map(r -> new Assunzione()
                                         .withData(r.get(Tables.ASSUNZIONI.DATA))
-                                        .withOra(r.get(Tables.ORARI.ORA))
+                                        .withOra(r.get(Tables.ASSUNZIONI.ORA))
                                         .withDataReale(r.get(Tables.ASSUNZIONI.DATA_REALE))
                                         .withOraReale(r.get(Tables.ASSUNZIONI.ORA_REALE)))
                                 .collect(Collectors.toList()))
