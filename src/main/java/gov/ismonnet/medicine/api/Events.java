@@ -21,8 +21,6 @@ import javax.validation.constraints.NotNull;
 import javax.ws.rs.*;
 import javax.ws.rs.core.MediaType;
 import java.math.BigInteger;
-import java.sql.Date;
-import java.sql.Time;
 import java.time.LocalDate;
 import java.time.LocalTime;
 import java.util.List;
@@ -75,7 +73,7 @@ public class Events {
             final InsertSetMoreStep<EventiRecord> insert = ctx.insertInto(Tables.EVENTI)
                     .set(Tables.EVENTI.ID_PORTA_MEDICINE, event.getIdPortaMedicine().intValue())
                     .set(Tables.EVENTI.AIC_FARMACO, UInteger.valueOf(event.getAicFarmaco()))
-                    .set(Tables.EVENTI.DATA, Date.valueOf(event.getData()));
+                    .set(Tables.EVENTI.DATA, event.getData());
 
             final Cadenza cadenza = event.getCadenza();
             if(cadenza != null) {
@@ -95,7 +93,7 @@ public class Events {
                 final FineCadenza fine = cadenza.getFine();
                 if(fine != null) {
                     if(fine.getData() != null)
-                        insert.set(Tables.EVENTI.DATA_FINE_INTERVALLO, Date.valueOf(fine.getData()));
+                        insert.set(Tables.EVENTI.DATA_FINE_INTERVALLO, fine.getData());
                     else if(fine.getOccorenze() != null)
                         insert.set(Tables.EVENTI.OCCORRENZE_FINE_INTERVALLO, fine.getOccorenze().intValue());
                     else
@@ -108,10 +106,10 @@ public class Events {
                     .fetchOne()
                     .map(r -> r.getValue(Tables.EVENTI.ID));
 
-            final InsertValuesStep2<OrariRecord, Integer, Time> insertHours = ctx
+            final InsertValuesStep2<OrariRecord, Integer, LocalTime> insertHours = ctx
                     .insertInto(Tables.ORARI)
                     .columns(Tables.ORARI.ID_EVENTO, Tables.ORARI.ORA);
-            event.getOrari().forEach(hour -> insertHours.values(eventId, Time.valueOf(hour)));
+            event.getOrari().forEach(hour -> insertHours.values(eventId, hour));
             insertHours.execute();
 
             return "<id>" + eventId + "</id>";
@@ -142,7 +140,7 @@ public class Events {
             if(eventEdit.getAicFarmaco() != null)
                 record.set(Tables.EVENTI.AIC_FARMACO, UInteger.valueOf(eventEdit.getAicFarmaco()));
             if(eventEdit.getData() != null)
-                record.set(Tables.EVENTI.DATA, Date.valueOf(eventEdit.getData()));
+                record.set(Tables.EVENTI.DATA, eventEdit.getData());
 
             if(eventEdit.getEliminaCadenza() != null) {
                 record.set(Tables.EVENTI.CADENZA, null);
@@ -172,7 +170,7 @@ public class Events {
                     final FineCadenza fine = cadenza.getFine();
 
                     if(fine.getData() != null) {
-                        record.set(Tables.EVENTI.DATA_FINE_INTERVALLO, Date.valueOf(fine.getData()));
+                        record.set(Tables.EVENTI.DATA_FINE_INTERVALLO, fine.getData());
                         record.set(Tables.EVENTI.OCCORRENZE_FINE_INTERVALLO, null);
                     } else if(fine.getOccorenze() != null) {
                         record.set(Tables.EVENTI.DATA_FINE_INTERVALLO, null);
@@ -193,14 +191,14 @@ public class Events {
                     .fetchOne()
                     .map(r -> r.getValue(Tables.EVENTI.ID));
 
-            final InsertValuesStep2<OrariRecord, Integer, Time> insertHours = ctx
+            final InsertValuesStep2<OrariRecord, Integer, LocalTime> insertHours = ctx
                     .insertInto(Tables.ORARI)
                     .columns(Tables.ORARI.ID_EVENTO, Tables.ORARI.ORA);
             if(eventEdit.getOrari() == null) { // Clone the old ones
                 final ImmutableEvent oldEvent = fetchEvents(ctx, Tables.EVENTI.ID.eq(oldEventId)).get(0);
-                oldEvent.getOrari().forEach(hour -> insertHours.values(newEventId, Time.valueOf(hour)));
+                oldEvent.getOrari().forEach(hour -> insertHours.values(newEventId, hour));
             } else { // Put in the new ones
-                eventEdit.getOrari().forEach(hour -> insertHours.values(oldEventId, Time.valueOf(hour)));
+                eventEdit.getOrari().forEach(hour -> insertHours.values(oldEventId, hour));
             }
             insertHours.execute();
         });
@@ -231,7 +229,7 @@ public class Events {
                         .collect(Collectors.toList())))
                 .execute();
         // Insert all the missing assumptions on the old one
-        final InsertValuesStep3<AssunzioniRecord, Integer, Date, Time> insertAssumptions = ctx
+        final InsertValuesStep3<AssunzioniRecord, Integer, LocalDate, LocalTime> insertAssumptions = ctx
                 .insertInto(Tables.ASSUNZIONI)
                 .columns(Tables.ASSUNZIONI.ID_EVENTO, Tables.ASSUNZIONI.DATA, Tables.ASSUNZIONI.ORA);
 
@@ -240,10 +238,7 @@ public class Events {
         events.forEach(oldEvent ->
                 getAllDates(oldEvent, today, today).forEach(d -> oldEvent.getOrari().stream()
                         .filter(o -> !d.isAfter(today) && o.isBefore(now))
-                        .forEach(o -> insertAssumptions.values(
-                                oldEvent.getId().intValue(),
-                                Date.valueOf(d),
-                                Time.valueOf(o)))));
+                        .forEach(o -> insertAssumptions.values(oldEvent.getId().intValue(), d, o))));
 
         insertAssumptions // The unique constraint will prevent stuff from being duped
                 .onDuplicateKeyIgnore()
@@ -279,7 +274,7 @@ public class Events {
                             final EventiCadenza cadenza = r.get(Tables.EVENTI.CADENZA);
                             final UByte week = r.get(Tables.EVENTI.GIORNI_SETTIMANA);
 
-                            final Date endIntervalDate = r.get(Tables.EVENTI.DATA_FINE_INTERVALLO);
+                            final LocalDate endIntervalDate = r.get(Tables.EVENTI.DATA_FINE_INTERVALLO);
                             final Integer endOccurrences = r.get(Tables.EVENTI.OCCORRENZE_FINE_INTERVALLO);
 
                             //noinspection DuplicatedCode
@@ -288,7 +283,7 @@ public class Events {
                                     .withIdPortaMedicine(BigInteger.valueOf(r.get(Tables.EVENTI.ID_PORTA_MEDICINE)))
                                     .withAicFarmaco(r.get(codAicRow))
                                     .withNomeFarmaco(r.get(Tables.FARMACI.NOME))
-                                    .withData(r.get(Tables.EVENTI.DATA).toLocalDate())
+                                    .withData(r.get(Tables.EVENTI.DATA))
                                     .withFinito(r.get(Tables.EVENTI.FINITO) == 1)
                                     .withCadenza(cadenza == null ? null :
                                             new Cadenza()
@@ -301,7 +296,7 @@ public class Events {
                                                             bitmaskToWeek(week.intValue()))
                                                     .withFine((endIntervalDate == null && endOccurrences == null) ? null :
                                                             new FineCadenza()
-                                                                    .withData(endIntervalDate != null ? endIntervalDate.toLocalDate() : null)
+                                                                    .withData(endIntervalDate)
                                                                     .withOccorenze(endOccurrences != null ? BigInteger.valueOf(endOccurrences) : null))
                                     );
                         }, Collectors.mapping(r -> r, Collectors.toSet())
@@ -309,7 +304,7 @@ public class Events {
                 .entrySet()
                 .stream()
                 .map(e -> e.getKey().withOrari(e.getValue().stream()
-                        .map(r -> r.get(Tables.ORARI.ORA).toLocalTime())
+                        .map(r -> r.get(Tables.ORARI.ORA))
                         .collect(Collectors.toList()))
                 )
                 .collect(Collectors.toList());

@@ -15,7 +15,6 @@ import javax.inject.Inject;
 import javax.validation.constraints.NotNull;
 import javax.ws.rs.*;
 import javax.ws.rs.core.*;
-import java.sql.Date;
 import java.util.Optional;
 
 @Path("utenti")
@@ -53,7 +52,7 @@ public class Users {
                     .set(Tables.UTENTI.NOME, registrationBean.getNome())
                     .set(Tables.UTENTI.COGNOME, registrationBean.getCognome())
                     .set(Tables.UTENTI.EMAIL, registrationBean.getEmail())
-                    .set(Tables.UTENTI.DATA_NASCITA, Date.valueOf(registrationBean.getDataNascita()))
+                    .set(Tables.UTENTI.DATA_NASCITA, registrationBean.getDataNascita())
                     .set(Tables.UTENTI.PASSWORD, passwordEncoder.encode(registrationBean.getPassword()))
                     .returningResult(Tables.UTENTI.fields())
                     .fetchOptional()

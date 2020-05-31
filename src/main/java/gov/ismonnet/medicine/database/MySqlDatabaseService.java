@@ -24,16 +24,18 @@ public class MySqlDatabaseService implements DatabaseService {
                 .orElseGet(() -> "jdbc:mysql://localhost:" + credentialsService
                         .getOptional("database.port")
                         .orElse("3306") + "/");
-        properties.setUrl(url + schemaName + "?" +
-                "createDatabaseIfNotExist=true&" +
-                "serverTimezone=UTC&" +
-                "useUnicode=yes&" +
-                "characterEncoding=UTF-8");
+        properties.setUrl(url + schemaName);
         properties.setDriverClassName(credentialsService
                 .getOptional("database.driver")
                 .orElse("com.mysql.cj.jdbc.Driver"));
         properties.setUsername(credentialsService.get("user"));
         properties.setPassword(credentialsService.get("password"));
+
+        properties.getDbProperties().setProperty("createDatabaseIfNotExist", "true");
+        // Unicode
+        properties.getDbProperties().setProperty("useUnicode", "yes");
+        properties.getDbProperties().setProperty("characterEncoding", "UTF-8");
+        // Pool
         properties.setInitialSize(15);
         properties.setMinIdle(15);
         properties.setMaxActive(20);

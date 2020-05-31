@@ -17,8 +17,6 @@ import javax.inject.Inject;
 import javax.ws.rs.*;
 import javax.ws.rs.core.MediaType;
 import java.math.BigInteger;
-import java.sql.Date;
-import java.sql.Time;
 import java.time.DayOfWeek;
 import java.time.LocalDate;
 import java.time.LocalTime;
@@ -107,7 +105,7 @@ public class Assumptions {
                         Tables.ASSOCIATI.ID_PORTA_MEDICINE.eq(deviceId))
                 // If the event is not repeated, check if the date is between the two
                 // otherwise it's handled further down
-                .and(Tables.EVENTI.CADENZA.isNotNull().or(Tables.EVENTI.DATA.between(Date.valueOf(startDate), Date.valueOf(endDate))))
+                .and(Tables.EVENTI.CADENZA.isNotNull().or(Tables.EVENTI.DATA.between(startDate, endDate)))
         );
         // Generate missing assumptions
         final LocalDate today = LocalDate.now();
@@ -196,7 +194,7 @@ public class Assumptions {
                             final EventiCadenza cadenza = r.get(Tables.EVENTI.CADENZA);
                             final UByte week = r.get(Tables.EVENTI.GIORNI_SETTIMANA);
 
-                            final java.sql.Date endIntervalDate = r.get(Tables.EVENTI.DATA_FINE_INTERVALLO);
+                            final LocalDate endIntervalDate = r.get(Tables.EVENTI.DATA_FINE_INTERVALLO);
                             final Integer endOccurrences = r.get(Tables.EVENTI.OCCORRENZE_FINE_INTERVALLO);
 
                             //noinspection DuplicatedCode
@@ -205,7 +203,7 @@ public class Assumptions {
                                     .withIdPortaMedicine(BigInteger.valueOf(r.get(Tables.EVENTI.ID_PORTA_MEDICINE)))
                                     .withAicFarmaco(r.get(codAicRow))
                                     .withNomeFarmaco(r.get(Tables.FARMACI.NOME))
-                                    .withData(r.get(Tables.EVENTI.DATA).toLocalDate())
+                                    .withData(r.get(Tables.EVENTI.DATA))
                                     .withFinito(r.get(Tables.EVENTI.FINITO) == 1)
                                     .withCadenza(cadenza == null ? null :
                                             new Cadenza()
@@ -218,7 +216,7 @@ public class Assumptions {
                                                             bitmaskToWeek(week.intValue()))
                                                     .withFine((endIntervalDate == null && endOccurrences == null) ? null :
                                                             new FineCadenza()
-                                                                    .withData(endIntervalDate != null ? endIntervalDate.toLocalDate() : null)
+                                                                    .withData(endIntervalDate)
                                                                     .withOccorenze(endOccurrences != null ? BigInteger.valueOf(endOccurrences) : null))
                                     );
                         }, Collectors.mapping(r -> r, Collectors.toSet())
@@ -227,19 +225,15 @@ public class Assumptions {
                 .stream()
                 .map(e -> e.getKey()
                         .withOrari(e.getValue().stream()
-                                .map(r -> r.get(Tables.ORARI.ORA).toLocalTime())
+                                .map(r -> r.get(Tables.ORARI.ORA))
                                 .collect(Collectors.toList()))
                         .withAssunzioni(e.getValue().stream()
                                 .filter(r -> r.get(Tables.ASSUNZIONI.DATA) != null)
-                                .map(r -> {
-                                    final Date assumptionRealDate = r.get(Tables.ASSUNZIONI.DATA_REALE);
-                                    final Time assumptionRealTime = r.get(Tables.ASSUNZIONI.ORA_REALE);
-                                    return new Assunzione()
-                                            .withData(r.get(Tables.ASSUNZIONI.DATA).toLocalDate())
-                                            .withOra(r.get(Tables.ORARI.ORA).toLocalTime())
-                                            .withDataReale(assumptionRealDate != null ? assumptionRealDate.toLocalDate() : null)
-                                            .withOraReale(assumptionRealTime != null ? assumptionRealTime.toLocalTime() : null);
-                                })
+                                .map(r -> new Assunzione()
+                                        .withData(r.get(Tables.ASSUNZIONI.DATA))
+                                        .withOra(r.get(Tables.ORARI.ORA))
+                                        .withDataReale(r.get(Tables.ASSUNZIONI.DATA_REALE))
+                                        .withOraReale(r.get(Tables.ASSUNZIONI.ORA_REALE)))
                                 .collect(Collectors.toList()))
                 )
                 .collect(Collectors.toList());

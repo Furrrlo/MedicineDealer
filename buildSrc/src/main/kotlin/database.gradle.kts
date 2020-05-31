@@ -52,6 +52,7 @@ jooq {
             generate {
                 indentation = "    "
                 newline = "\r\n"
+                isJavaTimeTypes = true
             }
             database {
                 name = "org.jooq.meta.mariadb.MariaDBDatabase"
