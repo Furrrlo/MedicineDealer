@@ -131,7 +131,7 @@
 
         function parseAssumptions(assumptions) {
             if(!assumptions) {
-                alert("NON CI SONO MEDICINE DA PRENDERE QUESTO MESE");
+                // alert("NON CI SONO MEDICINE DA PRENDERE QUESTO MESE");
                 return [];
             }
 
