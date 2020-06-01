@@ -140,19 +140,19 @@
 
             if(event.cadenza.settimanale) {
                 text += "di ";
-                if(event.cadenza.settimanale.lunedi)
+                if(event.cadenza.settimanale.lunedi === 'true')
                     text += "lunedì, ";
-                if(event.cadenza.settimanale.martedi)
+                if(event.cadenza.settimanale.martedi === 'true')
                     text += "martedì, ";
-                if(event.cadenza.settimanale.mercoledi)
+                if(event.cadenza.settimanale.mercoledi === 'true')
                     text += "mercoledì, ";
-                if(event.cadenza.settimanale.giovedi)
+                if(event.cadenza.settimanale.giovedi === 'true')
                     text += "giovedì, ";
-                if(event.cadenza.settimanale.venerdi)
+                if(event.cadenza.settimanale.venerdi === 'true')
                     text += "venerdi, ";
-                if(event.cadenza.settimanale.sabato)
+                if(event.cadenza.settimanale.sabato === 'true')
                     text += "sabato, ";
-                if(event.cadenza.settimanale.domenica)
+                if(event.cadenza.settimanale.domenica === 'true')
                     text += "domenica, ";
                 text = text.substring(0, text.length - 2) + " ";
             }
