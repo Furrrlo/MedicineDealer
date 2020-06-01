@@ -73,8 +73,6 @@
 
                 event.id = assumption.id_evento;
                 return event;
-            }).catch(ex => {
-                console.error(ex);
             });
 
             dateSpan.textContent = assumption.moment.format('LLLL');
@@ -87,9 +85,10 @@
             else
                 realDateSpan.textContent = "";
 
+            editButton.disabled = currentEvent.finito === 'true';
+            deleteButton.disabled = currentEvent.finito === 'true';
+
             loaderWrapper.classList.remove('is-active');
-            editButton.disabled = false;
-            deleteButton.disabled = false;
         };
 
         AssumptionClickModal.close = () => {
