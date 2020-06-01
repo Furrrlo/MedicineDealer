@@ -4,7 +4,7 @@
     <div class="modal-background"></div>
     <div class="modal-card">
         <header class="modal-card-head">
-            <p class="modal-card-title" id="modal_title"></p>
+            <p class="modal-card-title"></p>
             <button class="delete" aria-label="close"></button>
         </header>
         <section class="modal-card-body">
@@ -12,7 +12,6 @@
                 <div class="loader is-loading"></div>
             </div>
             <div class="content">
-                <h2 class="assumption-title">Abacavir e lamivudin</h2>
                 <p>
                     <span class="assumption-date">mercoledì 3 giugno 2020 10:00</span><br>
                     <span class="assumption-cadence">Ogni settimana il lunedì, martedì alle 10:00, 11:00 e 12:00</span>
@@ -34,7 +33,7 @@
 
         const loaderWrapper = modal.querySelector('.loader-wrapper');
 
-        const title = modal.querySelector(".assumption-title");
+        const title = modal.querySelector(".modal-card-title");
         const dateSpan = modal.querySelector(".assumption-date");
         const cadenceSpan = modal.querySelector(".assumption-cadence");
         const realDateSpan = modal.querySelector(".real-assumption-date");
