@@ -1,69 +1,73 @@
 <%@ page contentType="text/html;charset=UTF-8" %>
 
-<form method="post" action="${pageContext.request.contextPath}/api/eventi" >
+<div class="field">
+
+    <input id="form-mode-input" type="hidden">
+    <input id="event-id-input" type="hidden">
+    <input id="device-id-input" type="hidden">
+
+    <%@ include file="medicine_field.jsp" %>
+    <%@ include file="date_field.jsp" %>
+    <%@ include file="hours_field.jsp" %>
+    <%@ include file="repeat_field.jsp" %>
+
     <div class="field">
-        <h1 class="SUBTITLE">AGGIUNGI UNA NUOVA MEDICINA AL CALENDARIO</h1>
-
-        <%@ include file="medicine_field.jsp" %>
-        <%@ include file="date_field.jsp" %>
-        <%@ include file="hours_field.jsp" %>
-        <%@ include file="repeat_field.jsp" %>
-
-        <div class="field">
-            <p class="help has-text-centered is-danger form-err"></p>
-            <br>
-            <div class="field is-grouped is-grouped-centered">
-                <br>
-                <p class="control">
-                    <input type="submit" class="button is-rounded is-fullwidth" value="AGGIUNGI FARMACO"/>
-                </p>
-                <p class="control">
-                    <button class="cancel-btn button is-rounded is-fullwidth">ANNULLA</button>
-                </p>
-            </div>
-        </div>
+        <p class="help has-text-centered is-danger form-err"></p>
     </div>
-</form>
+</div>
 
 <script>
     window.addEventListener('load', function() {
 
-        const urlParams = new URLSearchParams(window.location.search);
-        const idPortaMedicine = urlParams.get("id_porta_medicine");
-
         document.querySelector('form').customSubmit = (event) => {
             const form = event.target;
-            const bodyObj = {
-                "id_porta_medicine": idPortaMedicine,
-                // TODO: slot-input
-                "aic_farmaco": document.getElementById("aic-input").aic_value,
-                "data": document.getElementById("start-date-input").value
-            };
-            const cadenza = getCadenza();
-            if(cadenza)
-                bodyObj.cadenza = cadenza;
-            bodyObj.orari = getHours();
+            const isEditing = document.getElementById('form-mode-input').value === 'edit';
 
-            return fetch(form.action, {
-                method: form.method,
+            const bodyObj = {};
+            if(!isEditing)
+                bodyObj.id_porta_medicine = document.getElementById('device-id-input').value;
+            // TODO: slot-input
+            bodyObj.aic_farmaco = document.getElementById("aic-input").aic_value;
+            bodyObj.data = document.getElementById("start-date-input").value;
+            addCadenza(bodyObj, isEditing);
+            bodyObj.orari = { ora: getHours() };
+
+            console.log(bodyObj);
+            console.log(JXON.jsToString(isEditing ?
+                { "modifica_evento": bodyObj } :
+                { "nuovo_evento": bodyObj }));
+
+            const path = form.action + (isEditing ?
+                '/' + document.getElementById('event-id-input').value :
+                '');
+            return fetch(path, {
+                method: isEditing ? 'put' : 'post',
                 headers: {
                     'Content-Type': 'application/xml'
                 },
-                body: JXON.jsToString({ "nuovo_evento": bodyObj })
+                body: JXON.jsToString(isEditing ?
+                    { "modifica_evento": bodyObj } :
+                    { "nuovo_evento": bodyObj })
             }).then(async response => {
                 if(!response.ok)
                     throw response.status + ": " + (await response.text());
-                location.href = "${pageContext.request.contextPath}/home";
+
+                MedicineModal.close();
+                Calendar.reloadEvents();
+
             }).catch(ex => {
                 form.setCustomError("Errore del server");
                 console.error(ex);
             });
         };
 
-        function getCadenza() {
+        function addCadenza(bodyObj, isEditing) {
 
-            if(!document.getElementById('repeat-checkbox').checked)
+            if(!document.getElementById('repeat-checkbox').checked) {
+                if(isEditing)
+                    bodyObj.elimina_cadenza = '';
                 return null;
+            }
 
             let cadenza = {
                 "intervallo": document.getElementById('interval-input').value
@@ -93,22 +97,19 @@
                 cadenza.fine = {
                     "occorenze": document.getElementById('num-ass-input').value
                 };
+            } else if(isEditing) {
+                cadenza.elimina_fine = '';
             }
 
-            return cadenza;
+            bodyObj.cadenza = cadenza;
         }
 
         function getHours() {
             const hours = [];
             document.querySelectorAll('.hours-container input.hour-input').forEach(input => {
-                hours.push({ "ora": input.value + ':00' }); /// Add :00 so XML accepts it as valid
+                hours.push(input.value + ':00'); /// Add :00 so XML accepts it as valid
             });
             return hours;
         }
-
-        document.querySelector('.cancel-btn').addEventListener('click', () => {
-            location.href = "${pageContext.request.contextPath}/home";
-        });
-
     });
 </script>

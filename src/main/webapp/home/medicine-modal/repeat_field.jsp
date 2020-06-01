@@ -19,8 +19,15 @@
         const repeatCheckbox = document.getElementById('repeat-checkbox');
         const repeatContainer = document.querySelector('.repeat-container');
 
+        repeatCheckbox.forceChange = () => {
+            if(repeatCheckbox.checked)
+                repeatContainer.classList.remove('is-hidden');
+            else
+                repeatContainer.classList.add('is-hidden');
+        };
+
         repeatCheckbox.addEventListener('change', () => {
-            repeatContainer.classList.toggle('is-hidden');
+            repeatCheckbox.forceChange();
         });
     });
 </script>

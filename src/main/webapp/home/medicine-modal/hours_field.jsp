@@ -24,34 +24,46 @@
 </div>
 
 <script>
-    window.addEventListener('load', function() {
+    const HoursController = (() => {
 
         const templateClass = 'hours-template';
         const templateNode = document.querySelector('.' + templateClass);
         const container = document.querySelector('.hours-container');
         const addButton = document.querySelector('.hours-add-btn');
 
-        const addHourField = (() => {
-            let size = 0;
-            return () => {
-                const newNode = templateNode.cloneNode(true);
-                newNode.classList.remove(templateClass);
+        function HoursController() {}
 
-                container.appendChild(newNode);
-                size++;
-                Validator.rescan();
+        let size = 0;
+        HoursController.addField = () => {
+            const newNode = templateNode.cloneNode(true);
+            newNode.classList.remove(templateClass);
 
-                newNode.querySelector('.hours-remove-button').addEventListener('click', () => {
-                    if(size <= 1)
-                        return;
+            container.appendChild(newNode);
+            size++;
+            Validator.rescan();
 
-                    container.removeChild(newNode);
-                    size--;
-                });
-            };
-        })();
+            newNode.querySelector('.hours-remove-button').addEventListener('click', () => {
+                if(size <= 1)
+                    return;
 
-        addButton.addEventListener('click', addHourField);
-        addHourField();
+                container.removeChild(newNode);
+                size--;
+            });
+
+            return newNode;
+        };
+
+        HoursController.clean = () => {
+            while(container.firstChild)
+                container.removeChild(container.firstChild);
+        };
+
+        addButton.addEventListener('click', () => HoursController.addField());
+
+        return HoursController;
+    })();
+
+    window.addEventListener('load', function() {
+        HoursController.addField();
     });
 </script>

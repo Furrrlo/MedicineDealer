@@ -12,10 +12,12 @@
     window.addEventListener('load', function() {
         // Check that the start date is not before today
         document.getElementById('start-date-input').addCustomValidator(input => {
+            const isAdding = document.getElementById('form-mode-input').value === 'add';
+
             let start = new Date(input.value);
             let today = new Date();
 
-            if(start.getTime() <= today.getTime())
+            if(isAdding && start.getTime() <= today.getTime())
                 return "L'inizio non può essere prima di oggi";
             return true;
         });

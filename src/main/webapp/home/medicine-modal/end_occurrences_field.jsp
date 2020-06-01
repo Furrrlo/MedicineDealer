@@ -29,9 +29,12 @@
         const numAssInput = document.getElementById('num-ass-input');
         const numAssRadio = document.getElementById('num-ass-radio');
 
+        numAssRadio.forceChange = () => {
+            numAssInput.disabled = !numAssRadio.checked;
+        };
         document.querySelectorAll('input[type="radio"][name="end"]').forEach(radio =>
             radio.addEventListener('click', () => {
-                numAssInput.disabled = !numAssRadio.checked;
+                numAssRadio.forceChange();
 
                 if(numAssInput.disabled)
                     numAssInput.resetCustomError();

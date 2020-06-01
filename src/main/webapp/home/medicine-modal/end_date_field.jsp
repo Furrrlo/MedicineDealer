@@ -28,9 +28,12 @@
         const endDateRadio = document.getElementById('end-date-radio');
 
         // Enable the input only when the radio is checked
+        endDateRadio.forceChange = () => {
+            endDateInput.disabled = !endDateRadio.checked;
+        };
         document.querySelectorAll('input[type="radio"][name="end"]').forEach(radio =>
             radio.addEventListener('click', () => {
-                endDateInput.disabled = !endDateRadio.checked;
+                endDateRadio.forceChange();
 
                 if(endDateInput.disabled)
                     endDateInput.resetCustomError();

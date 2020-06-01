@@ -10,6 +10,7 @@
     <link rel="stylesheet" href="${pageContext.request.contextPath}/css/styles.css">
     <script defer src="${pageContext.request.contextPath}/node_modules/@fortawesome/fontawesome-free/js/all.min.js"></script>
 
+    <script defer src="${pageContext.request.contextPath}/js/validate.js"></script>
     <script defer src="${pageContext.request.contextPath}/node_modules/jxon/jxon.min.js"></script>
     <script defer src="${pageContext.request.contextPath}/node_modules/moment/min/moment-with-locales.min.js"></script>
 
@@ -33,6 +34,7 @@
 <%@ include file="/login_modal.jsp"%>
 <%@ include file="day_click_modal.jsp"%>
 <%@ include file="assumption-click-modal.jsp"%>
+<%@ include file="medicine-modal/medicine-modal.jsp"%>
 
 <section class="section columns is-fullheight">
     <%@ include file="calendar.jsp"%>
@@ -94,8 +96,7 @@
 
         const addMedicineBtn = document.getElementById('add-medicine-btn');
         addMedicineBtn.addEventListener('click', () => {
-            const id = portaMedicineSelect.options[portaMedicineSelect.selectedIndex].value;
-            location.href = "${pageContext.request.contextPath}/aggiungiFarmaco?id_porta_medicine=" + id;
+            MedicineModal.open();
         });
 
         const removeMedicineBtn = document.getElementById('remove-medicine-btn');

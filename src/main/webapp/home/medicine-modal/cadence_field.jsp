@@ -29,11 +29,13 @@
         const cadenceSelect = document.getElementById('period-select');
         const weekDaysContainer = document.querySelector('.week-days-container');
 
-        cadenceSelect.addEventListener('change', () => {
+        cadenceSelect.forceChange = () => {
             if(cadenceSelect.value === 'Settimanale')
                 weekDaysContainer.classList.remove('is-hidden');
             else
                 weekDaysContainer.classList.add('is-hidden');
-        });
+        };
+
+        cadenceSelect.addEventListener('change', () => cadenceSelect.forceChange());
     });
 </script>

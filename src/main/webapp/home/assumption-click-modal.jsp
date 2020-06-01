@@ -20,7 +20,10 @@
                 <p class="real-assumption-date">Assunzione non avvenuta</p>
             </div>
         </section>
-        <footer class="modal-card-foot"></footer>
+        <footer class="modal-card-foot">
+            <button class="edit-btn button is-rounded">MODIFICA</button>
+            <button class="delete-btn button is-danger is-rounded">ELIMINA</button>
+        </footer>
     </div>
 </div>
 
@@ -36,10 +39,18 @@
         const cadenceSpan = modal.querySelector(".assumption-cadence");
         const realDateSpan = modal.querySelector(".real-assumption-date");
 
+        const editButton = modal.querySelector('.edit-btn');
+        const deleteButton = modal.querySelector('.delete-btn');
+
+        let currentEvent;
+
         function AssumptionClickModal() {}
 
         AssumptionClickModal.open = async assumption => {
             loaderWrapper.classList.add('is-active');
+            editButton.disabled = true;
+            deleteButton.disabled = true;
+            currentEvent = null;
 
             title.textContent = assumption.nome_farmaco;
             modal.classList.add('is-active');
@@ -48,7 +59,7 @@
             await new Promise(r => setTimeout(r, 500));
 
             const path = '${pageContext.request.contextPath}/api/eventi/' + assumption.id_evento;
-            const event = await fetch(path).then(async response =>{
+            currentEvent = await fetch(path).then(async response =>{
                 if(!response.ok)
                     throw response.status + ":" + (await response.text());
                 return JXON.stringToJs(await response.text());
@@ -66,7 +77,7 @@
             });
 
             dateSpan.textContent = assumption.moment.format('LLLL');
-            cadenceSpan.textContent = makeCadenceText(event);
+            cadenceSpan.textContent = makeCadenceText(currentEvent);
 
             if(assumption.realMoment)
                 realDateSpan.textContent = "Assunzione avvenuta il " + assumption.realMoment.format('LLLL');
@@ -76,6 +87,8 @@
                 realDateSpan.textContent = "";
 
             loaderWrapper.classList.remove('is-active');
+            editButton.disabled = false;
+            deleteButton.disabled = false;
         };
 
         AssumptionClickModal.close = () => {
@@ -91,6 +104,19 @@
         window.addEventListener('click', (event) => {
             if(event.target.classList.contains('modal-background'))
                 AssumptionClickModal.close();
+        });
+
+        editButton.addEventListener('click', () => {
+            if(!currentEvent)
+                return;
+            AssumptionClickModal.close();
+            MedicineModal.open(currentEvent);
+        });
+
+        deleteButton.addEventListener('click', () => {
+            if(!currentEvent)
+                return;
+            // TODO: delete event
         });
 
         function makeCadenceText(event) {

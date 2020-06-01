@@ -94,6 +94,10 @@ let Validator = ((exports) => {
                 });
             });
 
+            form.resetCustomErrors = () => {
+                form.setCustomError('');
+                moddedInputs.forEach(input => input.resetCustomError());
+            };
             form.customValidation = async event => {
                 try {
                     // Disable all submit buttons
@@ -103,13 +107,10 @@ let Validator = ((exports) => {
                         btn.disabled = true;
                     });
                     // Reset errors
-                    form.setCustomError('');
+                    form.resetCustomErrors();
                     // Fire listeners
                     let stopped = false;
                     moddedInputs.forEach(input => {
-                        // Reset errors
-                        input.resetCustomError();
-
                         const isVisible = input.offsetParent || input.offsetWidth || input.offsetHeight;
                         if(!isVisible || input.disabled)
                             return;
