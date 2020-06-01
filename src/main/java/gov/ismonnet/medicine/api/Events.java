@@ -180,7 +180,7 @@ public class Events {
             }
 
             // Delete the old one
-            deleteEvents(Tables.EVENTI.ID.eq(oldEventId));
+            deleteEvents(ctx, Tables.EVENTI.ID.eq(oldEventId));
             // Insert a new record with the edits
             record.changed(true);
             record.changed(Tables.EVENTI.ID, false); // Do not insert the old ID
@@ -198,7 +198,7 @@ public class Events {
                 final ImmutableEvent oldEvent = fetchEvents(ctx, Tables.EVENTI.ID.eq(oldEventId)).get(0);
                 oldEvent.getOrari().forEach(hour -> insertHours.values(newEventId, hour));
             } else { // Put in the new ones
-                eventEdit.getOrari().forEach(hour -> insertHours.values(oldEventId, hour));
+                eventEdit.getOrari().forEach(hour -> insertHours.values(newEventId, hour));
             }
             insertHours.execute();
         });
@@ -220,6 +220,10 @@ public class Events {
     }
 
     private void deleteEvents(Condition condition) {
+        deleteEvents(ctx, condition);
+    }
+
+    private void deleteEvents(DSLContext ctx, Condition condition) {
         final List<ImmutableEvent> events = fetchEvents(ctx, condition);
         // Set the old record as finished
         ctx.update(Tables.EVENTI)
