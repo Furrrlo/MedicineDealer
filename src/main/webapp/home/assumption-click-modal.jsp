@@ -70,6 +70,8 @@
                     event.orari = [ event.orari.ora ];
                 else
                     event.orari = event.orari.ora;
+
+                event.id = assumption.id_evento;
                 return event;
             }).catch(ex => {
                 console.error(ex);
@@ -112,10 +114,20 @@
             MedicineModal.open(currentEvent);
         });
 
-        deleteButton.addEventListener('click', () => {
+        deleteButton.addEventListener('click', async () => {
             if(!currentEvent)
                 return;
-            // TODO: delete event
+            try {
+                deleteButton.classList.add('is-loading');
+
+                const path = '${pageContext.request.contextPath}/api/eventi/' + currentEvent.id;
+                await fetch(path, { method: 'delete' });
+
+                AssumptionClickModal.close();
+                Calendar.reloadEvents();
+            } finally {
+                deleteButton.classList.remove('is-loading');
+            }
         });
 
         function makeCadenceText(event) {
