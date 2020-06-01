@@ -31,7 +31,7 @@
             const bodyObj = {
                 "id_porta_medicine": idPortaMedicine,
                 // TODO: slot-input
-                "aic_farmaco": document.getElementById("aic-input").value,
+                "aic_farmaco": document.getElementById("aic-input").aic_value,
                 "data": document.getElementById("start-date-input").value,
                 "orari": getHours()
             };
