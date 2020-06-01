@@ -86,7 +86,7 @@ public class AifaMedicineService implements MedicineService {
     }
 
     private List<Medicina> jsonToMedicines(JSONArray medicines) {
-        return StreamSupport.stream(medicines.spliterator(), false)
+        return new ArrayList<>(StreamSupport.stream(medicines.spliterator(), false)
                 .filter(o -> o instanceof JSONObject)
                 .map(JSONObject.class::cast)
                 .filter(o -> o.getJSONArray("sm_field_codice_farmaco") != null)
@@ -97,8 +97,8 @@ public class AifaMedicineService implements MedicineService {
                         o.getJSONArray("sm_field_descrizione_farmaco").getString(0),
                         o.getJSONArray("sm_field_codice_farmaco").getString(0)
                 ))
-                .distinct()
-                .collect(Collectors.toList());
+                .collect(Collectors.toMap(Medicina::getName, p -> p, (p, q) -> p))
+                .values());
     }
 
     public static JSONObject select(final AifaQuery query,
