@@ -9,13 +9,18 @@
         <%@ include file="hours_field.jsp" %>
         <%@ include file="repeat_field.jsp" %>
 
-        <div class="field is-grouped is-grouped-centered">
-            <p class="control">
-                <input type="submit" class="button is-rounded is-fullwidth" value="AGGIUNGI FARMACO"/>
-            </p>
-            <p class="control">
-                <button class="cancel-btn button is-rounded is-fullwidth">ANNULLA</button>
-            </p>
+        <div class="field">
+            <p class="help has-text-centered is-danger form-err"></p>
+            <br>
+            <div class="field is-grouped is-grouped-centered">
+                <br>
+                <p class="control">
+                    <input type="submit" class="button is-rounded is-fullwidth" value="AGGIUNGI FARMACO"/>
+                </p>
+                <p class="control">
+                    <button class="cancel-btn button is-rounded is-fullwidth">ANNULLA</button>
+                </p>
+            </div>
         </div>
     </div>
 </form>
@@ -32,12 +37,12 @@
                 "id_porta_medicine": idPortaMedicine,
                 // TODO: slot-input
                 "aic_farmaco": document.getElementById("aic-input").aic_value,
-                "data": document.getElementById("start-date-input").value,
-                "orari": getHours()
+                "data": document.getElementById("start-date-input").value
             };
             const cadenza = getCadenza();
             if(cadenza)
                 bodyObj.cadenza = cadenza;
+            bodyObj.orari = getHours();
 
             return fetch(form.action, {
                 method: form.method,
@@ -96,7 +101,7 @@
         function getHours() {
             const hours = [];
             document.querySelectorAll('.hours-container input.hour-input').forEach(input => {
-                hours.push({ "ora": input.value });
+                hours.push({ "ora": input.value + ':00' }); /// Add :00 so XML accepts it as valid
             });
             return hours;
         }
