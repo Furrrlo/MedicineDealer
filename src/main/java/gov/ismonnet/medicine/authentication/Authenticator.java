@@ -10,17 +10,18 @@ import javax.ws.rs.*;
 import javax.ws.rs.container.ContainerRequestContext;
 import javax.ws.rs.container.ContainerRequestFilter;
 import javax.ws.rs.container.ResourceInfo;
-import javax.ws.rs.core.*;
+import javax.ws.rs.core.Context;
+import javax.ws.rs.core.Cookie;
+import javax.ws.rs.core.HttpHeaders;
+import javax.ws.rs.core.SecurityContext;
 import javax.ws.rs.ext.Provider;
 import java.lang.reflect.Parameter;
 import java.security.Principal;
-import java.util.Arrays;
-import java.util.Map;
-import java.util.Objects;
-import java.util.Optional;
+import java.util.*;
 import java.util.function.Function;
 import java.util.function.IntSupplier;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 public class Authenticator {
 
@@ -98,27 +99,31 @@ public class Authenticator {
                             param -> param
                     ));
 
-            requestContext.getUriInfo().getQueryParameters().forEach((k, v) -> {
+            Stream.concat(
+                    requestContext.getUriInfo().getQueryParameters().entrySet().stream(),
+                    requestContext.getUriInfo().getPathParameters().entrySet().stream()
+            ).forEach(e -> {
+                final String k = e.getKey();
+                final List<String> v = e.getValue();
+
                 final Parameter param = paramToAnnotations.get(k);
                 if(param == null)
                     return;
 
-                Arrays.stream(param.getAnnotations()).forEach(annotation -> {
-                    final boolean isInteger = param.getType().equals(Integer.TYPE) || param.getType().equals(Integer.class);
-                    if(annotation instanceof AuthorizedDevice && isInteger) {
-                        try {
-                            checkAuthorizedForDevice(userId.getAsInt(), Integer.parseInt(v.get(0)));
-                        } catch (NumberFormatException | IndexOutOfBoundsException ex) {
-                            throw new BadRequestException("Invalid porta_medicine id");
-                        }
-                    } else if(annotation instanceof AuthorizedEvent && isInteger) {
-                        try {
-                            checkAuthorizedForEvent(userId.getAsInt(), Integer.parseInt(v.get(0)));
-                        } catch (NumberFormatException | IndexOutOfBoundsException ex) {
-                            throw new BadRequestException("Invalid event id");
-                        }
+                final boolean isInteger = param.getType().equals(Integer.TYPE) || param.getType().equals(Integer.class);
+                if(param.getAnnotation(AuthorizedDevice.class) != null && isInteger) {
+                    try {
+                        checkAuthorizedForDevice(userId.getAsInt(), Integer.parseInt(v.get(0)));
+                    } catch (NumberFormatException | IndexOutOfBoundsException ex) {
+                        throw new BadRequestException("Invalid porta_medicine id");
                     }
-                });
+                } else if(param.getAnnotation(AuthorizedEvent.class) != null && isInteger) {
+                    try {
+                        checkAuthorizedForEvent(userId.getAsInt(), Integer.parseInt(v.get(0)));
+                    } catch (NumberFormatException | IndexOutOfBoundsException ex) {
+                        throw new BadRequestException("Invalid event id");
+                    }
+                }
             });
         }
     }

@@ -207,7 +207,7 @@ public class Events {
     @DELETE
     @Path("{id_evento}")
     public void deleteById(@Authenticated int userId,
-                           @AuthorizedEvent @QueryParam(value = "id_evento") int eventId) {
+                           @AuthorizedEvent @PathParam(value = "id_evento") int eventId) {
         deleteEvents(Tables.EVENTI.ID.eq(eventId));
     }
 
