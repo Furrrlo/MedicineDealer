@@ -20,8 +20,24 @@
 <section class="section columns is-fullheight">
     <div class="column">
         <div class="field">
-            <h1 class="title">COME FUNZIONA MEDICINE DEALER</h1>
-            <p class="paragraph"></p>
+            <h1 class="title is-2">COME FUNZIONA MEDICINE DEALER</h1>
+            <p class="paragraph is-size-4">
+                Medicine dealer è un software pensato per aiutare i nostri clienti, in particolare anziani a ricordarsi di assumere le medicine prescritte dal medico.
+            </p>
+            <p class="paragraph is-size-4">
+                Il funzionamento di questo software è basato su un porta medicine, che conterrà le medicine che si dovranno assumere e un sito web per la sua gestione.
+            </p>
+            <h1 class="title is-2">Il sito web</h1>
+            <p class="paragraph is-size-4">
+                Il sito comprende la registrazione dell’utente, successivamente si potrà associare a più porta medicine per la loro gestione.
+                Sarà presente un calendario con l’elenco delle medicine per ogni giorno, per cambiare il porta medicine da controllare basterà scegliere quello desiderato dalla listbox.
+                Si potranno aggiungere nuovi farmaci, rimuoverli completamente o solo per il giorno selezionato.
+            </p>
+            <h1 class="title is-2">Il porta medicine</h1>
+            <p class="paragraph is-size-4">
+                Il porta medicine sarà composto da n-slot, in ognuno di questi sarà presente un farmaco associato grazie alle funzioni offerte dal sito.
+                Ogni slot avrà una luce che si accenderà quando la medicina al suo interno andrà assunta, mentre un dispositivo acustico emetterà un suono che ricorderà l’assunzione.
+            </p>
         </div>
     </div>
 
