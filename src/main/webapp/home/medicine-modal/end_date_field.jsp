@@ -50,6 +50,9 @@
         });
         // Check that the end date is not before the start date
         [startDateInput, endDateInput].forEach(input => input.addCustomValidator(() => {
+            if(endDateInput.disabled)
+                return true;
+
             let start = new Date(startDateInput.value);
             let end = new Date(endDateInput.value);
 
