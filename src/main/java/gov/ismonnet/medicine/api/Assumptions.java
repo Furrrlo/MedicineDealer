@@ -114,9 +114,6 @@ public class Assumptions {
             // If it already happened and it's all done, no need to generate anything
             if(event.isFinito())
                 return;
-            // Already sorted out in the query
-            if(event.getCadenza() == null)
-                return;
 
             final Map<Map.Entry<LocalDate, LocalTime>, Assunzione> assumptions = new HashMap<>();
             // Populate already existing ones
